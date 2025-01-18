@@ -1,5 +1,7 @@
 const Payment = require("../models/Payment");
 const PaymentType = require("../models/PaymentType");
+const https = require("https");
+const http = require("http");
 
 /**
  * Create a new payment (Student only)
@@ -232,10 +234,70 @@ const getPaymentTypes = async (req, res) => {
     }
 };
 
+/**
+ * Proxy endpoint to stream a payment receipt from Cloudinary
+ * GET /api/payments/:id/receipt
+ * Fetches the file from the stored Cloudinary URL and pipes it to the response
+ */
+const getPaymentReceipt = async (req, res) => {
+    try {
+        const payment = await Payment.findById(req.params.id);
+
+        if (!payment) {
+            return res.status(404).json({ success: false, message: "Payment not found." });
+        }
+
+        if (!payment.receipt) {
+            return res.status(404).json({ success: false, message: "No receipt found for this payment." });
+        }
+
+        const receiptUrl = payment.receipt;
+        const protocol = receiptUrl.startsWith("https") ? https : http;
+
+        protocol.get(receiptUrl, (fileResponse) => {
+            // Handle Cloudinary redirects
+            if (fileResponse.statusCode >= 300 && fileResponse.statusCode < 400 && fileResponse.headers.location) {
+                const redirectProtocol = fileResponse.headers.location.startsWith("https") ? https : http;
+                redirectProtocol.get(fileResponse.headers.location, (redirectedResponse) => {
+                    res.setHeader("Content-Type", redirectedResponse.headers["content-type"] || "application/pdf");
+                    if (redirectedResponse.headers["content-length"]) {
+                        res.setHeader("Content-Length", redirectedResponse.headers["content-length"]);
+                    }
+                    redirectedResponse.pipe(res);
+                }).on("error", (err) => {
+                    console.error("Redirect stream error:", err);
+                    res.status(500).json({ success: false, message: "Failed to stream receipt." });
+                });
+                return;
+            }
+
+            if (fileResponse.statusCode !== 200) {
+                return res.status(502).json({ success: false, message: "Failed to fetch receipt from storage." });
+            }
+
+            res.setHeader("Content-Type", fileResponse.headers["content-type"] || "application/pdf");
+            if (fileResponse.headers["content-length"]) {
+                res.setHeader("Content-Length", fileResponse.headers["content-length"]);
+            }
+            fileResponse.pipe(res);
+        }).on("error", (err) => {
+            console.error("getPaymentReceipt stream error:", err);
+            res.status(500).json({ success: false, message: "Failed to stream receipt." });
+        });
+    } catch (error) {
+        console.error("getPaymentReceipt error:", error);
+        if (error.kind === "ObjectId") {
+            return res.status(400).json({ success: false, message: "Invalid payment ID format." });
+        }
+        res.status(500).json({ success: false, message: "Server error while fetching receipt." });
+    }
+};
+
 module.exports = {
     createPayment,
     getPayments,
     getPaymentById,
     updatePaymentStatus,
     getPaymentTypes,
+    getPaymentReceipt,
 };

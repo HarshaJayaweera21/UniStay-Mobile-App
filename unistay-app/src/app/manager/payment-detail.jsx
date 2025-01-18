@@ -19,7 +19,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { getItem } from '@/utils/storage';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
-import { PAYMENTS_URL } from '@/constants/api';
+import { PAYMENTS_URL, API_URL } from '@/constants/api';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { WebView } from 'react-native-webview';
 
@@ -41,6 +41,7 @@ export default function PaymentDetail() {
     const [showRejectModal, setShowRejectModal] = useState(false);
     const [rejectNote, setRejectNote] = useState('');
     const [showFullPdf, setShowFullPdf] = useState(false);
+    const [authToken, setAuthToken] = useState('');
 
     // Custom Alert Modal state
     const [alertConfig, setAlertConfig] = useState({
@@ -63,6 +64,13 @@ export default function PaymentDetail() {
     useEffect(() => {
         if (id) fetchPaymentDetail();
     }, [id]);
+
+    useEffect(() => {
+        (async () => {
+            const token = await getItem('userToken');
+            if (token) setAuthToken(token);
+        })();
+    }, []);
 
     const fetchPaymentDetail = async () => {
         try {
@@ -170,6 +178,64 @@ export default function PaymentDetail() {
             Linking.openURL(url);
         }
     };
+
+    // Build the proxy URL for the receipt
+    const receiptProxyUrl = id ? `${API_URL}/api/payments/${id}/receipt` : '';
+
+    // PDF.js viewer HTML — fetches via backend proxy with auth header
+    const buildPdfViewerHtml = (bgColor = '#f5f5f5') => `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: ${bgColor}; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+    #loading { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: #666; font-family: -apple-system, sans-serif; }
+    #loading .spinner { width: 40px; height: 40px; border: 3px solid #e0e0e0; border-top-color: #4361ee; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loading p { margin-top: 16px; font-size: 14px; }
+    #error { display: none; text-align: center; padding: 40px 20px; color: #B71C1C; font-family: -apple-system, sans-serif; }
+    #error h3 { margin-bottom: 8px; }
+    canvas { max-width: 100%; display: block; margin: 8px auto; }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+  <div id="loading"><div class="spinner"></div><p>Loading receipt...</p></div>
+  <div id="error"><h3>Unable to load PDF</h3><p id="errorMsg"></p></div>
+  <div id="pages"></div>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    async function loadPdf() {
+      try {
+        const resp = await fetch('${receiptProxyUrl}', {
+          headers: { 'Authorization': 'Bearer ${authToken}' }
+        });
+        if (!resp.ok) throw new Error('Server returned ' + resp.status);
+        const buf = await resp.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+        document.getElementById('loading').style.display = 'none';
+        const container = document.getElementById('pages');
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const vp = page.getViewport({ scale: 2 });
+          const canvas = document.createElement('canvas');
+          canvas.width = vp.width;
+          canvas.height = vp.height;
+          container.appendChild(canvas);
+          await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+        }
+      } catch (e) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('errorMsg').textContent = e.message;
+      }
+    }
+    loadPdf();
+  </script>
+</body>
+</html>`;
 
     if (isLoading) {
         return (
@@ -283,17 +349,25 @@ export default function PaymentDetail() {
 
                 <View style={styles.receiptContainer}>
                     {isPdf(payment.receipt) ? (
-                        <WebView
-                            source={{ uri: `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(payment.receipt)}` }}
-                            style={{ flex: 1 }}
-                            startInLoadingState={true}
-                            renderLoading={() => (
-                                <View style={styles.pdfLoading}>
-                                    <ActivityIndicator size="large" color={Colors.primary} />
-                                    <Text style={styles.pdfLoadingText}>Loading document...</Text>
-                                </View>
-                            )}
-                        />
+                        authToken ? (
+                            <WebView
+                                originWhitelist={['*']}
+                                source={{ html: buildPdfViewerHtml(Colors.surfaceContainerHighest) }}
+                                style={{ flex: 1 }}
+                                javaScriptEnabled={true}
+                                startInLoadingState={true}
+                                renderLoading={() => (
+                                    <View style={styles.pdfLoading}>
+                                        <ActivityIndicator size="large" color={Colors.primary} />
+                                        <Text style={styles.pdfLoadingText}>Loading document...</Text>
+                                    </View>
+                                )}
+                            />
+                        ) : (
+                            <View style={styles.pdfLoading}>
+                                <ActivityIndicator size="large" color={Colors.primary} />
+                            </View>
+                        )
                     ) : (
                         <Image source={{ uri: payment.receipt }} style={styles.receiptImage} resizeMode="cover" />
                     )}
@@ -406,17 +480,25 @@ export default function PaymentDetail() {
                             <MaterialIcons name="open-in-new" size={22} color="#fff" />
                         </TouchableOpacity>
                     </View>
-                    <WebView
-                        source={{ uri: `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(payment.receipt)}` }}
-                        style={{ flex: 1 }}
-                        startInLoadingState={true}
-                        renderLoading={() => (
-                            <View style={styles.pdfLoading}>
-                                <ActivityIndicator size="large" color={Colors.primary} />
-                                <Text style={[styles.pdfLoadingText, { color: '#ccc' }]}>Loading document...</Text>
-                            </View>
-                        )}
-                    />
+                    {authToken ? (
+                        <WebView
+                            originWhitelist={['*']}
+                            source={{ html: buildPdfViewerHtml('#1a1a2e') }}
+                            style={{ flex: 1 }}
+                            javaScriptEnabled={true}
+                            startInLoadingState={true}
+                            renderLoading={() => (
+                                <View style={styles.pdfLoading}>
+                                    <ActivityIndicator size="large" color={Colors.primary} />
+                                    <Text style={[styles.pdfLoadingText, { color: '#ccc' }]}>Loading document...</Text>
+                                </View>
+                            )}
+                        />
+                    ) : (
+                        <View style={styles.pdfLoading}>
+                            <ActivityIndicator size="large" color={Colors.primary} />
+                        </View>
+                    )}
                 </SafeAreaView>
             </Modal>
 
