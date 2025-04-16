@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import {
     View, Text, StyleSheet, FlatList, TouchableOpacity,
-    ActivityIndicator, RefreshControl, SafeAreaView, ScrollView, Modal
+    ActivityIndicator, RefreshControl, SafeAreaView, ScrollView, Modal,
+    Platform, StatusBar
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { getItem } from '@/utils/storage';
@@ -244,7 +245,7 @@ export default function ManagerPayments() {
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.surface },
+    safeArea: { flex: 1, backgroundColor: Colors.surface, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
     centerContainer: { flex: 1, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center' },
     listContent: { paddingBottom: 100 },
     

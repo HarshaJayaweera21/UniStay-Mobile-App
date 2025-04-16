@@ -12,6 +12,8 @@ import {
     Linking,
     SafeAreaView,
     Modal,
+    Platform,
+    StatusBar,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { getItem } from '@/utils/storage';
@@ -388,7 +390,7 @@ export default function PaymentDetail() {
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.surface },
+    safeArea: { flex: 1, backgroundColor: Colors.surface, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
     centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     errorText: { fontFamily: Fonts.bodyMedium, fontSize: 16, color: Colors.onSurfaceVariant },
     

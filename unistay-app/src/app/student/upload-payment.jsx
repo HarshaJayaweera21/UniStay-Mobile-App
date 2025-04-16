@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, TouchableOpacity, TextInput,
-    ActivityIndicator, Image, ScrollView, Platform, SafeAreaView, Modal
+    ActivityIndicator, Image, ScrollView, Platform, SafeAreaView, Modal,
+    StatusBar
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { getItem } from '@/utils/storage';
@@ -283,7 +284,7 @@ export default function UploadPayment() {
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.surface },
+    safeArea: { flex: 1, backgroundColor: Colors.surface, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
     container: { flex: 1, backgroundColor: Colors.surface },
     
     topAppBar: {

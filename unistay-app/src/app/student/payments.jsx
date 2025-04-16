@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import {
     View, Text, StyleSheet, FlatList, TouchableOpacity,
-    ActivityIndicator, RefreshControl, SafeAreaView
+    ActivityIndicator, RefreshControl, SafeAreaView,
+    Platform, StatusBar
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { getItem } from '@/utils/storage';
@@ -178,7 +179,7 @@ export default function StudentPayments() {
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.surface },
+    safeArea: { flex: 1, backgroundColor: Colors.surface, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
     container: { flex: 1, backgroundColor: Colors.surface },
     center: { flex: 1, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center' },
     loadText: { fontFamily: Fonts.bodyMedium, fontSize: 16, color: Colors.onSurfaceVariant, marginTop: Spacing.three },
