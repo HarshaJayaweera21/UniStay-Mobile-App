@@ -1,0 +1,118 @@
+# =========================
+
+# Node.js / Express.js
+
+# =========================
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment variables
+
+.env
+.env.*
+!.env.example
+
+# Logs
+
+logs/
+*.log
+
+# Runtime data
+
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Build output
+
+dist/
+build/
+out/
+
+# Coverage
+
+coverage/
+
+# OS files
+
+.DS_Store
+Thumbs.db
+
+# =========================
+
+# React Native
+
+# =========================
+
+# React Native packager
+
+.expo/
+.expo-shared/
+metro-cache/
+*.bundle
+
+# Android
+
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+*.keystore
+*.jks
+
+# iOS
+
+ios/build/
+ios/Pods/
+ios/*.xcworkspace
+ios/*.xcuserdata
+ios/*.xcodeproj/project.xcworkspace/
+ios/*.xcodeproj/xcuserdata/
+
+# CocoaPods
+
+Podfile.lock
+
+# Debug
+
+*.hprof
+
+# =========================
+
+# Editor / IDE
+
+# =========================
+
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+
+# Misc
+
+# =========================
+
+*.tmp
+*.temp
+.cache/
+.eslintcache
+
+# =========================
+
+# Optional (uncomment if needed)
+
+# =========================
+
+# node_modules/ (already ignored above)
+
+# *.lock (if you don't want lockfiles)
