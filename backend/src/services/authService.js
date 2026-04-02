@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const Role = require("../models/Role")
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const registerUserService = async (data) => {
     const {
@@ -70,4 +71,48 @@ const registerUserService = async (data) => {
 
 }
 
-module.exports = {registerUserService};
+const loginUserService = async (data) => {
+    const {email, password} = data;
+
+    if (!email || !password) {
+        throw new Error("Email and Password are required");
+    }
+
+    const user = await User.findOne({email})
+        .select("+password")
+        .populate("role");
+    if (!user) {
+        throw new Error("Invalid email or password");
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if(!isMatch) {
+        throw new Error("Invalid Email or Password");
+    }
+
+    const token = jwt.sign(
+        {
+            id: user._id,
+            role: user.role.name
+        },
+        process.env.JWT_SECRET,
+        {
+            expiresIn: process.env.JWT_EXPIRES_IN
+        }
+    );
+
+    return {
+        success: true,
+        message: "Login Successful",
+        token,
+        user: {
+            id: user._id,
+            username: user.username,
+            email: user.email,
+            role: user.role.name
+        }
+    }
+}
+
+
+module.exports = {registerUserService, loginUserService};

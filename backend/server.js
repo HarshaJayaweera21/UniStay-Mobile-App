@@ -10,8 +10,8 @@ const app = express();
 const PORT = process.env.PORT;
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.use(cors()); // handles cross origin requests
+app.use(express.json()); // parses request body
 
 // DB connection
 connectDB();
