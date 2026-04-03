@@ -116,3 +116,6 @@ Podfile.lock
 # node_modules/ (already ignored above)
 
 # *.lock (if you don't want lockfiles)
+expo-env.d.js
+
+Design/
