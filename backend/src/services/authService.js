@@ -23,6 +23,12 @@ const registerUserService = async (data) => {
         throw new Error("Passwords doesn't match");
     }
 
+    // Check secure password constraints
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_.-])[A-Za-z\d@$!%*?&_.-]{8,}$/;
+    if (!passwordRegex.test(password)) {
+        throw new Error("Password must be at least 8 characters and include 1 uppercase, 1 lowercase, 1 number, and 1 special character");
+    }
+
     // check existing user
     const existingUser = await User.findOne({$or: [{email: email}, {username: username}]});
 
