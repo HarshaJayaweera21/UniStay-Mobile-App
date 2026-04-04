@@ -3,17 +3,16 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  TouchableWithoutFeedback,
   Keyboard
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import * as SecureStore from 'expo-secure-store';
+import storage from '@/utils/storage';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
@@ -39,6 +38,8 @@ export default function LoginScreen() {
     setIsLoading(true);
 
     try {
+      console.log('Attempting login to:', `${API_URL}/api/auth/login`);
+      
       const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
@@ -52,10 +53,10 @@ export default function LoginScreen() {
       if (!response.ok) {
         setErrorMessage(data.message || 'Invalid email or password');
       } else {
-        // Validation Passed -> Store token
+        // Validation Passed -> Store token securely
         if (data.token) {
-          await SecureStore.setItemAsync('userToken', data.token);
-          await SecureStore.setItemAsync('userRole', data.user.role || 'student');
+          await storage.setItem('userToken', data.token);
+          await storage.setItem('userRole', data.user.role || 'student');
         }
 
         const userRole = data.user.role || 'student';
@@ -67,8 +68,8 @@ export default function LoginScreen() {
         else router.replace('/student');
       }
     } catch (error) {
-      console.error('Login Error:', error);
-      setErrorMessage('Network error, please check your connection.');
+      console.error('Login Error details:', error);
+      setErrorMessage(`Network error: ${error.message || 'Please check your connection and ensure the server is reachable at ' + API_URL}`);
     } finally {
       setIsLoading(false);
     }
@@ -79,99 +80,100 @@ export default function LoginScreen() {
       style={{ flex: 1 }} 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.container}>
-          {/* Gentle Mesh Gradient Background */}
-          <LinearGradient
-            colors={['#dbe1ff', '#faf8ff']}
-            style={StyleSheet.absoluteFill}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          />
+      <View style={styles.container}>
+        {/* Mesh Background */}
+        <LinearGradient
+          colors={['#dbe1ff', '#faf8ff']}
+          style={StyleSheet.absoluteFill}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        />
 
-          <View style={styles.content}>
-            {/* Branding Anchor */}
-            <View style={styles.header}>
-              <Text style={styles.brandText}>UniStay</Text>
-              <Text style={styles.title}>Login</Text>
-              <Text style={styles.subtitle}>Welcome back! Please enter your details.</Text>
-            </View>
+        <View style={styles.content}>
+          {/* Header Section */}
+          <View style={styles.header}>
+            <Text style={styles.brandText}>UniStay</Text>
+            <Text style={styles.title}>Login</Text>
+            <Text style={styles.subtitle}>Welcome back! Please enter your details.</Text>
+          </View>
 
-            {/* Login Card */}
-            <View style={styles.card}>
-              {/* Email Input */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>EMAIL ADDRESS</Text>
-                <View style={styles.inputContainer}>
-                  <MaterialIcons name="mail-outline" size={20} color={Colors.outline} style={styles.inputIcon} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="name@university.edu"
-                    placeholderTextColor={Colors.outline}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    value={email}
-                    onChangeText={(text) => { setEmail(text); setErrorMessage(''); }}
-                  />
-                </View>
+          {/* Login Card */}
+          <View style={styles.card}>
+            {/* Email Input */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>EMAIL ADDRESS</Text>
+              <View style={styles.inputContainer}>
+                <MaterialIcons name="mail-outline" size={20} color={Colors.outline} style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="name@university.edu"
+                  placeholderTextColor={Colors.outline}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  value={email}
+                  onChangeText={(text) => { setEmail(text); setErrorMessage(''); }}
+                />
               </View>
+            </View>
 
-              {/* Password Input */}
-              <View style={styles.inputGroup}>
-                <View style={styles.passwordHeader}>
-                  <Text style={styles.label}>PASSWORD</Text>
-                  <TouchableOpacity>
-                    <Text style={styles.forgotPassword}>Forgot password?</Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.inputContainer}>
-                  <MaterialIcons name="lock-outline" size={20} color={Colors.outline} style={styles.inputIcon} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="••••••••"
-                    placeholderTextColor={Colors.outline}
-                    secureTextEntry={!showPassword}
-                    value={password}
-                    onChangeText={(text) => { setPassword(text); setErrorMessage(''); }}
-                  />
-                  <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.visibilityIcon}>
-                    <MaterialIcons name={showPassword ? "visibility-off" : "visibility"} size={20} color={Colors.outline} />
-                  </TouchableOpacity>
-                </View>
+            {/* Password Input */}
+            <View style={styles.inputGroup}>
+              <View style={styles.passwordHeader}>
+                <Text style={styles.label}>PASSWORD</Text>
+                <Pressable onPress={() => { /* Link to forgot password */ }}>
+                  <Text style={styles.forgotPassword}>Forgot password?</Text>
+                </Pressable>
               </View>
-
-              {/* Error Message */}
-              {errorMessage ? (
-                <Text style={styles.errorText}>{errorMessage}</Text>
-              ) : null}
-
-              {/* Sign In Button */}
-              <TouchableOpacity
-                style={styles.primaryButton}
-                activeOpacity={0.8}
-                onPress={handleLogin}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <ActivityIndicator color={Colors.onPrimary} />
-                ) : (
-                  <>
-                    <Text style={styles.primaryButtonText}>Sign In</Text>
-                    <MaterialIcons name="arrow-forward" size={20} color={Colors.onPrimary} />
-                  </>
-                )}
-              </TouchableOpacity>
+              <View style={styles.inputContainer}>
+                <MaterialIcons name="lock-outline" size={20} color={Colors.outline} style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="••••••••"
+                  placeholderTextColor={Colors.outline}
+                  secureTextEntry={!showPassword}
+                  value={password}
+                  onChangeText={(text) => { setPassword(text); setErrorMessage(''); }}
+                />
+                <Pressable onPress={() => setShowPassword(!showPassword)} style={styles.visibilityIcon}>
+                  <MaterialIcons name={showPassword ? "visibility-off" : "visibility"} size={20} color={Colors.outline} />
+                </Pressable>
+              </View>
             </View>
 
-            <View style={styles.footer}>
-              <Text style={styles.footerText}>Don't have an account? </Text>
-              <TouchableOpacity onPress={() => router.push('/register')}>
-                <Text style={styles.createAccountText}>Create an account</Text>
-              </TouchableOpacity>
-            </View>
+            {/* Error Message Display */}
+            {errorMessage ? (
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            ) : null}
+
+            {/* Sign In Button */}
+            <Pressable
+              style={({ pressed }) => [
+                styles.primaryButton,
+                pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }
+              ]}
+              onPress={handleLogin}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <ActivityIndicator color={Colors.onPrimary} />
+              ) : (
+                <>
+                  <Text style={styles.primaryButtonText}>Sign In</Text>
+                  <MaterialIcons name="arrow-forward" size={20} color={Colors.onPrimary} />
+                </>
+              )}
+            </Pressable>
+          </View>
+
+          {/* Footer Registration Link */}
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Don't have an account? </Text>
+            <Pressable onPress={() => router.push('/register')}>
+              <Text style={styles.createAccountText}>Create an account</Text>
+            </Pressable>
           </View>
         </View>
-      </TouchableWithoutFeedback>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -214,12 +216,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surfaceContainerLowest,
     borderRadius: Radius.xl,
     padding: Spacing.five,
-    // Add Shadow
-    shadowColor: '#191b23',
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.08,
-    shadowRadius: 32,
-    elevation: 8,
+    boxShadow: '0px 16px 32px rgba(25, 27, 35, 0.08)',
   },
   inputGroup: {
     marginBottom: Spacing.four,
@@ -278,12 +275,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.xl,
     paddingVertical: 18,
     marginTop: Spacing.two,
-    // Subtle shadow
-    shadowColor: Colors.primaryContainer,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 16,
-    elevation: 4,
+    boxShadow: `0px 8px 16px ${Colors.primaryContainer}40`,
   },
   primaryButtonText: {
     fontFamily: Fonts.headline,
