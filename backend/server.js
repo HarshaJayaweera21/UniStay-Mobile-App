@@ -40,4 +40,6 @@ cloudinary.api
   })
   .catch((error) => {
     console.error("❌ Cloudinary connection failed:", error);
-  });
+});
+
+
