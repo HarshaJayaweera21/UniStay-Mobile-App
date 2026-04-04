@@ -20,6 +20,10 @@ export default function GuardDashboard() {
                 <Text style={styles.title}>Guard Dashboard</Text>
                 <Text style={styles.subtitle}>Module under development</Text>
 
+                <TouchableOpacity onPress={() => router.push('/announcements/view')} style={[styles.button, styles.viewButton]}>
+                    <Text style={styles.buttonText}>View Announcements</Text>
+                </TouchableOpacity>
+
                 <TouchableOpacity onPress={handleLogout} style={styles.button}>
                     <Text style={styles.buttonText}>Log Out</Text>
                 </TouchableOpacity>
@@ -65,6 +69,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: Spacing.five,
         paddingVertical: Spacing.three,
         borderRadius: Radius.lg,
+        marginBottom: Spacing.three,
+        width: '100%',
+        alignItems: 'center',
+    },
+    viewButton: {
+        backgroundColor: Colors.primaryContainer,
     },
     buttonText: {
         fontFamily: Fonts.headline,
