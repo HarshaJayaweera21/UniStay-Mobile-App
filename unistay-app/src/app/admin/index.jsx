@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
+import storage from '@/utils/storage';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 
@@ -9,8 +9,8 @@ export default function AdminDashboard() {
     const router = useRouter();
 
     const handleLogout = async () => {
-        await SecureStore.deleteItemAsync('userToken');
-        await SecureStore.deleteItemAsync('userRole');
+        await storage.deleteItem('userToken');
+        await storage.deleteItem('userRole');
         router.replace('/login');
     };
 
@@ -20,9 +20,12 @@ export default function AdminDashboard() {
                 <Text style={styles.title}>Admin Dashboard</Text>
                 <Text style={styles.subtitle}>Module under development</Text>
                 
-                <TouchableOpacity onPress={handleLogout} style={styles.button}>
+                <Pressable 
+                    onPress={handleLogout} 
+                    style={({ pressed }) => [styles.button, pressed && { opacity: 0.7 }]}
+                >
                     <Text style={styles.buttonText}>Log Out</Text>
-                </TouchableOpacity>
+                </Pressable>
             </View>
         </View>
     );
@@ -42,11 +45,7 @@ const styles = StyleSheet.create({
         padding: Spacing.five,
         alignItems: 'center',
         width: '100%',
-        shadowColor: '#191b23',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.1,
-        shadowRadius: 16,
-        elevation: 6,
+        boxShadow: '0px 8px 16px rgba(25, 27, 35, 0.1)',
     },
     title: {
         fontFamily: Fonts.headlineExtraBold,
