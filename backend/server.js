@@ -7,6 +7,7 @@ const connectDB = require("./src/config/db");
 
 // Import routes
 const authRoutes = require("./src/routes/authRoutes");
+const complaintRoutes = require("./src/routes/complaintRoutes");
 
 const app = express();
 const PORT = process.env.PORT;
@@ -25,6 +26,7 @@ app.get("/", (req, res) => {
 
 // Mount routes
 app.use("/api/auth", authRoutes);
+app.use("/api/complaints", complaintRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port http://localhost:${PORT}`);
