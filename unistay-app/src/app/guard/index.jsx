@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
+import { deleteItem } from '@/utils/storage';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 
@@ -9,8 +9,8 @@ export default function GuardDashboard() {
     const router = useRouter();
 
     const handleLogout = async () => {
-        await SecureStore.deleteItemAsync('userToken');
-        await SecureStore.deleteItemAsync('userRole');
+        await deleteItem('userToken');
+        await deleteItem('userRole');
         router.replace('/login');
     };
 
@@ -19,7 +19,7 @@ export default function GuardDashboard() {
             <View style={styles.card}>
                 <Text style={styles.title}>Guard Dashboard</Text>
                 <Text style={styles.subtitle}>Module under development</Text>
-                
+
                 <TouchableOpacity onPress={handleLogout} style={styles.button}>
                     <Text style={styles.buttonText}>Log Out</Text>
                 </TouchableOpacity>
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     title: {
         fontFamily: Fonts.headlineExtraBold,
         fontSize: 24,
-        color: Colors.secondary, 
+        color: Colors.secondary,
         marginBottom: Spacing.two,
     },
     subtitle: {

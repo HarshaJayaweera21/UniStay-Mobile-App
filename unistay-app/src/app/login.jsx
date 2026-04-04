@@ -13,8 +13,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import * as SecureStore from 'expo-secure-store';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setItem, getItem } from '@/utils/storage';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
@@ -28,23 +27,6 @@ export default function LoginScreen() {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
-
-    // Helper functions for cross-platform storage
-    const saveItem = async (key, value) => {
-        if (Platform.OS === 'web') {
-            await AsyncStorage.setItem(key, value);
-        } else {
-            await SecureStore.setItemAsync(key, value);
-        }
-    };
-
-    const getItem = async (key) => {
-        if (Platform.OS === 'web') {
-            return await AsyncStorage.getItem(key);
-        } else {
-            return await SecureStore.getItemAsync(key);
-        }
-    };
 
     const handleLogin = async () => {
         setErrorMessage('');
@@ -72,8 +54,8 @@ export default function LoginScreen() {
             } else {
                 // Store token & role securely based on platform
                 if (data.token) {
-                    await saveItem('userToken', data.token);
-                    await saveItem('userRole', data.user.role || 'student');
+                    await setItem('userToken', data.token);
+                    await setItem('userRole', data.user.role || 'student');
                 }
 
                 const userRole = data.user.role || 'student';
