@@ -264,12 +264,8 @@ const styles = StyleSheet.create({
     borderRadius: Radius.lg,
     alignItems: 'center',
     justifyContent: 'center',
-    // Subtle shadow
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 24,
-    elevation: 8,
+    // Modern Box Shadow for Web/Native
+    boxShadow: `0px 8px 24px ${Colors.primary}40`,
   },
   primaryButtonPressed: {
     opacity: 0.9,
