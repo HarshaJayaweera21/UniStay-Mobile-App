@@ -39,4 +39,3 @@ cloudinary.api.ping().then((result) => {
 });
 
 
-
