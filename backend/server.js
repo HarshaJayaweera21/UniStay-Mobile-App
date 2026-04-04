@@ -29,3 +29,15 @@ app.use("/api/auth", authRoutes);
 app.listen(PORT, () => {
   console.log(`Server running on port http://localhost:${PORT}`);
 });
+
+// cloudinary connection test
+const cloudinary = require("./src/config/cloudinary");
+
+cloudinary.api
+  .ping()
+  .then((result) => {
+    console.log("✅ Cloudinary connected:", result);
+  })
+  .catch((error) => {
+    console.error("❌ Cloudinary connection failed:", error);
+  });
