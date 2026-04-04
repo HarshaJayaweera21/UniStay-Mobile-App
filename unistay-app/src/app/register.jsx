@@ -3,12 +3,11 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  TouchableWithoutFeedback,
   Keyboard,
   Modal,
   ScrollView,
@@ -17,7 +16,7 @@ import {
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import * as SecureStore from 'expo-secure-store';
+import storage from '@/utils/storage';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { API_URL } from '@/constants/api';
@@ -169,7 +168,6 @@ export default function RegisterScreen() {
         end={{ x: 1, y: 1 }}
       />
 
-      {/* Simplified Transactional Header */}
       <View style={styles.headerNav}>
         <Text style={styles.navBrand}>UniStay</Text>
         <View style={styles.progressBars}>
@@ -183,234 +181,240 @@ export default function RegisterScreen() {
         style={styles.contentWrap} 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <ScrollView contentContainerStyle={styles.scrollContent}>
-            
-            <View style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.stepIndicator}>
-                  {step === 1 ? 'Step 01 — Personal info' : step === 2 ? 'Step 02 — Identity' : 'Step 03 — Security'}
-                </Text>
-                <Text style={styles.title}>
-                  {step === 1 ? 'Tell us about yourself' : step === 2 ? 'Create your account info' : 'Secure your account'}
-                </Text>
-                <Text style={styles.subtitle}>
-                  {step === 1 ? "We need this to personalize your stay experience." : step === 2 ? "Let's set up your university credentials to verify your student status." : "Create a strong password to protect your data."}
-                </Text>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.stepIndicator}>
+                {step === 1 ? 'Step 01 — Personal info' : step === 2 ? 'Step 02 — Identity' : 'Step 03 — Security'}
+              </Text>
+              <Text style={styles.title}>
+                {step === 1 ? 'Tell us about yourself' : step === 2 ? 'Create your account info' : 'Secure your account'}
+              </Text>
+              <Text style={styles.subtitle}>
+                {step === 1 ? "We need this to personalize your stay experience." : step === 2 ? "Let's set up your university credentials to verify your student status." : "Create a strong password to protect your data."}
+              </Text>
+            </View>
+
+            {globalError ? <Text style={styles.errorText}>{globalError}</Text> : null}
+
+            {/* STEP 1: PERSONAL INFO */}
+            {step === 1 && (
+              <View style={styles.formSpace}>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>FIRST NAME</Text>
+                  <View style={styles.inputContainer}>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="e.g. John"
+                      placeholderTextColor={Colors.outline}
+                      value={formData.firstName}
+                      onChangeText={(t) => { setFormData({...formData, firstName: t}); setGlobalError(''); }}
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>LAST NAME</Text>
+                  <View style={styles.inputContainer}>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="e.g. Doe"
+                      placeholderTextColor={Colors.outline}
+                      value={formData.lastName}
+                      onChangeText={(t) => { setFormData({...formData, lastName: t}); setGlobalError(''); }}
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>DATE OF BIRTH</Text>
+                  <View style={styles.inputContainer}>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="YYYY-MM-DD"
+                      placeholderTextColor={Colors.outline}
+                      keyboardType="numeric"
+                      maxLength={10}
+                      value={formData.dateOfBirth}
+                      onChangeText={(t) => { handleDOBChange(t); setGlobalError(''); }}
+                    />
+                    <MaterialIcons name="calendar-today" size={20} color={Colors.outline} />
+                  </View>
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>GENDER</Text>
+                  <Pressable 
+                      style={({ pressed }) => [
+                          styles.inputContainer, 
+                          styles.dropdownContainer,
+                          pressed && { backgroundColor: Colors.surfaceContainerLow }
+                      ]}
+                      onPress={() => setShowGenderModal(true)}
+                  >
+                    <Text style={[styles.input, { color: formData.gender ? Colors.onSurface : Colors.outline }]}>
+                      {formData.gender ? formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1) : "Select Gender"}
+                    </Text>
+                    <MaterialIcons name="arrow-drop-down" size={24} color={Colors.outline} />
+                  </Pressable>
+                </View>
               </View>
-
-              {globalError ? <Text style={styles.errorText}>{globalError}</Text> : null}
-
-              {/* STEP 1: PERSONAL INFO */}
-              {step === 1 && (
-                <View style={styles.formSpace}>
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.label}>FIRST NAME</Text>
-                    <View style={styles.inputContainer}>
-                      <TextInput
-                        style={styles.input}
-                        placeholder="e.g. John"
-                        placeholderTextColor={Colors.outline}
-                        value={formData.firstName}
-                        onChangeText={(t) => { setFormData({...formData, firstName: t}); setGlobalError(''); }}
-                      />
-                    </View>
-                  </View>
-
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.label}>LAST NAME</Text>
-                    <View style={styles.inputContainer}>
-                      <TextInput
-                        style={styles.input}
-                        placeholder="e.g. Doe"
-                        placeholderTextColor={Colors.outline}
-                        value={formData.lastName}
-                        onChangeText={(t) => { setFormData({...formData, lastName: t}); setGlobalError(''); }}
-                      />
-                    </View>
-                  </View>
-
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.label}>DATE OF BIRTH</Text>
-                    <View style={styles.inputContainer}>
-                      <TextInput
-                        style={styles.input}
-                        placeholder="YYYY-MM-DD"
-                        placeholderTextColor={Colors.outline}
-                        keyboardType="numeric"
-                        maxLength={10}
-                        value={formData.dateOfBirth}
-                        onChangeText={(t) => { handleDOBChange(t); setGlobalError(''); }}
-                      />
-                      <MaterialIcons name="calendar-today" size={20} color={Colors.outline} />
-                    </View>
-                  </View>
-
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.label}>GENDER</Text>
-                    <TouchableOpacity 
-                        style={[styles.inputContainer, styles.dropdownContainer]}
-                        onPress={() => setShowGenderModal(true)}
-                    >
-                      <Text style={[styles.input, { color: formData.gender ? Colors.onSurface : Colors.outline }]}>
-                        {formData.gender ? formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1) : "Select Gender"}
-                      </Text>
-                      <MaterialIcons name="arrow-drop-down" size={24} color={Colors.outline} />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              )}
+            )}
 
 
-              {/* STEP 2: IDENTITY INFO */}
-              {step === 2 && (
-                <View style={styles.formSpace}>
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.label}>SLIIT EMAIL</Text>
-                    <View style={[styles.inputContainer, { paddingRight: 8 }]}>
-                      <TextInput
-                        style={styles.input}
-                        placeholder="it21004560"
-                        placeholderTextColor={Colors.outline}
-                        keyboardType="default"
-                        autoCapitalize="none"
-                        value={formData.email}
-                        onChangeText={(t) => { setFormData({...formData, email: t}); setGlobalError(''); }}
-                      />
-                      <View style={styles.staticDomainBadge}>
-                         <Text style={styles.staticDomainText}>@my.sliit.lk</Text>
-                      </View>
-                    </View>
-                  </View>
-
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.label}>USERNAME</Text>
-                    <View style={styles.inputContainer}>
-                      <TextInput
-                        style={styles.input}
-                        placeholder="e.g. john_doe"
-                        placeholderTextColor={Colors.outline}
-                        autoCapitalize="none"
-                        value={formData.username}
-                        onChangeText={(t) => { setFormData({...formData, username: t}); setGlobalError(''); }}
-                      />
-                      <MaterialIcons name="person-outline" size={20} color={Colors.outline} />
+            {/* STEP 2: IDENTITY INFO */}
+            {step === 2 && (
+              <View style={styles.formSpace}>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>SLIIT EMAIL</Text>
+                  <View style={[styles.inputContainer, { paddingRight: 8 }]}>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="it21004560"
+                      placeholderTextColor={Colors.outline}
+                      keyboardType="default"
+                      autoCapitalize="none"
+                      value={formData.email}
+                      onChangeText={(t) => { setFormData({...formData, email: t}); setGlobalError(''); }}
+                    />
+                    <View style={styles.staticDomainBadge}>
+                       <Text style={styles.staticDomainText}>@my.sliit.lk</Text>
                     </View>
                   </View>
                 </View>
-              )}
 
-
-              {/* STEP 3: SECURITY INFO */}
-              {step === 3 && (
-                <View style={styles.formSpace}>
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.label}>PASSWORD</Text>
-                    <View style={styles.inputContainer}>
-                      <MaterialIcons name="lock-outline" size={20} color={Colors.outline} style={styles.inputIcon} />
-                      <TextInput
-                        style={styles.input}
-                        placeholder="••••••••"
-                        placeholderTextColor={Colors.outline}
-                        secureTextEntry={!showPassword}
-                        value={formData.password}
-                        onChangeText={(t) => { setFormData({...formData, password: t}); setGlobalError(''); }}
-                      />
-                      <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.visibilityIcon}>
-                        <MaterialIcons name={showPassword ? "visibility-off" : "visibility"} size={20} color={Colors.outline} />
-                      </TouchableOpacity>
-                    </View>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>USERNAME</Text>
+                  <View style={styles.inputContainer}>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="e.g. john_doe"
+                      placeholderTextColor={Colors.outline}
+                      autoCapitalize="none"
+                      value={formData.username}
+                      onChangeText={(t) => { setFormData({...formData, username: t}); setGlobalError(''); }}
+                    />
+                    <MaterialIcons name="person-outline" size={20} color={Colors.outline} />
                   </View>
-                  
-                  {/* REALTIME PASSWORD REQUIREMENTS UI */}
-                  {formData.password.length > 0 && (
-                    <View style={styles.validationBox}>
-                       <ValidationCheck title="Minimum 8 characters" isValid={isLongEnough} />
-                       <ValidationCheck title="1 Uppercase letter (A-Z)" isValid={hasUpperCase} />
-                       <ValidationCheck title="1 Lowercase letter (a-z)" isValid={hasLowerCase} />
-                       <ValidationCheck title="1 Number (0-9)" isValid={hasNumber} />
-                       <ValidationCheck title="1 Special character (@$!%*?&...)" isValid={hasSpecial} />
-                    </View>
+                </View>
+              </View>
+            )}
+
+
+            {/* STEP 3: SECURITY INFO */}
+            {step === 3 && (
+              <View style={styles.formSpace}>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>PASSWORD</Text>
+                  <View style={styles.inputContainer}>
+                    <MaterialIcons name="lock-outline" size={20} color={Colors.outline} style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="••••••••"
+                      placeholderTextColor={Colors.outline}
+                      secureTextEntry={!showPassword}
+                      value={formData.password}
+                      onChangeText={(t) => { setFormData({...formData, password: t}); setGlobalError(''); }}
+                    />
+                    <Pressable onPress={() => setShowPassword(!showPassword)} style={styles.visibilityIcon}>
+                      <MaterialIcons name={showPassword ? "visibility-off" : "visibility"} size={20} color={Colors.outline} />
+                    </Pressable>
+                  </View>
+                </View>
+                
+                {/* REALTIME PASSWORD REQUIREMENTS UI */}
+                {formData.password.length > 0 && (
+                  <View style={styles.validationBox}>
+                     <ValidationCheck title="Minimum 8 characters" isValid={isLongEnough} />
+                     <ValidationCheck title="1 Uppercase letter (A-Z)" isValid={hasUpperCase} />
+                     <ValidationCheck title="1 Lowercase letter (a-z)" isValid={hasLowerCase} />
+                     <ValidationCheck title="1 Number (0-9)" isValid={hasNumber} />
+                     <ValidationCheck title="1 Special character (@$!%*?&...)" isValid={hasSpecial} />
+                  </View>
+                )}
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>CONFIRM PASSWORD</Text>
+                  <View style={styles.inputContainer}>
+                     <MaterialIcons name="lock-outline" size={20} color={Colors.outline} style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="••••••••"
+                      placeholderTextColor={Colors.outline}
+                      secureTextEntry={!showConfirmPassword}
+                      value={formData.confirmPassword}
+                      onChangeText={(t) => { setFormData({...formData, confirmPassword: t}); setGlobalError(''); }}
+                    />
+                    <Pressable onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={styles.visibilityIcon}>
+                      <MaterialIcons name={showConfirmPassword ? "visibility-off" : "visibility"} size={20} color={Colors.outline} />
+                    </Pressable>
+                  </View>
+                </View>
+              </View>
+            )}
+
+            {/* Action Buttons */}
+            <View style={styles.actionContainer}>
+              {step < 3 ? (
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.primaryButton,
+                    pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }
+                  ]}
+                  onPress={nextStep}
+                >
+                  <Text style={styles.primaryButtonText}>Next Step</Text>
+                  <MaterialIcons name="arrow-forward" size={20} color={Colors.onPrimary} />
+                </Pressable>
+              ) : (
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.primaryButton,
+                    pressed && !isLoading && { opacity: 0.9, transform: [{ scale: 0.98 }] }
+                  ]}
+                  onPress={submitRegistration}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <ActivityIndicator color={Colors.onPrimary} />
+                  ) : (
+                    <>
+                      <Text style={styles.primaryButtonText}>Complete Registration</Text>
+                      <MaterialIcons name="check" size={20} color={Colors.onPrimary} />
+                    </>
                   )}
-
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.label}>CONFIRM PASSWORD</Text>
-                    <View style={styles.inputContainer}>
-                       <MaterialIcons name="lock-outline" size={20} color={Colors.outline} style={styles.inputIcon} />
-                      <TextInput
-                        style={styles.input}
-                        placeholder="••••••••"
-                        placeholderTextColor={Colors.outline}
-                        secureTextEntry={!showConfirmPassword}
-                        value={formData.confirmPassword}
-                        onChangeText={(t) => { setFormData({...formData, confirmPassword: t}); setGlobalError(''); }}
-                      />
-                      <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={styles.visibilityIcon}>
-                        <MaterialIcons name={showConfirmPassword ? "visibility-off" : "visibility"} size={20} color={Colors.outline} />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </View>
+                </Pressable>
               )}
 
-              {/* Action Buttons */}
-              <View style={styles.actionContainer}>
-                {step < 3 ? (
-                  <TouchableOpacity
-                    style={styles.primaryButton}
-                    activeOpacity={0.8}
-                    onPress={nextStep}
-                  >
-                    <Text style={styles.primaryButtonText}>Next Step</Text>
-                    <MaterialIcons name="arrow-forward" size={20} color={Colors.onPrimary} />
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity
-                    style={styles.primaryButton}
-                    activeOpacity={0.8}
-                    onPress={submitRegistration}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <ActivityIndicator color={Colors.onPrimary} />
-                    ) : (
-                      <>
-                        <Text style={styles.primaryButtonText}>Complete Registration</Text>
-                        <MaterialIcons name="check" size={20} color={Colors.onPrimary} />
-                      </>
-                    )}
-                  </TouchableOpacity>
-                )}
-
-                {/* Back Button (Only on Steps 2 and 3) */}
-                {step > 1 && (
-                     <TouchableOpacity activeOpacity={0.7} onPress={prevStep} style={styles.backButtonRow}>
-                        <MaterialIcons name="chevron-left" size={24} color={Colors.primary} />
-                        <Text style={styles.backButtonText}>Back to {step === 2 ? "Personal Details" : "Identity"}</Text>
-                     </TouchableOpacity>
-                )}
-                {step === 1 && (
-                     <TouchableOpacity activeOpacity={0.7} onPress={() => router.back()} style={[styles.backButtonRow, { marginTop: Spacing.four }]}>
-                        <Text style={[styles.backButtonText, { color: Colors.outline }]}>Cancel</Text>
-                     </TouchableOpacity>
-                )}
-              </View>
+              {/* Back Button (Only on Steps 2 and 3) */}
+              {step > 1 && (
+                   <Pressable onPress={prevStep} style={({ pressed }) => [styles.backButtonRow, pressed && { opacity: 0.7 }]}>
+                      <MaterialIcons name="chevron-left" size={24} color={Colors.primary} />
+                      <Text style={styles.backButtonText}>Back to {step === 2 ? "Personal Details" : "Identity"}</Text>
+                   </Pressable>
+              )}
+              {step === 1 && (
+                   <Pressable onPress={() => router.back()} style={({ pressed }) => [styles.backButtonRow, { marginTop: Spacing.four }, pressed && { opacity: 0.7 }]}>
+                      <Text style={[styles.backButtonText, { color: Colors.outline }]}>Cancel</Text>
+                   </Pressable>
+              )}
             </View>
+          </View>
 
-            {/* Trust Badges */}
-            <View style={styles.trustRow}>
-              <View style={styles.trustItem}>
-                <MaterialIcons name="security" size={16} color={Colors.outline} />
-                <Text style={styles.trustText}>SECURE DATA</Text>
-              </View>
-              <View style={styles.trustItem}>
-                <MaterialIcons name="verified-user" size={16} color={Colors.outline} />
-                <Text style={styles.trustText}>SLIIT VERIFIED</Text>
-              </View>
+          {/* Trust Badges */}
+          <View style={styles.trustRow}>
+            <View style={styles.trustItem}>
+              <MaterialIcons name="security" size={16} color={Colors.outline} />
+              <Text style={styles.trustText}>SECURE DATA</Text>
             </View>
+            <View style={styles.trustItem}>
+              <MaterialIcons name="verified-user" size={16} color={Colors.outline} />
+              <Text style={styles.trustText}>SLIIT VERIFIED</Text>
+            </View>
+          </View>
 
-          </ScrollView>
-        </TouchableWithoutFeedback>
+        </ScrollView>
       </KeyboardAvoidingView>
 
       {/* Gender Dropdown Modal */}
@@ -419,9 +423,9 @@ export default function RegisterScreen() {
            <View style={styles.modalContent}>
                <Text style={styles.modalTitle}>Select Gender</Text>
                {['male', 'female', 'other'].map(g => (
-                   <TouchableOpacity 
+                   <Pressable 
                        key={g} 
-                       style={styles.modalOption}
+                       style={({ pressed }) => [styles.modalOption, pressed && { backgroundColor: Colors.surfaceContainerLow }]}
                        onPress={() => {
                            setFormData({...formData, gender: g});
                            setShowGenderModal(false);
@@ -430,13 +434,13 @@ export default function RegisterScreen() {
                    >
                      <Text style={[styles.modalOptionText, formData.gender === g && styles.modalOptionTextActive]}>
                          {g.charAt(0).toUpperCase() + g.slice(1)}
-                     </Text>
-                     {formData.gender === g && <MaterialIcons name="check" size={20} color={Colors.primary} />}
-                   </TouchableOpacity>
+                      </Text>
+                      {formData.gender === g && <MaterialIcons name="check" size={20} color={Colors.primary} />}
+                   </Pressable>
                ))}
-               <TouchableOpacity style={styles.modalCancel} onPress={() => setShowGenderModal(false)}>
+               <Pressable style={({ pressed }) => [styles.modalCancel, pressed && { opacity: 0.7 }]} onPress={() => setShowGenderModal(false)}>
                    <Text style={{ fontFamily: Fonts.bodyBold, color: Colors.error }}>Cancel</Text>
-               </TouchableOpacity>
+               </Pressable>
            </View>
         </View>
       </Modal>
@@ -468,11 +472,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surfaceContainerLowest,
     borderRadius: Radius.xl,
     padding: Spacing.five,
-    shadowColor: '#191b23',
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.08,
-    shadowRadius: 32,
-    elevation: 8,
+    boxShadow: '0px 16px 32px rgba(25, 27, 35, 0.08)',
   },
   cardHeader: { marginBottom: Spacing.five },
   stepIndicator: { fontFamily: Fonts.bodyBold, fontSize: 11, color: Colors.primary, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: Spacing.one },
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
   validationText: { marginLeft: 8, fontFamily: Fonts.bodyMedium, fontSize: 13, color: Colors.outlineVariant },
   validationTextActive: { color: Colors.primary, fontFamily: Fonts.bodyBold },
   actionContainer: { marginTop: Spacing.two, alignItems: 'center' },
-  primaryButton: { width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.primaryContainer, borderRadius: Radius.xl, paddingVertical: 18, shadowColor: Colors.primaryContainer, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.25, shadowRadius: 16, elevation: 4 },
+  primaryButton: { width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.primaryContainer, borderRadius: Radius.xl, paddingVertical: 18, boxShadow: `0px 8px 16px ${Colors.primaryContainer}40` },
   primaryButtonText: { fontFamily: Fonts.headline, fontSize: 18, color: Colors.onPrimary, marginRight: Spacing.one },
   backButtonRow: { flexDirection: 'row', alignItems: 'center', marginTop: Spacing.four },
   backButtonText: { fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.primary },
