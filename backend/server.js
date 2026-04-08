@@ -7,6 +7,8 @@ const connectDB = require("./src/config/db");
 
 // Import routes
 const authRoutes = require("./src/routes/authRoutes");
+const paymentRoutes = require("./src/routes/paymentRoutes");
+const paymentTypeRoutes = require("./src/routes/paymentTypeRoutes");
 
 const app = express();
 const PORT = process.env.PORT;
@@ -25,6 +27,8 @@ app.get("/", (req, res) => {
 
 // Mount routes
 app.use("/api/auth", authRoutes);
+app.use("/api/payments", paymentRoutes);
+app.use("/api/payment-types", paymentTypeRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port http://localhost:${PORT}`);
