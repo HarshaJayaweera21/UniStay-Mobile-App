@@ -10,3 +10,5 @@ const getBaseUrl = () => {
 };
 
 export const API_URL = getBaseUrl();
+export const PAYMENTS_URL = `${API_URL}/api/payments`;
+export const PAYMENT_TYPES_URL = `${API_URL}/api/payment-types`;
