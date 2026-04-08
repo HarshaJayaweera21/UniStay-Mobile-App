@@ -19,11 +19,11 @@ const protect = (req, res, next) => {
             // Attach user info to request
             req.user = decoded;
 
-            next();
-        } catch(error) {
+            return next();
+        } catch (error) {
             return res.status(401).json({
                 success: false,
-                message: "Not authorized, token failed"
+                message: "Not authorized, token failed",
             });
         }
     }
@@ -31,10 +31,10 @@ const protect = (req, res, next) => {
     if (!token) {
         return res.status(401).json({
             success: false,
-            message: "Not authorized, no token"
+            message: "Not authorized, no token",
         });
     }
-}
+};
 
 // check if user has the right role
 const authorizeRoles = (...roles) => {
@@ -42,10 +42,11 @@ const authorizeRoles = (...roles) => {
         if (!roles.includes(req.user.role)) {
             return res.status(403).json({
                 success: false,
-                message: "Access denied"
-            })
+                message: "Access denied. You do not have permission to perform this action.",
+            });
         }
-    }
-}
+        next();
+    };
+};
 
-module.exports = {protect, authorizeRoles};
+module.exports = { protect, authorizeRoles };
