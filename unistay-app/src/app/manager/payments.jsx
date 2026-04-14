@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import {
     View, Text, StyleSheet, FlatList, TouchableOpacity,
-    ActivityIndicator, RefreshControl, SafeAreaView, ScrollView
+    ActivityIndicator, RefreshControl, SafeAreaView, ScrollView, Modal
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { getItem } from '@/utils/storage';
@@ -23,6 +23,7 @@ export default function ManagerPayments() {
     const [payments, setPayments] = useState([]);
     const [activeFilter, setActiveFilter] = useState('All');
     const [activeTypeFilter, setActiveTypeFilter] = useState('All Types');
+    const [typeModalVisible, setTypeModalVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState('');
@@ -122,28 +123,22 @@ export default function ManagerPayments() {
             </View>
 
             {/* Filters */}
-            <View style={{ gap: Spacing.two, paddingBottom: Spacing.three }}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
+            <View style={{ gap: Spacing.four, paddingBottom: Spacing.three }}>
+                <View style={styles.fixedFilterRow}>
                     {FILTERS.map(f => {
                         const isActive = activeFilter === f;
                         return (
-                            <TouchableOpacity key={f} onPress={() => setActiveFilter(f)} style={[styles.filterPill, isActive && styles.filterPillActive]}>
-                                <Text style={[styles.filterPillText, isActive && styles.filterPillTextActive]}>{f}</Text>
+                            <TouchableOpacity key={f} onPress={() => setActiveFilter(f)} style={[styles.fixedFilterPill, isActive && styles.fixedFilterPillActive]}>
+                                <Text style={[styles.fixedFilterPillText, isActive && styles.fixedFilterPillTextActive]}>{f}</Text>
                             </TouchableOpacity>
                         );
                     })}
-                </ScrollView>
+                </View>
 
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.typeFilterScroll}>
-                    {['All Types', ...new Set(payments.map(p => p.paymentType?.name || 'Standard'))].map(type => {
-                        const isActive = activeTypeFilter === type;
-                        return (
-                            <TouchableOpacity key={type} onPress={() => setActiveTypeFilter(type)} style={[styles.typePill, isActive && styles.typePillActive]}>
-                                <Text style={[styles.typePillText, isActive && styles.typePillTextActive]}>{type}</Text>
-                            </TouchableOpacity>
-                        );
-                    })}
-                </ScrollView>
+                <TouchableOpacity style={styles.dropdownButton} onPress={() => setTypeModalVisible(true)} activeOpacity={0.7}>
+                    <Text style={styles.dropdownButtonText}>{activeTypeFilter}</Text>
+                    <MaterialIcons name="expand-more" size={24} color={Colors.outline} />
+                </TouchableOpacity>
             </View>
         </View>
     );
@@ -225,6 +220,25 @@ export default function ManagerPayments() {
                     }
                 />
             )}
+
+            <Modal visible={typeModalVisible} transparent animationType="slide">
+                <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setTypeModalVisible(false)}>
+                    <View style={styles.modalContent}>
+                        <View style={styles.modalDragIndicator} />
+                        <Text style={styles.modalTitle}>Select Payment Type</Text>
+                        {['All Types', ...new Set(payments.map(p => p.paymentType?.name || 'Standard'))].map(type => (
+                            <TouchableOpacity 
+                                key={type} 
+                                style={[styles.modalOption, activeTypeFilter === type && styles.modalOptionActive]} 
+                                onPress={() => { setActiveTypeFilter(type); setTypeModalVisible(false); }}
+                            >
+                                <Text style={[styles.modalOptionText, activeTypeFilter === type && styles.modalOptionTextActive]}>{type}</Text>
+                                {activeTypeFilter === type && <MaterialIcons name="check" size={20} color={Colors.primary} />}
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </TouchableOpacity>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -264,17 +278,23 @@ const styles = StyleSheet.create({
     actionBadge: { backgroundColor: '#FEF3C7', paddingHorizontal: 8, paddingVertical: 4, borderRadius:Radius.md },
     actionBadgeText: { fontFamily: Fonts.bodyBold, fontSize: 10, color: '#92400E', textTransform: 'uppercase' },
 
-    filterScroll: { gap: Spacing.two },
-    filterPill: { backgroundColor: Colors.surfaceContainerHigh, paddingHorizontal: 20, paddingVertical: 10, borderRadius: Radius.full },
-    filterPillActive: { backgroundColor: Colors.primary },
-    filterPillText: { fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.onSurfaceVariant },
-    filterPillTextActive: { color: Colors.onPrimary },
+    fixedFilterRow: { flexDirection: 'row', gap: Spacing.two },
+    fixedFilterPill: { flex: 1, backgroundColor: Colors.surfaceContainerHigh, paddingVertical: 12, borderRadius: Radius.full, alignItems: 'center' },
+    fixedFilterPillActive: { backgroundColor: Colors.primary },
+    fixedFilterPillText: { fontFamily: Fonts.bodySemiBold, fontSize: 13, color: Colors.onSurfaceVariant },
+    fixedFilterPillTextActive: { color: Colors.onPrimary },
 
-    typeFilterScroll: { gap: Spacing.two },
-    typePill: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.outlineVariant },
-    typePillActive: { backgroundColor: Colors.surfaceContainerHighest, borderColor: Colors.onSurfaceVariant },
-    typePillText: { fontFamily: Fonts.bodyMedium, fontSize: 13, color: Colors.onSurfaceVariant },
-    typePillTextActive: { fontFamily: Fonts.bodyBold, color: Colors.onSurface },
+    dropdownButton: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: Colors.surfaceContainerLowest, paddingHorizontal: Spacing.four, paddingVertical: Spacing.three, borderRadius: Radius.xl, borderWidth: 1, borderColor: Colors.outlineVariant },
+    dropdownButtonText: { fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.onSurface },
+
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+    modalContent: { backgroundColor: Colors.surfaceContainerLowest, borderTopLeftRadius: Radius['3xl'], borderTopRightRadius: Radius['3xl'], padding: Spacing.five, paddingBottom: 40 },
+    modalDragIndicator: { width: 40, height: 4, backgroundColor: Colors.outlineVariant, borderRadius: 2, alignSelf: 'center', marginBottom: Spacing.four },
+    modalTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 18, color: Colors.onSurface, marginBottom: Spacing.four },
+    modalOption: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: Spacing.three, borderBottomWidth: 1, borderBottomColor: Colors.surfaceContainerHigh },
+    modalOptionActive: { backgroundColor: Colors.primaryContainer, borderRadius: Radius.lg, paddingHorizontal: Spacing.three, borderBottomWidth: 0, marginVertical: 2 },
+    modalOptionText: { fontFamily: Fonts.bodyMedium, fontSize: 16, color: Colors.onSurface },
+    modalOptionTextActive: { fontFamily: Fonts.bodyBold, color: Colors.onPrimaryContainer },
 
     paymentCard: {
         backgroundColor: Colors.surfaceContainerLowest,
