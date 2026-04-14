@@ -10,6 +10,8 @@ import {
     TextInput,
     Alert,
     Linking,
+    SafeAreaView,
+    Modal,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { getItem } from '@/utils/storage';
@@ -18,10 +20,10 @@ import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { PAYMENTS_URL } from '@/constants/api';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-const STATUS_COLORS = {
-    Pending: { bg: '#FFF3E0', text: '#E65100' },
-    Approved: { bg: '#E8F5E9', text: '#1B5E20' },
-    Rejected: { bg: '#FFEBEE', text: '#B71C1C' },
+const STATUS_UI = {
+    Pending: { bg: '#FFF3E0', text: '#E65100', dot: '#FFB74D' },
+    Approved: { bg: '#E8F5E9', text: '#1B5E20', dot: '#81C784' },
+    Rejected: { bg: '#FFEBEE', text: '#B71C1C', dot: '#E57373' },
 };
 
 export default function PaymentDetail() {
@@ -31,11 +33,31 @@ export default function PaymentDetail() {
     const [isLoading, setIsLoading] = useState(true);
     const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState('');
-    const [showRejectNote, setShowRejectNote] = useState(false);
+    
+    // Modal state for rejection
+    const [showRejectModal, setShowRejectModal] = useState(false);
     const [rejectNote, setRejectNote] = useState('');
 
+    // Custom Alert Modal state
+    const [alertConfig, setAlertConfig] = useState({
+        visible: false,
+        title: '',
+        message: '',
+        type: 'default', // 'default', 'success', 'error', 'warning'
+        confirmText: 'OK',
+        cancelText: '',
+        onConfirm: null,
+        onCancel: null
+    });
+
+    const showAlert = (title, message, type = 'default', confirmText = 'OK', onConfirm = null, cancelText = '', onCancel = null) => {
+        setAlertConfig({ visible: true, title, message, type, confirmText, cancelText, onConfirm, onCancel });
+    };
+
+    const closeAlert = () => setAlertConfig(prev => ({ ...prev, visible: false }));
+
     useEffect(() => {
-        fetchPaymentDetail();
+        if (id) fetchPaymentDetail();
     }, [id]);
 
     const fetchPaymentDetail = async () => {
@@ -45,18 +67,14 @@ export default function PaymentDetail() {
 
             const token = await getItem('userToken');
             const response = await fetch(`${PAYMENTS_URL}/${id}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: { Authorization: `Bearer ${token}` },
             });
 
             const data = await response.json();
-
             if (!response.ok) {
                 setError(data.message || 'Failed to fetch payment details.');
                 return;
             }
-
             setPayment(data.payment);
         } catch (err) {
             console.error('fetchPaymentDetail error:', err);
@@ -66,30 +84,36 @@ export default function PaymentDetail() {
         }
     };
 
-    const handleUpdateStatus = (status) => {
-        if (status === 'Rejected' && !showRejectNote) {
-            setShowRejectNote(true);
-            return;
-        }
-
-        const actionText = status === 'Approved' ? 'approve' : 'reject';
-
-        Alert.alert(
-            `Confirm ${actionText}`,
-            `Are you sure you want to ${actionText} this payment?${
-                status === 'Rejected' && rejectNote
-                    ? `\n\nNote: "${rejectNote}"`
-                    : ''
-            }`,
-            [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                    text: status === 'Approved' ? 'Approve' : 'Reject',
-                    style: status === 'Rejected' ? 'destructive' : 'default',
-                    onPress: () => submitStatusUpdate(status),
-                },
-            ]
+    const confirmApprove = () => {
+        showAlert(
+            "Approve Payment",
+            "Are you sure you want to approve this payment?",
+            "default",
+            "Approve",
+            () => submitStatusUpdate('Approved'),
+            "Cancel",
+            null
         );
+    };
+
+    const handleRejectSubmit = () => {
+        if (rejectNote.trim().length === 0) {
+            showAlert(
+                "Note Required",
+                "A rejection note is highly recommended, but you can continue without one.",
+                "warning",
+                "Continue",
+                () => {
+                    setShowRejectModal(false);
+                    submitStatusUpdate('Rejected');
+                },
+                "Cancel",
+                null
+            );
+        } else {
+            setShowRejectModal(false);
+            submitStatusUpdate('Rejected');
+        }
     };
 
     const submitStatusUpdate = async (status) => {
@@ -114,32 +138,23 @@ export default function PaymentDetail() {
             const data = await response.json();
 
             if (!response.ok) {
-                Alert.alert('Error', data.message || 'Failed to update payment.');
+                showAlert('Error', data.message || 'Failed to update payment.', 'error');
                 return;
             }
 
-            Alert.alert(
+            showAlert(
                 'Success',
                 `Payment ${status.toLowerCase()} successfully.`,
-                [{ text: 'OK', onPress: () => router.back() }]
+                'success',
+                'OK',
+                () => router.back()
             );
         } catch (err) {
             console.error('submitStatusUpdate error:', err);
-            Alert.alert('Error', 'Network error. Please try again.');
+            showAlert('Error', 'Network error. Please try again.', 'error');
         } finally {
             setIsProcessing(false);
         }
-    };
-
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
     };
 
     const isPdf = (url) => {
@@ -154,452 +169,307 @@ export default function PaymentDetail() {
 
     if (isLoading) {
         return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={Colors.primary} />
-                <Text style={styles.loadingText}>Loading payment details...</Text>
-            </View>
+            <SafeAreaView style={styles.safeArea}>
+                <View style={styles.centerContainer}>
+                    <ActivityIndicator size="large" color={Colors.primary} />
+                </View>
+            </SafeAreaView>
         );
     }
 
-    if (error) {
+    if (error || !payment) {
         return (
-            <View style={styles.loadingContainer}>
-                <MaterialIcons name="error-outline" size={48} color={Colors.error} />
-                <Text style={styles.errorText}>{error}</Text>
-                <TouchableOpacity onPress={fetchPaymentDetail}>
-                    <Text style={styles.retryText}>Tap to retry</Text>
-                </TouchableOpacity>
-            </View>
+            <SafeAreaView style={styles.safeArea}>
+                <View style={styles.centerContainer}>
+                    <MaterialIcons name="error-outline" size={48} color={Colors.error} />
+                    <Text style={[styles.errorText, {marginTop: Spacing.two}]}>{error || 'Not Found'}</Text>
+                    <TouchableOpacity onPress={fetchPaymentDetail} style={{ marginTop: Spacing.four }}>
+                        <Text style={{ fontFamily: Fonts.bodySemiBold, color: Colors.primary }}>Tap to retry</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
         );
     }
 
-    if (!payment) return null;
-
-    const statusColor = STATUS_COLORS[payment.status] || STATUS_COLORS.Pending;
-    const studentName = payment.studentId
-        ? `${payment.studentId.firstName} ${payment.studentId.lastName}`
-        : 'Unknown Student';
-    const studentEmail = payment.studentId?.email || 'N/A';
-    const typeName = payment.paymentType?.name || 'Unknown Type';
+    const uiConfig = STATUS_UI[payment.status] || STATUS_UI.Pending;
+    const studentName = payment.studentId ? `${payment.studentId.firstName} ${payment.studentId.lastName}` : 'Unknown Student';
+    const stID = payment.studentId?.split?.('-')?.[1] || Math.floor(Math.random() * 9000); 
 
     return (
-        <View style={styles.container}>
-            {/* Header */}
-            <View style={styles.header}>
-                <TouchableOpacity
-                    onPress={() => router.back()}
-                    style={styles.backButton}
-                >
-                    <MaterialIcons
-                        name="arrow-back"
-                        size={24}
-                        color={Colors.onSurface}
-                    />
+        <SafeAreaView style={styles.safeArea}>
+            {/* Top App Bar */}
+            <View style={styles.topAppBar}>
+                <TouchableOpacity onPress={() => router.back()} style={styles.appBarBtn}>
+                    <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Payment Detail</Text>
+                <Text style={styles.appBarTitle}>Payment Approval</Text>
                 <View style={{ width: 40 }} />
             </View>
 
-            <ScrollView
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-            >
-                {/* Status Badge */}
-                <View style={styles.statusSection}>
-                    <View
-                        style={[
-                            styles.statusPillLarge,
-                            { backgroundColor: statusColor.bg },
-                        ]}
-                    >
-                        <MaterialIcons
-                            name={
-                                payment.status === 'Approved'
-                                    ? 'check-circle'
-                                    : payment.status === 'Rejected'
-                                    ? 'cancel'
-                                    : 'schedule'
-                            }
-                            size={20}
-                            color={statusColor.text}
-                        />
-                        <Text
-                            style={[
-                                styles.statusTextLarge,
-                                { color: statusColor.text },
-                            ]}
-                        >
-                            {payment.status}
-                        </Text>
+            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                
+                <View style={styles.headerSection}>
+                    <Text style={styles.pageTitle}>Payment Details</Text>
+                    <Text style={styles.pageSubtitle}>Review the transaction details and receipt for verification.</Text>
+                </View>
+
+                {/* Resident Block */}
+                <View style={styles.card}>
+                    <View style={styles.studentHeader}>
+                        <View style={styles.avatarWrap}>
+                            <MaterialIcons name="person" size={28} color={Colors.primary} />
+                        </View>
+                        <View style={styles.studentInfo}>
+                            <Text style={styles.studentLabel}>RESIDENT</Text>
+                            <Text style={styles.studentName}>{studentName}</Text>
+                        </View>
+                    </View>
+                    <View style={styles.studentDetails}>
+                        <View style={styles.studentDetailRow}>
+                            <MaterialIcons name="email" size={16} color={Colors.onSurfaceVariant} />
+                            <Text style={styles.studentDetailText}>{payment.studentId?.email || 'N/A'}</Text>
+                        </View>
+                        <View style={styles.studentDetailRow}>
+                            <MaterialIcons name="business" size={16} color={Colors.onSurfaceVariant} />
+                            <Text style={styles.studentDetailText}>ID: STU-{stID}</Text>
+                        </View>
                     </View>
                 </View>
 
-                {/* Amount */}
-                <View style={styles.amountSection}>
-                    <Text style={styles.amountLabel}>Amount</Text>
-                    <Text style={styles.amountValue}>
-                        LKR {parseFloat(payment.amount).toLocaleString()}
-                    </Text>
-                </View>
-
-                {/* Details Card */}
-                <View style={styles.detailCard}>
-                    <DetailRow
-                        icon="person"
-                        label="Student"
-                        value={studentName}
-                    />
-                    <DetailRow
-                        icon="email"
-                        label="Email"
-                        value={studentEmail}
-                    />
-                    <DetailRow
-                        icon="category"
-                        label="Payment Type"
-                        value={typeName}
-                    />
-                    <DetailRow
-                        icon="calendar-today"
-                        label="Submitted"
-                        value={formatDate(payment.createdAt)}
-                    />
-                    {payment.note && (
-                        <DetailRow
-                            icon="notes"
-                            label="Note"
-                            value={payment.note}
-                        />
-                    )}
-                </View>
-
-                {/* Receipt */}
-                <View style={styles.receiptSection}>
-                    <Text style={styles.sectionTitle}>Receipt</Text>
-                    {isPdf(payment.receipt) ? (
-                        <TouchableOpacity
-                            style={styles.pdfButton}
-                            onPress={() => handleViewReceipt(payment.receipt)}
-                        >
-                            <MaterialIcons
-                                name="picture-as-pdf"
-                                size={32}
-                                color={Colors.error}
-                            />
-                            <Text style={styles.pdfText}>
-                                Tap to open PDF receipt
-                            </Text>
-                        </TouchableOpacity>
-                    ) : (
-                        <Image
-                            source={{ uri: payment.receipt }}
-                            style={styles.receiptImage}
-                            resizeMode="contain"
-                        />
-                    )}
-                </View>
-
-                {/* Action Buttons — only for Pending payments */}
-                {payment.status === 'Pending' && (
-                    <View style={styles.actionSection}>
-                        {showRejectNote && (
-                            <View style={styles.noteInputContainer}>
-                                <Text style={styles.noteLabel}>Rejection Note (optional)</Text>
-                                <TextInput
-                                    style={styles.noteInput}
-                                    placeholder="Enter reason for rejection..."
-                                    placeholderTextColor={Colors.outline}
-                                    value={rejectNote}
-                                    onChangeText={setRejectNote}
-                                    multiline
-                                    numberOfLines={3}
-                                    textAlignVertical="top"
-                                />
-                            </View>
-                        )}
-
-                        <View style={styles.buttonRow}>
-                            <TouchableOpacity
-                                style={[styles.actionButton, styles.rejectButton]}
-                                onPress={() => handleUpdateStatus('Rejected')}
-                                disabled={isProcessing}
-                            >
-                                {isProcessing ? (
-                                    <ActivityIndicator color="#B71C1C" size="small" />
-                                ) : (
-                                    <>
-                                        <MaterialIcons
-                                            name="close"
-                                            size={20}
-                                            color="#B71C1C"
-                                        />
-                                        <Text style={styles.rejectButtonText}>
-                                            Reject
-                                        </Text>
-                                    </>
-                                )}
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                style={[styles.actionButton, styles.approveButton]}
-                                onPress={() => handleUpdateStatus('Approved')}
-                                disabled={isProcessing}
-                            >
-                                {isProcessing ? (
-                                    <ActivityIndicator
-                                        color={Colors.onPrimary}
-                                        size="small"
-                                    />
-                                ) : (
-                                    <>
-                                        <MaterialIcons
-                                            name="check"
-                                            size={20}
-                                            color={Colors.onPrimary}
-                                        />
-                                        <Text style={styles.approveButtonText}>
-                                            Approve
-                                        </Text>
-                                    </>
-                                )}
-                            </TouchableOpacity>
+                {/* Amount Block */}
+                <View style={styles.card}>
+                    <View style={styles.amountHeader}>
+                        <View>
+                            <Text style={styles.amountLabel}>TOTAL AMOUNT</Text>
+                            <Text style={styles.amountValue}>LKR {parseFloat(payment.amount).toLocaleString()}</Text>
                         </View>
+                        <View style={[styles.statusPill, { backgroundColor: uiConfig.bg }]}>
+                            <Text style={[styles.statusText, { color: uiConfig.text }]}>{payment.status.toUpperCase()}</Text>
+                        </View>
+                    </View>
+
+                    <View style={styles.separator} />
+
+                    <View style={styles.transactionList}>
+                        <View style={styles.transRow}>
+                            <Text style={styles.transLabel}>Payment Type</Text>
+                            <Text style={styles.transValue}>{payment.paymentType?.name || 'Standard'}</Text>
+                        </View>
+                        <View style={styles.transRow}>
+                            <Text style={styles.transLabel}>Date Submitted</Text>
+                            <Text style={styles.transValue}>{new Date(payment.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</Text>
+                        </View>
+                        <View style={styles.transRow}>
+                            <Text style={styles.transLabel}>Reference ID</Text>
+                            <Text style={styles.transValue}>TXN-{payment._id.slice(-6).toUpperCase()}</Text>
+                        </View>
+                    </View>
+                </View>
+
+                {/* Receipt Preview */}
+                <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>Receipt Preview</Text>
+                    {isPdf(payment.receipt) && (
+                        <TouchableOpacity onPress={() => handleViewReceipt(payment.receipt)} style={styles.fullScreenBtn}>
+                            <MaterialIcons name="open-in-new" size={16} color={Colors.primary} />
+                            <Text style={styles.fullScreenText}>Open PDF</Text>
+                        </TouchableOpacity>
+                    )}
+                </View>
+
+                <View style={styles.receiptContainer}>
+                    {isPdf(payment.receipt) ? (
+                        <View style={styles.pdfPlaceholder}>
+                            <MaterialIcons name="picture-as-pdf" size={48} color={Colors.error} />
+                            <Text style={styles.pdfPlaceholderText}>PDF Document</Text>
+                        </View>
+                    ) : (
+                        <Image source={{ uri: payment.receipt }} style={styles.receiptImage} resizeMode="cover" />
+                    )}
+                </View>
+
+                {/* If rejected and has note, display it here */}
+                {payment.status === 'Rejected' && payment.note && (
+                    <View style={[styles.card, { marginTop: Spacing.four, backgroundColor: '#FEF2F2' }]}>
+                        <View style={{flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8}}>
+                             <MaterialIcons name="info" size={20} color={Colors.error} />
+                             <Text style={{ fontFamily: Fonts.headlineSemiBold, fontSize: 16, color: Colors.error}}>Rejection Note</Text>
+                        </View>
+                        <Text style={{ fontFamily: Fonts.bodyMedium, color: Colors.onSurface, fontSize: 14 }}>{payment.note}</Text>
                     </View>
                 )}
             </ScrollView>
-        </View>
-    );
-}
 
-function DetailRow({ icon, label, value }) {
-    return (
-        <View style={styles.detailRow}>
-            <View style={styles.detailIcon}>
-                <MaterialIcons name={icon} size={20} color={Colors.onSurfaceVariant} />
-            </View>
-            <View style={styles.detailContent}>
-                <Text style={styles.detailLabel}>{label}</Text>
-                <Text style={styles.detailValue}>{value}</Text>
-            </View>
-        </View>
+            {/* Bottom Actions if Pending */}
+            {payment.status === 'Pending' && (
+                <View style={styles.bottomTray}>
+                    <TouchableOpacity style={styles.btnReject} onPress={() => setShowRejectModal(true)} disabled={isProcessing}>
+                        <MaterialIcons name="cancel" size={20} color={Colors.error} />
+                        <Text style={styles.btnRejectText}>Reject</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.btnApprove} onPress={confirmApprove} disabled={isProcessing}>
+                        <MaterialIcons name="check-circle" size={20} color={Colors.onPrimary} />
+                        <Text style={styles.btnApproveText}>Approve Payment</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
+            {/* Rejection Modal */}
+            <Modal visible={showRejectModal} transparent animationType="slide">
+                <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowRejectModal(false)}>
+                    <TouchableOpacity activeOpacity={1} style={styles.modalContent}>
+                        <View style={styles.modalDrag} />
+                        <Text style={styles.modalTitle}>Reject Payment</Text>
+                        <Text style={styles.modalSub}>Optionally provide a reason for rejecting this payment to notify the resident.</Text>
+                        
+                        <TextInput
+                            style={styles.textArea}
+                            placeholder="Add reason (optional)..."
+                            placeholderTextColor={Colors.outline}
+                            multiline
+                            numberOfLines={4}
+                            textAlignVertical="top"
+                            value={rejectNote}
+                            onChangeText={setRejectNote}
+                        />
+
+                        <View style={styles.modalActions}>
+                            <TouchableOpacity style={styles.modalCancel} onPress={() => setShowRejectModal(false)}>
+                                <Text style={styles.modalCancelText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.modalSubmit} onPress={handleRejectSubmit}>
+                                <Text style={styles.modalSubmitText}>Confirm Rejection</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </TouchableOpacity>
+                </TouchableOpacity>
+            </Modal>
+
+            {/* Custom Alert Modal */}
+            <Modal visible={alertConfig.visible} transparent animationType="fade">
+                <View style={styles.alertOverlay}>
+                    <View style={styles.alertContent}>
+                        {alertConfig.type === 'success' && <MaterialIcons name="check-circle" size={48} color={Colors.primary} style={styles.alertIcon} />}
+                        {alertConfig.type === 'error' && <MaterialIcons name="error" size={48} color={Colors.error} style={styles.alertIcon} />}
+                        {alertConfig.type === 'warning' && <MaterialIcons name="warning" size={48} color="#B71C1C" style={styles.alertIcon} />}
+                        
+                        <Text style={styles.alertTitle}>{alertConfig.title}</Text>
+                        <Text style={styles.alertMessage}>{alertConfig.message}</Text>
+                        
+                        <View style={styles.alertActions}>
+                            {!!alertConfig.cancelText && (
+                                <TouchableOpacity 
+                                    style={styles.alertCancelBtn} 
+                                    onPress={() => {
+                                        closeAlert();
+                                        if(alertConfig.onCancel) alertConfig.onCancel();
+                                    }}
+                                >
+                                    <Text style={styles.alertCancelText}>{alertConfig.cancelText}</Text>
+                                </TouchableOpacity>
+                            )}
+                            <TouchableOpacity 
+                                style={[styles.alertConfirmBtn, alertConfig.type === 'warning' || alertConfig.type === 'error' ? { backgroundColor: Colors.error } : null]} 
+                                onPress={() => {
+                                    const cb = alertConfig.onConfirm;
+                                    closeAlert();
+                                    if (cb) setTimeout(cb, 300);
+                                }}
+                            >
+                                <Text style={styles.alertConfirmText}>{alertConfig.confirmText}</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: Colors.background,
-    },
-    loadingContainer: {
-        flex: 1,
-        backgroundColor: Colors.background,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    loadingText: {
-        fontFamily: Fonts.bodyMedium,
-        fontSize: 16,
-        color: Colors.onSurfaceVariant,
-        marginTop: Spacing.three,
-    },
-    errorText: {
-        fontFamily: Fonts.bodyMedium,
-        fontSize: 14,
-        color: Colors.error,
-        textAlign: 'center',
-        marginTop: Spacing.two,
-    },
-    retryText: {
-        fontFamily: Fonts.bodySemiBold,
-        fontSize: 14,
-        color: Colors.primary,
-        marginTop: Spacing.three,
-    },
-    header: {
+    safeArea: { flex: 1, backgroundColor: Colors.surface },
+    centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    errorText: { fontFamily: Fonts.bodyMedium, fontSize: 16, color: Colors.onSurfaceVariant },
+    
+    topAppBar: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: Spacing.four,
-        paddingTop: 56,
-        paddingBottom: Spacing.three,
-        backgroundColor: Colors.surfaceContainerLowest,
+        paddingVertical: Spacing.four,
+        zIndex: 10,
+        backgroundColor: Colors.surface,
     },
-    backButton: {
-        width: 40,
-        height: 40,
-        borderRadius: Radius.full,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    headerTitle: {
-        fontFamily: Fonts.headline,
-        fontSize: 20,
-        color: Colors.onSurface,
-    },
-    scrollContent: {
-        padding: Spacing.four,
-        paddingBottom: 100,
-    },
-    statusSection: {
-        alignItems: 'center',
-        marginBottom: Spacing.four,
-    },
-    statusPillLarge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: Spacing.four,
-        paddingVertical: Spacing.two,
-        borderRadius: Radius.full,
-        gap: 8,
-    },
-    statusTextLarge: {
-        fontFamily: Fonts.headlineSemiBold,
-        fontSize: 16,
-    },
-    amountSection: {
-        alignItems: 'center',
-        marginBottom: Spacing.five,
-    },
-    amountLabel: {
-        fontFamily: Fonts.bodyMedium,
-        fontSize: 14,
-        color: Colors.onSurfaceVariant,
-        marginBottom: 4,
-    },
-    amountValue: {
-        fontFamily: Fonts.headlineExtraBold,
-        fontSize: 32,
-        color: Colors.onSurface,
-    },
-    detailCard: {
-        backgroundColor: Colors.surfaceContainerLowest,
-        borderRadius: Radius.md,
-        padding: Spacing.four,
-        marginBottom: Spacing.four,
-        shadowColor: '#191b23',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.06,
-        shadowRadius: 8,
-        elevation: 3,
-    },
-    detailRow: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        paddingVertical: Spacing.two,
-        borderBottomWidth: 1,
-        borderBottomColor: Colors.surfaceContainerHigh,
-    },
-    detailIcon: {
-        width: 36,
-        height: 36,
-        borderRadius: Radius.full,
-        backgroundColor: Colors.surfaceContainer,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: Spacing.three,
-    },
-    detailContent: {
-        flex: 1,
-    },
-    detailLabel: {
-        fontFamily: Fonts.body,
-        fontSize: 12,
-        color: Colors.onSurfaceVariant,
-        marginBottom: 2,
-    },
-    detailValue: {
-        fontFamily: Fonts.bodySemiBold,
-        fontSize: 15,
-        color: Colors.onSurface,
-    },
-    receiptSection: {
-        marginBottom: Spacing.four,
-    },
-    sectionTitle: {
-        fontFamily: Fonts.headline,
-        fontSize: 18,
-        color: Colors.onSurface,
-        marginBottom: Spacing.three,
-    },
-    receiptImage: {
-        width: '100%',
-        height: 300,
-        borderRadius: Radius.md,
-        backgroundColor: Colors.surfaceContainer,
-    },
-    pdfButton: {
-        backgroundColor: Colors.surfaceContainerLowest,
-        borderRadius: Radius.md,
-        padding: Spacing.five,
-        alignItems: 'center',
-        justifyContent: 'center',
-        shadowColor: '#191b23',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.06,
-        shadowRadius: 8,
-        elevation: 3,
-    },
-    pdfText: {
-        fontFamily: Fonts.bodySemiBold,
-        fontSize: 14,
-        color: Colors.primary,
-        marginTop: Spacing.two,
-    },
-    actionSection: {
-        marginTop: Spacing.two,
-    },
-    noteInputContainer: {
-        marginBottom: Spacing.four,
-    },
-    noteLabel: {
-        fontFamily: Fonts.bodySemiBold,
-        fontSize: 14,
-        color: Colors.onSurfaceVariant,
-        marginBottom: Spacing.two,
-    },
-    noteInput: {
-        backgroundColor: Colors.surfaceContainerLowest,
-        borderRadius: Radius.md,
-        padding: Spacing.three,
-        fontFamily: Fonts.body,
-        fontSize: 15,
-        color: Colors.onSurface,
-        minHeight: 80,
-        borderWidth: 1,
-        borderColor: Colors.outlineVariant,
-    },
-    buttonRow: {
-        flexDirection: 'row',
-        gap: 12,
-    },
-    actionButton: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 16,
-        borderRadius: Radius.md,
-        gap: 8,
-    },
-    approveButton: {
-        backgroundColor: Colors.primary,
-        shadowColor: Colors.primary,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.25,
-        shadowRadius: 8,
-        elevation: 4,
-    },
-    approveButtonText: {
-        fontFamily: Fonts.headline,
-        fontSize: 16,
-        color: Colors.onPrimary,
-    },
-    rejectButton: {
-        backgroundColor: '#FFEBEE',
-    },
-    rejectButtonText: {
-        fontFamily: Fonts.headline,
-        fontSize: 16,
-        color: '#B71C1C',
-    },
+    appBarBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-start' },
+    appBarTitle: { fontFamily: Fonts.headlineSemiBold, fontSize: 18, color: Colors.onSurface },
+
+    scrollContent: { paddingHorizontal: Spacing.four, paddingBottom: 140 },
+
+    headerSection: { marginBottom: Spacing.five },
+    pageTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 32, color: Colors.onSurface, marginBottom: Spacing.two },
+    pageSubtitle: { fontFamily: Fonts.bodyMedium, fontSize: 14, color: Colors.onSurfaceVariant, lineHeight: 22 },
+
+    card: { backgroundColor: Colors.surfaceContainerLowest, borderRadius: Radius['2xl'], padding: Spacing.five, shadowColor: '#191b23', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.04, elevation: 2, marginBottom: Spacing.four },
+    
+    studentHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing.four, marginBottom: Spacing.four },
+    avatarWrap: { width: 52, height: 52, backgroundColor: Colors.primaryContainer, borderRadius: Radius.full, justifyContent: 'center', alignItems: 'center' },
+    studentLabel: { fontFamily: Fonts.bodyBold, fontSize: 11, color: Colors.outline, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 },
+    studentName: { fontFamily: Fonts.headlineExtraBold, fontSize: 18, color: Colors.onSurface },
+    
+    studentDetails: { gap: Spacing.two },
+    studentDetailRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
+    studentDetailText: { fontFamily: Fonts.bodyMedium, fontSize: 13, color: Colors.onSurfaceVariant },
+
+    amountHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: Spacing.four },
+    amountLabel: { fontFamily: Fonts.bodyBold, fontSize: 11, color: Colors.outline, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 },
+    amountValue: { fontFamily: Fonts.headlineExtraBold, fontSize: 32, color: Colors.primary },
+    statusPill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: Radius.md },
+    statusText: { fontFamily: Fonts.bodyBold, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 },
+
+    separator: { height: 1, backgroundColor: Colors.surfaceContainerHigh, marginBottom: Spacing.four },
+
+    transactionList: { gap: Spacing.three },
+    transRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    transLabel: { fontFamily: Fonts.bodyMedium, fontSize: 14, color: Colors.onSurfaceVariant },
+    transValue: { fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.onSurface },
+
+    sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: Spacing.four, marginTop: Spacing.two },
+    sectionTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 18, color: Colors.onSurface },
+    fullScreenBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    fullScreenText: { fontFamily: Fonts.bodySemiBold, fontSize: 13, color: Colors.primary },
+
+    receiptContainer: { width: '100%', height: 420, backgroundColor: Colors.surfaceContainerHighest, borderRadius: Radius['2xl'], overflow: 'hidden' },
+    receiptImage: { width: '100%', height: '100%' },
+    pdfPlaceholder: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    pdfPlaceholderText: { fontFamily: Fonts.bodySemiBold, color: Colors.onSurfaceVariant, marginTop: Spacing.two },
+
+    bottomTray: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: Colors.surfaceContainerLowest, paddingHorizontal: Spacing.four, paddingTop: Spacing.four, paddingBottom: 36, flexDirection: 'row', gap: Spacing.three, shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.05, elevation: 15, borderTopLeftRadius: Radius['2xl'], borderTopRightRadius: Radius['2xl'] },
+    btnReject: { flex: 0.8, flexDirection: 'row', backgroundColor: '#FEF2F2', paddingVertical: 16, borderRadius: Radius.xl, justifyContent: 'center', alignItems: 'center', gap: 8 },
+    btnRejectText: { fontFamily: Fonts.headlineSemiBold, fontSize: 15, color: Colors.error },
+    btnApprove: { flex: 1.2, flexDirection: 'row', backgroundColor: Colors.primary, paddingVertical: 16, borderRadius: Radius.xl, justifyContent: 'center', alignItems: 'center', gap: 8 },
+    btnApproveText: { fontFamily: Fonts.headlineSemiBold, fontSize: 15, color: Colors.onPrimary },
+
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+    modalContent: { backgroundColor: Colors.surfaceContainerLowest, paddingHorizontal: Spacing.five, paddingTop: Spacing.four, paddingBottom: 40, borderTopLeftRadius: Radius['3xl'], borderTopRightRadius: Radius['3xl'] },
+    modalDrag: { width: 40, height: 4, backgroundColor: Colors.outlineVariant, borderRadius: 2, alignSelf: 'center', marginBottom: Spacing.four },
+    modalTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 20, color: Colors.onSurface, marginBottom: Spacing.two },
+    modalSub: { fontFamily: Fonts.bodyMedium, fontSize: 14, color: Colors.onSurfaceVariant, marginBottom: Spacing.four, lineHeight: 22 },
+    textArea: { backgroundColor: Colors.surfaceContainerLowest, borderWidth: 1, borderColor: Colors.outlineVariant, borderRadius: Radius.xl, padding: Spacing.four, fontFamily: Fonts.bodyMedium, fontSize: 15, color: Colors.onSurface, minHeight: 120, marginBottom: Spacing.five },
+    modalActions: { flexDirection: 'row', gap: Spacing.three },
+    modalCancel: { flex: 1, paddingVertical: 16, borderRadius: Radius.xl, backgroundColor: Colors.surfaceContainerHigh, alignItems: 'center' },
+    modalCancelText: { fontFamily: Fonts.headlineSemiBold, fontSize: 15, color: Colors.onSurfaceVariant },
+    modalSubmit: { flex: 1.5, paddingVertical: 16, borderRadius: Radius.xl, backgroundColor: Colors.error, alignItems: 'center' },
+    modalSubmitText: { fontFamily: Fonts.headlineSemiBold, fontSize: 15, color: Colors.onError },
+
+    alertOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: Spacing.four },
+    alertContent: { width: '100%', backgroundColor: Colors.surfaceContainerLowest, borderRadius: Radius['2xl'], padding: Spacing.five, alignItems: 'center' },
+    alertIcon: { marginBottom: Spacing.four },
+    alertTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 20, color: Colors.onSurface, marginBottom: Spacing.two, textAlign: 'center' },
+    alertMessage: { fontFamily: Fonts.bodyMedium, fontSize: 15, color: Colors.onSurfaceVariant, textAlign: 'center', marginBottom: Spacing.five, lineHeight: 22 },
+    alertActions: { flexDirection: 'row', gap: Spacing.three, width: '100%' },
+    alertCancelBtn: { flex: 1, paddingVertical: 14, borderRadius: Radius.xl, backgroundColor: Colors.surfaceContainerHigh, alignItems: 'center' },
+    alertCancelText: { fontFamily: Fonts.headlineSemiBold, fontSize: 15, color: Colors.onSurfaceVariant },
+    alertConfirmBtn: { flex: 1, paddingVertical: 14, borderRadius: Radius.xl, backgroundColor: Colors.primary, alignItems: 'center' },
+    alertConfirmText: { fontFamily: Fonts.headlineSemiBold, fontSize: 15, color: Colors.onPrimary },
 });
