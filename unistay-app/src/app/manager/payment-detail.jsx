@@ -195,7 +195,7 @@ export default function PaymentDetail() {
 
     const uiConfig = STATUS_UI[payment.status] || STATUS_UI.Pending;
     const studentName = payment.studentId ? `${payment.studentId.firstName} ${payment.studentId.lastName}` : 'Unknown Student';
-    const stID = payment.studentId?.split?.('-')?.[1] || Math.floor(Math.random() * 9000); 
+    const studentUsername = payment.studentId?.username || 'N/A';
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -233,7 +233,7 @@ export default function PaymentDetail() {
                         </View>
                         <View style={styles.studentDetailRow}>
                             <MaterialIcons name="business" size={16} color={Colors.onSurfaceVariant} />
-                            <Text style={styles.studentDetailText}>ID: STU-{stID}</Text>
+                            <Text style={styles.studentDetailText}>@{studentUsername}</Text>
                         </View>
                     </View>
                 </View>

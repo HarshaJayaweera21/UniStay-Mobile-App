@@ -147,7 +147,7 @@ export default function ManagerPayments() {
     const renderItem = ({ item }) => {
         const uiConfig = STATUS_UI[item.status] || STATUS_UI.Pending;
         const studentName = item.studentId ? `${item.studentId.firstName} ${item.studentId.lastName}` : 'Unknown Student';
-        const stID = item.studentId?.split?.('-')?.[1] || Math.floor(Math.random() * 9000); 
+        const studentUsername = item.studentId?.username || 'N/A';
 
         return (
             <TouchableOpacity style={styles.paymentCard} activeOpacity={0.88} onPress={() => router.push(`/manager/payment-detail?id=${item._id}`)}>
@@ -157,7 +157,7 @@ export default function ManagerPayments() {
                     </View>
                     <View style={styles.studentInfo}>
                         <Text style={styles.studentName} numberOfLines={1}>{studentName}</Text>
-                        <Text style={styles.studentRoom}>ID: STU-{stID}</Text>
+                        <Text style={styles.studentRoom}>@{studentUsername}</Text>
                     </View>
                     <View style={styles.chevronBox}>
                         <MaterialIcons name="chevron-right" size={24} color={Colors.onSurface} />

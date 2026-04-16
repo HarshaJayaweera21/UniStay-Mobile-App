@@ -83,7 +83,7 @@ const getPayments = async (req, res) => {
         // Managers see all payments (no filter)
 
         const payments = await Payment.find(filter)
-            .populate("studentId", "firstName lastName email")
+            .populate("studentId", "firstName lastName email username")
             .populate("paymentType", "name")
             .sort({ createdAt: -1 });
 
@@ -108,7 +108,7 @@ const getPayments = async (req, res) => {
 const getPaymentById = async (req, res) => {
     try {
         const payment = await Payment.findById(req.params.id)
-            .populate("studentId", "firstName lastName email")
+            .populate("studentId", "firstName lastName email username")
             .populate("paymentType", "name");
 
         if (!payment) {
@@ -186,7 +186,7 @@ const updatePaymentStatus = async (req, res) => {
 
         // Return the populated payment
         const updatedPayment = await Payment.findById(payment._id)
-            .populate("studentId", "firstName lastName email")
+            .populate("studentId", "firstName lastName email username")
             .populate("paymentType", "name");
 
         res.status(200).json({
