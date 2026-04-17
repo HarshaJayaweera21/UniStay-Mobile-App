@@ -21,6 +21,7 @@ import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { PAYMENTS_URL } from '@/constants/api';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { WebView } from 'react-native-webview';
 
 const STATUS_UI = {
     Pending: { bg: '#FFF3E0', text: '#E65100', dot: '#FFB74D' },
@@ -39,6 +40,7 @@ export default function PaymentDetail() {
     // Modal state for rejection
     const [showRejectModal, setShowRejectModal] = useState(false);
     const [rejectNote, setRejectNote] = useState('');
+    const [showFullPdf, setShowFullPdf] = useState(false);
 
     // Custom Alert Modal state
     const [alertConfig, setAlertConfig] = useState({
@@ -272,19 +274,26 @@ export default function PaymentDetail() {
                 <View style={styles.sectionHeader}>
                     <Text style={styles.sectionTitle}>Receipt Preview</Text>
                     {isPdf(payment.receipt) && (
-                        <TouchableOpacity onPress={() => handleViewReceipt(payment.receipt)} style={styles.fullScreenBtn}>
-                            <MaterialIcons name="open-in-new" size={16} color={Colors.primary} />
-                            <Text style={styles.fullScreenText}>Open PDF</Text>
+                        <TouchableOpacity onPress={() => setShowFullPdf(true)} style={styles.fullScreenBtn}>
+                            <MaterialIcons name="fullscreen" size={18} color={Colors.primary} />
+                            <Text style={styles.fullScreenText}>Full Screen</Text>
                         </TouchableOpacity>
                     )}
                 </View>
 
                 <View style={styles.receiptContainer}>
                     {isPdf(payment.receipt) ? (
-                        <View style={styles.pdfPlaceholder}>
-                            <MaterialIcons name="picture-as-pdf" size={48} color={Colors.error} />
-                            <Text style={styles.pdfPlaceholderText}>PDF Document</Text>
-                        </View>
+                        <WebView
+                            source={{ uri: `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(payment.receipt)}` }}
+                            style={{ flex: 1 }}
+                            startInLoadingState={true}
+                            renderLoading={() => (
+                                <View style={styles.pdfLoading}>
+                                    <ActivityIndicator size="large" color={Colors.primary} />
+                                    <Text style={styles.pdfLoadingText}>Loading document...</Text>
+                                </View>
+                            )}
+                        />
                     ) : (
                         <Image source={{ uri: payment.receipt }} style={styles.receiptImage} resizeMode="cover" />
                     )}
@@ -385,6 +394,32 @@ export default function PaymentDetail() {
                 </View>
             </Modal>
 
+            {/* Full-Screen PDF Modal */}
+            <Modal visible={showFullPdf} animationType="slide">
+                <SafeAreaView style={[styles.safeArea, { backgroundColor: '#1a1a2e' }]}>
+                    <View style={styles.pdfModalHeader}>
+                        <TouchableOpacity onPress={() => setShowFullPdf(false)} style={styles.pdfModalClose}>
+                            <MaterialIcons name="close" size={24} color="#fff" />
+                        </TouchableOpacity>
+                        <Text style={styles.pdfModalTitle}>Receipt Document</Text>
+                        <TouchableOpacity onPress={() => Linking.openURL(payment.receipt)} style={styles.pdfModalClose}>
+                            <MaterialIcons name="open-in-new" size={22} color="#fff" />
+                        </TouchableOpacity>
+                    </View>
+                    <WebView
+                        source={{ uri: `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(payment.receipt)}` }}
+                        style={{ flex: 1 }}
+                        startInLoadingState={true}
+                        renderLoading={() => (
+                            <View style={styles.pdfLoading}>
+                                <ActivityIndicator size="large" color={Colors.primary} />
+                                <Text style={[styles.pdfLoadingText, { color: '#ccc' }]}>Loading document...</Text>
+                            </View>
+                        )}
+                    />
+                </SafeAreaView>
+            </Modal>
+
         </SafeAreaView>
     );
 }
@@ -443,8 +478,12 @@ const styles = StyleSheet.create({
 
     receiptContainer: { width: '100%', height: 420, backgroundColor: Colors.surfaceContainerHighest, borderRadius: Radius['2xl'], overflow: 'hidden' },
     receiptImage: { width: '100%', height: '100%' },
-    pdfPlaceholder: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    pdfPlaceholderText: { fontFamily: Fonts.bodySemiBold, color: Colors.onSurfaceVariant, marginTop: Spacing.two },
+    pdfLoading: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.surfaceContainerHighest },
+    pdfLoadingText: { fontFamily: Fonts.bodyMedium, fontSize: 14, color: Colors.onSurfaceVariant, marginTop: Spacing.two },
+
+    pdfModalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.four, paddingVertical: Spacing.three, backgroundColor: '#1a1a2e' },
+    pdfModalClose: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
+    pdfModalTitle: { fontFamily: Fonts.headlineSemiBold, fontSize: 16, color: '#fff' },
 
     bottomTray: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: Colors.surfaceContainerLowest, paddingHorizontal: Spacing.four, paddingTop: Spacing.four, paddingBottom: 36, flexDirection: 'row', gap: Spacing.three, shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.05, elevation: 15, borderTopLeftRadius: Radius['2xl'], borderTopRightRadius: Radius['2xl'] },
     btnReject: { flex: 0.8, flexDirection: 'row', backgroundColor: '#FEF2F2', paddingVertical: 16, borderRadius: Radius.xl, justifyContent: 'center', alignItems: 'center', gap: 8 },
