@@ -25,6 +25,8 @@ export default function CreateComplaint() {
     const [description, setDescription] = useState('');
     const [image, setImage] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState({});
+    const [feedback, setFeedback] = useState(null); // { message, type: 'success' | 'error' }
 
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -63,25 +65,39 @@ export default function CreateComplaint() {
         }
     };
 
-    const handleSubmit = async () => {
-        if (!title.trim() || !description.trim()) {
-            Alert.alert('Error', 'Please fill in all required fields.');
-            return;
+    const validateForm = () => {
+        const newErrors = {};
+        if (!title.trim()) {
+            newErrors.title = 'Title is required';
+        } else if (title.trim().length < 5) {
+            newErrors.title = 'Title must be at least 5 characters';
         }
 
-        if (description.length < 400) {
-            Alert.alert('Incomplete Description', `Please provide more details. Description must be at least 400 characters (currently ${description.length}/400).`);
-            return;
+        if (!description.trim()) {
+            newErrors.description = 'Description is required';
+        } else if (description.trim().length < 20) {
+            newErrors.description = 'Provide at least 20 characters of detail';
         }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSubmit = async () => {
+        if (!validateForm()) return;
 
         setLoading(true);
+        setFeedback(null);
         try {
-            await createComplaint(title, description, image);
-            Alert.alert('Success', 'Complaint submitted successfully!', [
-                { text: 'OK', onPress: () => router.back() }
-            ]);
+            await createComplaint(title.trim(), description.trim(), image);
+            setFeedback({ message: 'Complaint submitted successfully!', type: 'success' });
+            
+            // Delay redirection to allow user to see the success message
+            setTimeout(() => {
+                router.back();
+            }, 2000);
         } catch (error) {
-            Alert.alert('Error', error.message || 'Something went wrong.');
+            setFeedback({ message: error.message || 'Something went wrong.', type: 'error' });
         } finally {
             setLoading(false);
         }
@@ -104,41 +120,69 @@ export default function CreateComplaint() {
                     <View style={styles.placeholder} />
                 </View>
 
+                {feedback && (
+                    <View style={[
+                        styles.feedbackBanner, 
+                        { backgroundColor: feedback.type === 'success' ? '#e6f4ea' : Colors.errorContainer }
+                    ]}>
+                        <Ionicons 
+                            name={feedback.type === 'success' ? 'checkmark-circle' : 'alert-circle'} 
+                            size={20} 
+                            color={feedback.type === 'success' ? '#1e8e3e' : Colors.error} 
+                        />
+                        <Text style={[
+                            styles.feedbackText, 
+                            { color: feedback.type === 'success' ? '#1e8e3e' : Colors.error }
+                        ]}>
+                            {feedback.message}
+                        </Text>
+                    </View>
+                )}
+
                 <View style={styles.form}>
                     <Text style={styles.label}>Complaint Title</Text>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, errors.title && styles.inputError]}
                         placeholder="e.g. Broken AC in Room 302"
                         value={title}
-                        onChangeText={setTitle}
+                        onChangeText={(val) => {
+                            setTitle(val);
+                            if (errors.title) setErrors({ ...errors, title: null });
+                        }}
                         placeholderTextColor={Colors.outline}
                     />
+                    {errors.title && <Text style={styles.errorText}>{errors.title}</Text>}
 
                     <Text style={styles.label}>Description</Text>
                     <TextInput
-                        style={[styles.input, styles.textArea]}
+                        style={[styles.input, styles.textArea, errors.description && styles.inputError]}
                         placeholder="Provide details about your issue..."
                         value={description}
-                        onChangeText={setDescription}
+                        onChangeText={(val) => {
+                            setDescription(val);
+                            if (errors.description) setErrors({ ...errors, description: null });
+                        }}
                         multiline
                         numberOfLines={6}
                         placeholderTextColor={Colors.outline}
                         textAlignVertical="top"
                     />
+                    {errors.description && <Text style={styles.errorText}>{errors.description}</Text>}
+
                     <View style={styles.charCounter}>
                         <View style={styles.charProgressBackground}>
                             <View 
                                 style={[
                                     styles.charProgressBar, 
                                     { 
-                                        width: `${Math.min((description.length / 400) * 100, 100)}%`,
-                                        backgroundColor: description.length >= 400 ? Colors.success : Colors.primary 
+                                        width: `${Math.min((description.length / 20) * 100, 100)}%`,
+                                        backgroundColor: description.length >= 20 ? Colors.success : Colors.primary 
                                     }
                                 ]} 
                             />
                         </View>
-                        <Text style={[styles.charCountText, description.length >= 400 && { color: Colors.success }]}>
-                            {description.length} / 400 characters
+                        <Text style={[styles.charCountText, description.length >= 20 && { color: Colors.success }]}>
+                            {description.length} / 20 characters minimum
                         </Text>
                     </View>
 
@@ -231,6 +275,20 @@ const styles = StyleSheet.create({
     placeholder: {
         width: 40,
     },
+    feedbackBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginHorizontal: Spacing.four,
+        marginTop: Spacing.two,
+        padding: Spacing.three,
+        borderRadius: Radius.md,
+        gap: Spacing.two,
+    },
+    feedbackText: {
+        fontFamily: Fonts.bodyMedium,
+        fontSize: 14,
+        flex: 1,
+    },
     form: {
         padding: Spacing.four,
     },
@@ -248,6 +306,19 @@ const styles = StyleSheet.create({
         fontFamily: Fonts.body,
         fontSize: 16,
         color: Colors.onSurface,
+        borderWidth: 1,
+        borderColor: 'transparent',
+    },
+    inputError: {
+        borderColor: Colors.error,
+        backgroundColor: Colors.error + '05',
+    },
+    errorText: {
+        fontFamily: Fonts.bodyMedium,
+        fontSize: 12,
+        color: Colors.error,
+        marginTop: Spacing.one,
+        marginLeft: Spacing.one,
     },
     textArea: {
         minHeight: 160,

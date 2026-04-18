@@ -28,8 +28,8 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/complaints", complaintRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Server running on port http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port http://0.0.0.0:${PORT}`);
 });
 
 // cloudinary connection test

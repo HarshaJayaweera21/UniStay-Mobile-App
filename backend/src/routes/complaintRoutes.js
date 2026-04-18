@@ -19,7 +19,7 @@ router.use(protect);
 router.post("/", upload.single("image"), createComplaint);
 
 // Get all complaints for manager - Only manager role allowed
-router.get("/", authorizeRoles("manager"), getAllComplaints);
+router.get("/", authorizeRoles("manager", "admin"), getAllComplaints);
 
 // Get complaints specifically for logged-in user
 router.get("/my", getMyComplaints);
@@ -28,7 +28,7 @@ router.get("/my", getMyComplaints);
 router.get("/:id", getComplaintById);
 
 // Update status of specific complaint - Only manager role allowed
-router.put("/:id", authorizeRoles("manager"), updateComplaintStatus);
+router.put("/:id", authorizeRoles("manager", "admin"), updateComplaintStatus);
 
 // Delete complaint
 router.delete("/:id", deleteComplaint);

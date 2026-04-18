@@ -8,6 +8,7 @@ import {
     Image,
     ActivityIndicator,
     Alert,
+    Platform,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,6 +22,7 @@ export default function ManagerComplaintDetail() {
     const [complaint, setComplaint] = useState(null);
     const [loading, setLoading] = useState(true);
     const [updating, setUpdating] = useState(false);
+    const [feedback, setFeedback] = useState(null); // { message, type: 'success' | 'error' }
 
     useEffect(() => {
         fetchComplaintDetails();
@@ -31,7 +33,11 @@ export default function ManagerComplaintDetail() {
             const data = await getComplaintById(id);
             setComplaint(data.complaint);
         } catch (error) {
-            Alert.alert('Error', 'Failed to fetch complaint details.');
+            if (Platform.OS === 'web') {
+                alert('Failed to fetch complaint details.');
+            } else {
+                Alert.alert('Error', 'Failed to fetch complaint details.');
+            }
             router.back();
         } finally {
             setLoading(false);
@@ -40,38 +46,49 @@ export default function ManagerComplaintDetail() {
 
     const handleStatusUpdate = async (newStatus) => {
         setUpdating(true);
+        setFeedback(null);
         try {
             await updateComplaintStatus(id, newStatus);
             setComplaint({ ...complaint, status: newStatus });
-            Alert.alert('Success', `Status updated to ${newStatus}`);
+            setFeedback({ message: `Status updated to ${newStatus}`, type: 'success' });
+            // Hide feedback after 4 seconds
+            setTimeout(() => setFeedback(null), 4000);
         } catch (error) {
-            Alert.alert('Error', error.message || 'Failed to update status.');
+            setFeedback({ message: error.message || 'Failed to update status.', type: 'error' });
         } finally {
             setUpdating(false);
         }
     };
 
     const handleDelete = () => {
-        Alert.alert(
-            'Confirm Delete',
-            'Are you sure you want to permanently delete this complaint?',
-            [
-                { text: 'Cancel', style: 'cancel' },
-                { 
-                    text: 'Delete', 
-                    style: 'destructive',
-                    onPress: async () => {
-                        try {
-                            await deleteComplaint(id);
-                            Alert.alert('Success', 'Complaint deleted.');
-                            router.back();
-                        } catch (error) {
-                            Alert.alert('Error', 'Failed to delete complaint.');
-                        }
-                    }
-                }
-            ]
-        );
+        if (Platform.OS === 'web') {
+            const confirmed = window.confirm('Are you sure you want to permanently delete this complaint?');
+            if (confirmed) {
+                performDelete();
+            }
+        } else {
+            Alert.alert(
+                'Confirm Delete',
+                'Are you sure you want to permanently delete this complaint?',
+                [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Delete', style: 'destructive', onPress: performDelete }
+                ]
+            );
+        }
+    };
+
+    const performDelete = async () => {
+        setFeedback(null);
+        try {
+            await deleteComplaint(id);
+            setFeedback({ message: 'Complaint deleted.', type: 'success' });
+            setTimeout(() => {
+                router.back();
+            }, 1500);
+        } catch (error) {
+            setFeedback({ message: 'Failed to delete complaint.', type: 'error' });
+        }
     };
 
     const getStatusStyle = (status) => {
@@ -104,6 +121,28 @@ export default function ManagerComplaintDetail() {
                     <Ionicons name="trash-outline" size={22} color={Colors.error} />
                 </Pressable>
             </View>
+
+            {feedback && (
+                <View style={[
+                    styles.feedbackBanner, 
+                    { backgroundColor: feedback.type === 'success' ? '#e6f4ea' : Colors.errorContainer }
+                ]}>
+                    <Ionicons 
+                        name={feedback.type === 'success' ? 'checkmark-circle' : 'alert-circle'} 
+                        size={20} 
+                        color={feedback.type === 'success' ? '#1e8e3e' : Colors.error} 
+                    />
+                    <Text style={[
+                        styles.feedbackText, 
+                        { color: feedback.type === 'success' ? '#1e8e3e' : Colors.error }
+                    ]}>
+                        {feedback.message}
+                    </Text>
+                    <Pressable onPress={() => setFeedback(null)}>
+                        <Ionicons name="close" size={18} color={feedback.type === 'success' ? '#1e8e3e' : Colors.error} />
+                    </Pressable>
+                </View>
+            )}
 
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 {/* Status Header */}
@@ -226,6 +265,20 @@ const styles = StyleSheet.create({
         fontFamily: Fonts.headlineExtraBold,
         fontSize: 20,
         color: Colors.onSurface,
+    },
+    feedbackBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginHorizontal: Spacing.four,
+        marginTop: Spacing.two,
+        padding: Spacing.three,
+        borderRadius: Radius.md,
+        gap: Spacing.two,
+    },
+    feedbackText: {
+        fontFamily: Fonts.bodyMedium,
+        fontSize: 14,
+        flex: 1,
     },
     scrollContent: {
         paddingBottom: Spacing.eight,

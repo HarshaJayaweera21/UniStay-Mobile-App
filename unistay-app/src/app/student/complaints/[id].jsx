@@ -7,12 +7,14 @@ import {
     Image,
     ActivityIndicator,
     Pressable,
+    Alert,
+    Platform,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
-import { getComplaintById } from '@/services/complaintService';
+import { getComplaintById, deleteComplaint } from '@/services/complaintService';
 
 const StatusBadge = ({ status }) => {
     const getBadgeStyle = () => {
@@ -61,6 +63,42 @@ export default function ComplaintDetails() {
         }
     };
 
+    const handleDelete = () => {
+        if (Platform.OS === 'web') {
+            const confirmed = window.confirm('Are you sure you want to delete this complaint? This action cannot be undone.');
+            if (confirmed) {
+                performDelete();
+            }
+        } else {
+            Alert.alert(
+                'Delete Complaint',
+                'Are you sure you want to delete this complaint? This action cannot be undone.',
+                [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Delete', style: 'destructive', onPress: performDelete }
+                ]
+            );
+        }
+    };
+
+    const performDelete = async () => {
+        try {
+            await deleteComplaint(id);
+            if (Platform.OS === 'web') {
+                alert('Complaint deleted successfully.');
+            } else {
+                Alert.alert('Success', 'Complaint deleted successfully.');
+            }
+            router.back();
+        } catch (err) {
+            if (Platform.OS === 'web') {
+                alert(err.message || 'Failed to delete complaint.');
+            } else {
+                Alert.alert('Error', err.message || 'Failed to delete complaint.');
+            }
+        }
+    };
+
     useEffect(() => {
         fetchDetails();
     }, [id]);
@@ -86,12 +124,21 @@ export default function ComplaintDetails() {
 
     return (
         <View style={styles.container}>
-            <Pressable 
-                onPress={() => router.back()} 
-                style={({ pressed }) => [styles.backButton, pressed && { opacity: 0.7 }]}
-            >
-                <Ionicons name="arrow-back" size={24} color={Colors.onSurface} />
-            </Pressable>
+            <View style={styles.header}>
+                <Pressable 
+                    onPress={() => router.back()} 
+                    style={({ pressed }) => [styles.backButton, pressed && { opacity: 0.7 }]}
+                >
+                    <Ionicons name="arrow-back" size={24} color={Colors.onSurface} />
+                </Pressable>
+
+                <Pressable 
+                    onPress={handleDelete} 
+                    style={({ pressed }) => [styles.deleteButton, pressed && { opacity: 0.7 }]}
+                >
+                    <Ionicons name="trash-outline" size={24} color={Colors.error} />
+                </Pressable>
+            </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.infoCard}>
@@ -143,11 +190,20 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.surface,
     },
-    backButton: {
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         paddingHorizontal: Spacing.four,
         paddingTop: Spacing.six,
         paddingBottom: Spacing.two,
         zIndex: 10,
+    },
+    backButton: {
+        padding: Spacing.one,
+    },
+    deleteButton: {
+        padding: Spacing.one,
     },
     scrollContent: {
         padding: Spacing.four,

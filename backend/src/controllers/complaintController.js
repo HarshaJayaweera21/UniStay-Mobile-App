@@ -1,5 +1,6 @@
 const Complaint = require("../models/Complaint");
 const cloudinary = require("../config/cloudinary");
+const logger = require("../utils/logger");
 
 // Helper to upload buffer to cloudinary
 const uploadImageToCloudinary = (buffer) => {
@@ -8,7 +9,7 @@ const uploadImageToCloudinary = (buffer) => {
             { folder: "Complaint_images" },
             (error, result) => {
                 if (error) {
-                    console.error("Cloudinary Upload Error:", error);
+                    logger.error("Cloudinary Upload Error:", error);
                     return reject(error);
                 }
                 resolve(result);
@@ -23,10 +24,25 @@ const uploadImageToCloudinary = (buffer) => {
 // @access  Private
 const createComplaint = async (req, res) => {
     try {
-        const { title, description } = req.body;
+        let { title, description } = req.body;
 
-        if (!title || !description) {
-            return res.status(400).json({ success: false, message: "Title and description are required" });
+        // Validation & Sanitization
+        if (!title || typeof title !== 'string' || title.trim() === '') {
+            return res.status(400).json({ success: false, message: "Title is required" });
+        }
+        if (!description || typeof description !== 'string' || description.trim() === '') {
+            return res.status(400).json({ success: false, message: "Description is required" });
+        }
+
+        title = title.trim();
+        description = description.trim();
+
+        if (title.length < 5 || title.length > 100) {
+            return res.status(400).json({ success: false, message: "Title must be between 5 and 100 characters" });
+        }
+
+        if (description.length < 20 || description.length > 5000) {
+            return res.status(400).json({ success: false, message: "Description must be between 20 and 5000 characters" });
         }
 
         let imageUrl = null;
@@ -48,7 +64,7 @@ const createComplaint = async (req, res) => {
 
         res.status(201).json({ success: true, complaint: newComplaint });
     } catch (error) {
-        console.error("Error creating complaint:", error);
+        logger.error("Error creating complaint:", error.message);
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
     }
 };
@@ -129,11 +145,29 @@ const updateComplaintStatus = async (req, res) => {
 // @access  Private
 const deleteComplaint = async (req, res) => {
     try {
-        const complaint = await Complaint.findByIdAndDelete(req.params.id);
+        logger.info(`DELETE request for complaint: ${req.params.id} from user: ${req.user.id || req.user._id}`);
+        const complaint = await Complaint.findById(req.params.id);
         
         if (!complaint) {
+            logger.warn(`Complaint ${req.params.id} not found`);
             return res.status(404).json({ success: false, message: "Complaint not found" });
         }
+
+        // Check if user is owner or admin
+        const currentUserId = (req.user.id || req.user._id).toString();
+        const complaintOwnerId = complaint.userId.toString();
+        const isOwner = complaintOwnerId === currentUserId;
+        const isAdmin = req.user.role === 'admin';
+
+        logger.info(`Authorization Check - isOwner: ${isOwner}, isAdmin: ${isAdmin}`);
+
+        if (!isOwner && !isAdmin) {
+            logger.denied(`User ${currentUserId} attempted to delete complaint ${req.params.id}`);
+            return res.status(403).json({ success: false, message: "Not authorized to delete this complaint" });
+        }
+
+        await Complaint.findByIdAndDelete(req.params.id);
+        logger.success(`Complaint ${req.params.id} deleted successfully`);
         
         res.status(200).json({ success: true, message: "Complaint deleted successfully" });
     } catch (error) {

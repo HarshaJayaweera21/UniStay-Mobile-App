@@ -13,7 +13,7 @@ const getBaseUrl = () => {
     
     // For Web and physical iOS/Android testing via Expo Go
     // Using your specific local IP address to ensure reliable network connection
-    return 'http://192.168.1.38:3000';
+    return 'http://192.168.1.6:3000';
 };
 
 export const API_URL = getBaseUrl();
