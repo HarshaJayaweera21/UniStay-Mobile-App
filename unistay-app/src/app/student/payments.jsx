@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import {
     View, Text, StyleSheet, FlatList, TouchableOpacity,
-    ActivityIndicator, RefreshControl, SafeAreaView,
+    ActivityIndicator, RefreshControl, SafeAreaView, ScrollView, Modal,
     Platform, StatusBar
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -17,9 +17,14 @@ const STATUS_COLORS = {
     Rejected: { bg: '#FEE2E2', text: '#B91C1C' }, // Red
 };
 
+const FILTERS = ['All', 'Pending', 'Approved', 'Rejected'];
+
 export default function StudentPayments() {
     const router = useRouter();
     const [payments, setPayments] = useState([]);
+    const [activeFilter, setActiveFilter] = useState('All');
+    const [activeTypeFilter, setActiveTypeFilter] = useState('All Types');
+    const [typeModalVisible, setTypeModalVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState('');
@@ -106,8 +111,34 @@ export default function StudentPayments() {
             <View style={styles.listHeader}>
                 <Text style={styles.listTitle}>Recent Activity</Text>
             </View>
+
+            {/* Filters */}
+            <View style={{ gap: Spacing.four, paddingBottom: Spacing.three }}>
+                <View style={styles.fixedFilterRow}>
+                    {FILTERS.map(f => {
+                        const isActive = activeFilter === f;
+                        return (
+                            <TouchableOpacity key={f} onPress={() => setActiveFilter(f)} style={[styles.fixedFilterPill, isActive && styles.fixedFilterPillActive]}>
+                                <Text style={[styles.fixedFilterPillText, isActive && styles.fixedFilterPillTextActive]}>{f}</Text>
+                            </TouchableOpacity>
+                        );
+                    })}
+                </View>
+
+                <TouchableOpacity style={styles.dropdownButton} onPress={() => setTypeModalVisible(true)} activeOpacity={0.7}>
+                    <Text style={styles.dropdownButtonText}>{activeTypeFilter}</Text>
+                    <MaterialIcons name="expand-more" size={24} color={Colors.outline} />
+                </TouchableOpacity>
+            </View>
         </View>
     );
+
+    const filteredPayments = payments.filter(p => {
+        const matchStatus = activeFilter === 'All' || p.status === activeFilter;
+        const pType = p.paymentType?.name || 'Standard';
+        const matchType = activeTypeFilter === 'All Types' || pType === activeTypeFilter;
+        return matchStatus && matchType;
+    });
 
     const renderItem = ({ item }) => {
         const sc = STATUS_COLORS[item.status] || STATUS_COLORS.Pending;
@@ -161,10 +192,10 @@ export default function StudentPayments() {
                         <TouchableOpacity onPress={() => fetchPayments()}><Text style={styles.retry}>Tap to retry</Text></TouchableOpacity>
                     </View>
                 ) : (
-                    <FlatList data={payments} renderItem={renderItem} keyExtractor={(i) => i._id}
+                    <FlatList data={filteredPayments} renderItem={renderItem} keyExtractor={(i) => i._id}
                         contentContainerStyle={styles.list}
                         ListHeaderComponent={renderHeader}
-                        ListEmptyComponent={<View style={styles.empty}><MaterialIcons name="receipt-long" size={64} color={Colors.outlineVariant} /><Text style={styles.emptyTitle}>No Payments Yet</Text><Text style={styles.emptySub}>Tap the + button below to submit your first payment.</Text></View>}
+                        ListEmptyComponent={<View style={styles.empty}><MaterialIcons name="receipt-long" size={64} color={Colors.outlineVariant} /><Text style={styles.emptyTitle}>No Payments Found</Text><Text style={styles.emptySub}>Tap the + button below to submit your first payment.</Text></View>}
                         refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={() => { setIsRefreshing(true); fetchPayments(false); }} colors={[Colors.primary]} tintColor={Colors.primary} />}
                         showsVerticalScrollIndicator={false}
                     />
@@ -174,6 +205,25 @@ export default function StudentPayments() {
                     <MaterialIcons name="add" size={28} color={Colors.onPrimary} />
                 </TouchableOpacity>
             </View>
+
+            <Modal visible={typeModalVisible} transparent animationType="slide">
+                <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setTypeModalVisible(false)}>
+                    <View style={styles.modalContent}>
+                        <View style={styles.modalDragIndicator} />
+                        <Text style={styles.modalTitle}>Select Payment Type</Text>
+                        {['All Types', ...new Set(payments.map(p => p.paymentType?.name || 'Standard'))].map(type => (
+                            <TouchableOpacity 
+                                key={type} 
+                                style={[styles.modalOption, activeTypeFilter === type && styles.modalOptionActive]} 
+                                onPress={() => { setActiveTypeFilter(type); setTypeModalVisible(false); }}
+                            >
+                                <Text style={[styles.modalOptionText, activeTypeFilter === type && styles.modalOptionTextActive]}>{type}</Text>
+                                {activeTypeFilter === type && <MaterialIcons name="check" size={20} color={Colors.primary} />}
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </TouchableOpacity>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -280,6 +330,24 @@ const styles = StyleSheet.create({
         fontSize: 20,
         color: Colors.onSurface,
     },
+
+    fixedFilterRow: { flexDirection: 'row', gap: Spacing.two },
+    fixedFilterPill: { flex: 1, backgroundColor: Colors.surfaceContainerHigh, paddingVertical: 12, borderRadius: Radius.full, alignItems: 'center' },
+    fixedFilterPillActive: { backgroundColor: Colors.primary },
+    fixedFilterPillText: { fontFamily: Fonts.bodySemiBold, fontSize: 13, color: Colors.onSurfaceVariant },
+    fixedFilterPillTextActive: { color: Colors.onPrimary },
+
+    dropdownButton: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: Colors.surfaceContainerLowest, paddingHorizontal: Spacing.four, paddingVertical: Spacing.three, borderRadius: Radius.xl, borderWidth: 1, borderColor: Colors.outlineVariant },
+    dropdownButtonText: { fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.onSurface },
+
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+    modalContent: { backgroundColor: Colors.surfaceContainerLowest, borderTopLeftRadius: Radius['3xl'], borderTopRightRadius: Radius['3xl'], padding: Spacing.five, paddingBottom: 40 },
+    modalDragIndicator: { width: 40, height: 4, backgroundColor: Colors.outlineVariant, borderRadius: 2, alignSelf: 'center', marginBottom: Spacing.four },
+    modalTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 18, color: Colors.onSurface, marginBottom: Spacing.four },
+    modalOption: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: Spacing.three, borderBottomWidth: 1, borderBottomColor: Colors.surfaceContainerHigh },
+    modalOptionActive: { backgroundColor: Colors.primaryContainer, borderRadius: Radius.lg, paddingHorizontal: Spacing.three, borderBottomWidth: 0, marginVertical: 2 },
+    modalOptionText: { fontFamily: Fonts.bodyMedium, fontSize: 16, color: Colors.onSurface },
+    modalOptionTextActive: { fontFamily: Fonts.bodyBold, color: Colors.onPrimaryContainer },
 
     transactionCard: {
         backgroundColor: Colors.surfaceContainerLowest,
