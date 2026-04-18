@@ -112,7 +112,7 @@ export default function StudentPayments() {
     const renderItem = ({ item }) => {
         const sc = STATUS_COLORS[item.status] || STATUS_COLORS.Pending;
         return (
-            <TouchableOpacity style={styles.transactionCard} activeOpacity={0.9}>
+            <TouchableOpacity style={styles.transactionCard} activeOpacity={0.9} onPress={() => router.push(`/student/payment-view?id=${item._id}`)}>
                 <View style={styles.transactionLeft}>
                     <View style={styles.iconBox}>
                         <MaterialIcons name={getIconForType(item.paymentType?.name)} size={26} color={Colors.primary} />

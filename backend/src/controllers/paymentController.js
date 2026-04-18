@@ -104,7 +104,7 @@ const getPayments = async (req, res) => {
 };
 
 /**
- * Get single payment by ID (Manager only)
+ * Get single payment by ID (Manager or owning Student)
  * GET /api/payments/:id
  */
 const getPaymentById = async (req, res) => {
@@ -117,6 +117,14 @@ const getPaymentById = async (req, res) => {
             return res.status(404).json({
                 success: false,
                 message: "Payment not found.",
+            });
+        }
+
+        // Students can only view their own payments
+        if (req.user.role === "student" && payment.studentId._id.toString() !== req.user.id) {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied. You can only view your own payments.",
             });
         }
 
@@ -251,6 +259,11 @@ const getPaymentReceipt = async (req, res) => {
             return res.status(404).json({ success: false, message: "No receipt found for this payment." });
         }
 
+        // Students can only access their own receipts
+        if (req.user.role === "student" && payment.studentId.toString() !== req.user.id) {
+            return res.status(403).json({ success: false, message: "Access denied." });
+        }
+
         const receiptUrl = payment.receipt;
         const protocol = receiptUrl.startsWith("https") ? https : http;
 
@@ -293,6 +306,100 @@ const getPaymentReceipt = async (req, res) => {
     }
 };
 
+/**
+ * Resubmit / Edit a payment (Student only)
+ * PUT /api/payments/:id/resubmit
+ * Allows students to update pending or rejected payments
+ * Body (multipart/form-data): { paymentType?, amount?, receipt? (file) }
+ */
+const resubmitPayment = async (req, res) => {
+    try {
+        const payment = await Payment.findById(req.params.id);
+
+        if (!payment) {
+            return res.status(404).json({
+                success: false,
+                message: "Payment not found.",
+            });
+        }
+
+        // Verify ownership
+        if (payment.studentId.toString() !== req.user.id) {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied. You can only edit your own payments.",
+            });
+        }
+
+        // Only allow editing Pending or Rejected payments
+        if (payment.status === "Approved") {
+            return res.status(400).json({
+                success: false,
+                message: "Approved payments cannot be edited.",
+            });
+        }
+
+        // Update fields if provided
+        const { paymentType, amount } = req.body;
+
+        if (paymentType) {
+            const typeExists = await PaymentType.findById(paymentType);
+            if (!typeExists) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid payment type.",
+                });
+            }
+            payment.paymentType = paymentType;
+        }
+
+        if (amount) {
+            const parsedAmount = parseFloat(amount);
+            if (isNaN(parsedAmount) || parsedAmount <= 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Amount must be a number greater than 0.",
+                });
+            }
+            payment.amount = parsedAmount;
+        }
+
+        // Update receipt if a new file was uploaded
+        if (req.file) {
+            payment.receipt = req.file.path;
+        }
+
+        // Reset status back to Pending for re-review
+        payment.status = "Pending";
+        // Clear any previous rejection note
+        payment.note = undefined;
+
+        await payment.save();
+
+        const updatedPayment = await Payment.findById(payment._id)
+            .populate("studentId", "firstName lastName email username")
+            .populate("paymentType", "name");
+
+        res.status(200).json({
+            success: true,
+            message: "Payment resubmitted successfully.",
+            payment: updatedPayment,
+        });
+    } catch (error) {
+        console.error("resubmitPayment error:", error);
+        if (error.kind === "ObjectId") {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid payment ID format.",
+            });
+        }
+        res.status(500).json({
+            success: false,
+            message: "Server error while resubmitting payment.",
+        });
+    }
+};
+
 module.exports = {
     createPayment,
     getPayments,
@@ -300,4 +407,5 @@ module.exports = {
     updatePaymentStatus,
     getPaymentTypes,
     getPaymentReceipt,
+    resubmitPayment,
 };
