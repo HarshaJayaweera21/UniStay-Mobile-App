@@ -11,7 +11,7 @@ import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { PAYMENTS_URL } from '@/constants/api';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { TextInput } from 'react-native';
-
+import DateTimePicker from '@react-native-community/datetimepicker';
 const FILTERS = ['All', 'Pending', 'Approved', 'Rejected'];
 
 const STATUS_UI = {
@@ -38,6 +38,7 @@ export default function ManagerPayments() {
     const [toDate, setToDate] = useState(lastDay);
     const [tempFromDate, setTempFromDate] = useState(firstDay);
     const [tempToDate, setTempToDate] = useState(lastDay);
+    const [showPickerFor, setShowPickerFor] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState('');
@@ -75,6 +76,16 @@ export default function ManagerPayments() {
         }
     };
 
+    const handleDateChange = (event, selectedDate) => {
+        const currentPickerFor = showPickerFor;
+        setShowPickerFor(null);
+        if (selectedDate && event.type !== 'dismissed') {
+            const dateStr = selectedDate.toISOString().split('T')[0];
+            if (currentPickerFor === 'from') setTempFromDate(dateStr);
+            if (currentPickerFor === 'to') setTempToDate(dateStr);
+        }
+    };
+
     const applyDateFilter = () => {
         setFromDate(tempFromDate);
         setToDate(tempToDate);
@@ -82,6 +93,8 @@ export default function ManagerPayments() {
         setIsShowingAll(false);
         fetchPayments(true, false, tempFromDate, tempToDate);
     };
+
+    const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
     useFocusEffect(useCallback(() => { fetchPayments(); }, []));
 
@@ -306,27 +319,36 @@ export default function ManagerPayments() {
                         <View style={{ gap: Spacing.two, marginBottom: Spacing.four }}>
                             <View>
                                 <Text style={styles.dateInputLabel}>From Date</Text>
-                                <TextInput 
-                                    style={styles.dateInput} 
-                                    placeholder="YYYY-MM-DD" 
-                                    placeholderTextColor={Colors.outlineVariant}
-                                    value={tempFromDate} 
-                                    onChangeText={setTempFromDate} 
-                                    maxLength={10}
-                                />
+                                <TouchableOpacity style={styles.dateInput} onPress={() => setShowPickerFor('from')} activeOpacity={0.7}>
+                                    <Text style={[styles.dateInputText, !tempFromDate && { color: Colors.outlineVariant }]}>
+                                        {tempFromDate ? formatDate(tempFromDate) : 'Select Date'}
+                                    </Text>
+                                    <MaterialIcons name="calendar-today" size={18} color={Colors.primary} />
+                                </TouchableOpacity>
                             </View>
                             <View>
                                 <Text style={styles.dateInputLabel}>To Date</Text>
-                                <TextInput 
-                                    style={styles.dateInput} 
-                                    placeholder="YYYY-MM-DD" 
-                                    placeholderTextColor={Colors.outlineVariant}
-                                    value={tempToDate} 
-                                    onChangeText={setTempToDate} 
-                                    maxLength={10}
-                                />
+                                <TouchableOpacity style={styles.dateInput} onPress={() => setShowPickerFor('to')} activeOpacity={0.7}>
+                                    <Text style={[styles.dateInputText, !tempToDate && { color: Colors.outlineVariant }]}>
+                                        {tempToDate ? formatDate(tempToDate) : 'Select Date'}
+                                    </Text>
+                                    <MaterialIcons name="calendar-today" size={18} color={Colors.primary} />
+                                </TouchableOpacity>
                             </View>
                         </View>
+                        
+                        {showPickerFor && (
+                            <DateTimePicker
+                                value={
+                                    showPickerFor === 'from' && tempFromDate ? new Date(tempFromDate) : 
+                                    showPickerFor === 'to' && tempToDate ? new Date(tempToDate) : 
+                                    new Date()
+                                }
+                                mode="date"
+                                display="default"
+                                onChange={handleDateChange}
+                            />
+                        )}
                         
                         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: Spacing.five }}>
                             <TouchableOpacity style={styles.presetChip} onPress={() => { setTempFromDate(firstDay); setTempToDate(lastDay); }}>
@@ -406,7 +428,8 @@ const styles = StyleSheet.create({
     modalOptionTextActive: { fontFamily: Fonts.bodyBold, color: Colors.onPrimaryContainer },
 
     dateInputLabel: { fontFamily: Fonts.bodySemiBold, fontSize: 13, color: Colors.outline, marginBottom: 4 },
-    dateInput: { backgroundColor: Colors.surfaceContainerLowest, borderWidth: 1, borderColor: Colors.outlineVariant, borderRadius: Radius.lg, padding: Spacing.three, fontFamily: Fonts.bodyMedium, fontSize: 15, color: Colors.onSurface },
+    dateInput: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: Colors.surfaceContainerLowest, borderWidth: 1, borderColor: Colors.outlineVariant, borderRadius: Radius.lg, padding: Spacing.three },
+    dateInputText: { fontFamily: Fonts.bodyMedium, fontSize: 15, color: Colors.onSurface },
     presetChip: { backgroundColor: Colors.surfaceContainerHigh, paddingHorizontal: 12, paddingVertical: 8, borderRadius: Radius.full },
     presetChipText: { fontFamily: Fonts.bodyMedium, fontSize: 13, color: Colors.onSurfaceVariant },
     modalCancel: { flex: 1, paddingVertical: 14, borderRadius: Radius.xl, backgroundColor: Colors.surfaceContainerHigh, alignItems: 'center' },
