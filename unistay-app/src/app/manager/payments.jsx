@@ -22,6 +22,8 @@ const STATUS_UI = {
 export default function ManagerPayments() {
     const router = useRouter();
     const [payments, setPayments] = useState([]);
+    const [pagination, setPagination] = useState(null);
+    const [isShowingAll, setIsShowingAll] = useState(false);
     const [activeFilter, setActiveFilter] = useState('All');
     const [activeTypeFilter, setActiveTypeFilter] = useState('All Types');
     const [typeModalVisible, setTypeModalVisible] = useState(false);
@@ -29,12 +31,13 @@ export default function ManagerPayments() {
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState('');
 
-    const fetchPayments = async (showSpinner = true) => {
+    const fetchPayments = async (showSpinner = true, loadAll = isShowingAll) => {
         try {
             if (showSpinner) setIsLoading(true);
             setError('');
             const token = await getItem('userToken');
-            const response = await fetch(PAYMENTS_URL, { headers: { Authorization: `Bearer ${token}` } });
+            const url = loadAll ? `${PAYMENTS_URL}?limit=5000` : PAYMENTS_URL;
+            const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
             const data = await response.json();
             
             if (!response.ok) {
@@ -42,6 +45,7 @@ export default function ManagerPayments() {
                 return;
             }
             setPayments(data.payments || []);
+            setPagination(data.pagination || null);
         } catch (err) {
             setError('Network error. Please try again.');
         } finally {
@@ -212,6 +216,22 @@ export default function ManagerPayments() {
                     ListHeaderComponent={renderHeader}
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
+                    ListFooterComponent={() => {
+                        if (!pagination) return <View style={{ height: 40 }} />;
+                        if (pagination.total > payments.length && !isShowingAll) {
+                            return (
+                                <TouchableOpacity 
+                                    style={styles.viewAllBtn} 
+                                    activeOpacity={0.8}
+                                    onPress={() => { setIsShowingAll(true); fetchPayments(true, true); }}
+                                >
+                                    <Text style={styles.viewAllText}>Load All {pagination.total} Payments</Text>
+                                    <MaterialIcons name="expand-more" size={20} color={Colors.primary} />
+                                </TouchableOpacity>
+                            );
+                        }
+                        return <View style={{ height: 40 }} />;
+                    }}
                     refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor={Colors.primary} />}
                     ListEmptyComponent={
                         <View style={{ alignItems: 'center', marginTop: 40 }}>
@@ -328,5 +348,7 @@ const styles = StyleSheet.create({
     statusText: { fontFamily: Fonts.bodyBold, fontSize: 11, letterSpacing: 0.5 },
 
     errorText: { fontFamily: Fonts.bodyMedium, fontSize: 15, color: Colors.error, marginTop: 12 },
-    emptyTitle: { fontFamily: Fonts.headlineSemiBold, fontSize: 18, color: Colors.onSurfaceVariant, marginTop: 8 }
+    emptyTitle: { fontFamily: Fonts.headlineSemiBold, fontSize: 18, color: Colors.onSurfaceVariant, marginTop: 8 },
+    viewAllBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: Spacing.four, marginVertical: Spacing.two, gap: 4, backgroundColor: Colors.surfaceContainerLowest, borderRadius: Radius.xl, borderWidth: 1, borderColor: Colors.primaryContainer, borderStyle: 'dashed' },
+    viewAllText: { fontFamily: Fonts.headlineSemiBold, fontSize: 14, color: Colors.primary }
 });

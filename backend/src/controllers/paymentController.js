@@ -86,15 +86,29 @@ const getPayments = async (req, res) => {
         }
         // Managers see all payments (no filter)
 
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 50;
+        const startIndex = (page - 1) * limit;
+
         const payments = await Payment.find(filter)
             .populate("studentId", "firstName lastName email username")
             .populate("paymentType", "name")
             .populate("reviewedBy", "firstName lastName")
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .skip(startIndex)
+            .limit(limit);
+
+        const total = await Payment.countDocuments(filter);
 
         res.status(200).json({
             success: true,
             count: payments.length,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            },
             payments,
         });
     } catch (error) {

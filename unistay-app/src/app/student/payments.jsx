@@ -22,6 +22,8 @@ const FILTERS = ['All', 'Pending', 'Approved', 'Rejected'];
 export default function StudentPayments() {
     const router = useRouter();
     const [payments, setPayments] = useState([]);
+    const [pagination, setPagination] = useState(null);
+    const [isShowingAll, setIsShowingAll] = useState(false);
     const [activeFilter, setActiveFilter] = useState('All');
     const [activeTypeFilter, setActiveTypeFilter] = useState('All Types');
     const [typeModalVisible, setTypeModalVisible] = useState(false);
@@ -29,17 +31,19 @@ export default function StudentPayments() {
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState('');
 
-    const fetchPayments = async (showSpinner = true) => {
+    const fetchPayments = async (showSpinner = true, loadAll = isShowingAll) => {
         try {
             if (showSpinner) setIsLoading(true);
             setError('');
             const token = await getItem('userToken');
-            const response = await fetch(PAYMENTS_URL, {
+            const url = loadAll ? `${PAYMENTS_URL}?limit=5000` : PAYMENTS_URL;
+            const response = await fetch(url, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await response.json();
             if (!response.ok) { setError(data.message || 'Failed to fetch payments.'); return; }
             setPayments(data.payments || []);
+            setPagination(data.pagination || null);
         } catch (err) {
             setError('Network error. Please check your connection.');
         } finally {
@@ -195,6 +199,22 @@ export default function StudentPayments() {
                     <FlatList data={filteredPayments} renderItem={renderItem} keyExtractor={(i) => i._id}
                         contentContainerStyle={styles.list}
                         ListHeaderComponent={renderHeader}
+                        ListFooterComponent={() => {
+                            if (!pagination) return <View style={{ height: 40 }} />;
+                            if (pagination.total > payments.length && !isShowingAll) {
+                                return (
+                                    <TouchableOpacity 
+                                        style={styles.viewAllBtn} 
+                                        activeOpacity={0.8}
+                                        onPress={() => { setIsShowingAll(true); fetchPayments(true, true); }}
+                                    >
+                                        <Text style={styles.viewAllText}>Load All {pagination.total} Payments</Text>
+                                        <MaterialIcons name="expand-more" size={20} color={Colors.primary} />
+                                    </TouchableOpacity>
+                                );
+                            }
+                            return <View style={{ height: 40 }} />;
+                        }}
                         ListEmptyComponent={<View style={styles.empty}><MaterialIcons name="receipt-long" size={64} color={Colors.outlineVariant} /><Text style={styles.emptyTitle}>No Payments Found</Text><Text style={styles.emptySub}>Tap the + button below to submit your first payment.</Text></View>}
                         refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={() => { setIsRefreshing(true); fetchPayments(false); }} colors={[Colors.primary]} tintColor={Colors.primary} />}
                         showsVerticalScrollIndicator={false}
@@ -421,5 +441,7 @@ const styles = StyleSheet.create({
     errText: { fontFamily: Fonts.bodyMedium, fontSize: 14, color: Colors.error, textAlign: 'center', marginTop: Spacing.two },
     retry: { fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.primary, marginTop: Spacing.three },
     fab: { position: 'absolute', right: Spacing.four, bottom: Spacing.six, width: 60, height: 60, borderRadius: 30, backgroundColor: Colors.primaryContainer, justifyContent: 'center', alignItems: 'center', shadowColor: Colors.primaryContainer, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.35, shadowRadius: 16, elevation: 8 },
+    viewAllBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: Spacing.four, marginVertical: Spacing.two, gap: 4, backgroundColor: Colors.surfaceContainerLowest, borderRadius: Radius.xl, borderWidth: 1, borderColor: Colors.primaryContainer, borderStyle: 'dashed' },
+    viewAllText: { fontFamily: Fonts.headlineSemiBold, fontSize: 14, color: Colors.primary }
 });
 
