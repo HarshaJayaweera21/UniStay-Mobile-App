@@ -10,6 +10,7 @@ import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { PAYMENTS_URL } from '@/constants/api';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { TextInput } from 'react-native';
 
 const STATUS_COLORS = {
     Pending: { bg: '#FEF3C7', text: '#B45309' }, // Amber/Yellow
@@ -21,22 +22,41 @@ const FILTERS = ['All', 'Pending', 'Approved', 'Rejected'];
 
 export default function StudentPayments() {
     const router = useRouter();
+
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+
     const [payments, setPayments] = useState([]);
     const [pagination, setPagination] = useState(null);
     const [isShowingAll, setIsShowingAll] = useState(false);
     const [activeFilter, setActiveFilter] = useState('All');
     const [activeTypeFilter, setActiveTypeFilter] = useState('All Types');
     const [typeModalVisible, setTypeModalVisible] = useState(false);
+    const [dateModalVisible, setDateModalVisible] = useState(false);
+    const [fromDate, setFromDate] = useState(firstDay);
+    const [toDate, setToDate] = useState(lastDay);
+    const [tempFromDate, setTempFromDate] = useState(firstDay);
+    const [tempToDate, setTempToDate] = useState(lastDay);
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState('');
 
-    const fetchPayments = async (showSpinner = true, loadAll = isShowingAll) => {
+    const fetchPayments = async (showSpinner = true, loadAll = isShowingAll, queryFrom = fromDate, queryTo = toDate) => {
         try {
             if (showSpinner) setIsLoading(true);
             setError('');
             const token = await getItem('userToken');
-            const url = loadAll ? `${PAYMENTS_URL}?limit=5000` : PAYMENTS_URL;
+            let url = loadAll ? `${PAYMENTS_URL}?limit=5000` : `${PAYMENTS_URL}?limit=50`;
+            if (queryFrom) url += `&fromDate=${queryFrom}`;
+            if (queryTo) {
+                const endOfDay = new Date(queryTo);
+                if (!isNaN(endOfDay)) {
+                    endOfDay.setHours(23, 59, 59, 999);
+                    url += `&toDate=${endOfDay.toISOString()}`;
+                }
+            }
+
             const response = await fetch(url, {
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -50,6 +70,14 @@ export default function StudentPayments() {
             setIsLoading(false);
             setIsRefreshing(false);
         }
+    };
+
+    const applyDateFilter = () => {
+        setFromDate(tempFromDate);
+        setToDate(tempToDate);
+        setDateModalVisible(false);
+        setIsShowingAll(false);
+        fetchPayments(true, false, tempFromDate, tempToDate);
     };
 
     useFocusEffect(useCallback(() => { fetchPayments(); }, []));
@@ -129,10 +157,18 @@ export default function StudentPayments() {
                     })}
                 </View>
 
-                <TouchableOpacity style={styles.dropdownButton} onPress={() => setTypeModalVisible(true)} activeOpacity={0.7}>
-                    <Text style={styles.dropdownButtonText}>{activeTypeFilter}</Text>
-                    <MaterialIcons name="expand-more" size={24} color={Colors.outline} />
-                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', gap: Spacing.two }}>
+                    <TouchableOpacity style={[styles.dropdownButton, {flex: 1}]} onPress={() => setTypeModalVisible(true)} activeOpacity={0.7}>
+                        <Text style={styles.dropdownButtonText}>{activeTypeFilter}</Text>
+                        <MaterialIcons name="expand-more" size={24} color={Colors.outline} />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.dropdownButton, {flex: 1}]} onPress={() => { setTempFromDate(fromDate); setTempToDate(toDate); setDateModalVisible(true); }} activeOpacity={0.7}>
+                        <MaterialIcons name="date-range" size={18} color={Colors.primary} style={{ marginRight: 6 }} />
+                        <Text style={styles.dropdownButtonText} numberOfLines={1}>
+                            {fromDate || toDate ? `${fromDate?.slice(5) || '..'} to ${toDate?.slice(5) || '..'}` : 'All Dates'}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         </View>
     );
@@ -242,6 +278,57 @@ export default function StudentPayments() {
                             </TouchableOpacity>
                         ))}
                     </View>
+                </TouchableOpacity>
+            </Modal>
+            <Modal visible={dateModalVisible} transparent animationType="slide">
+                <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setDateModalVisible(false)}>
+                    <TouchableOpacity activeOpacity={1} style={styles.modalContent}>
+                        <View style={styles.modalDragIndicator} />
+                        <Text style={styles.modalTitle}>Filter by Date</Text>
+                        
+                        <View style={{ gap: Spacing.two, marginBottom: Spacing.four }}>
+                            <View>
+                                <Text style={styles.dateInputLabel}>From Date</Text>
+                                <TextInput 
+                                    style={styles.dateInput} 
+                                    placeholder="YYYY-MM-DD" 
+                                    placeholderTextColor={Colors.outlineVariant}
+                                    value={tempFromDate} 
+                                    onChangeText={setTempFromDate} 
+                                    maxLength={10}
+                                />
+                            </View>
+                            <View>
+                                <Text style={styles.dateInputLabel}>To Date</Text>
+                                <TextInput 
+                                    style={styles.dateInput} 
+                                    placeholder="YYYY-MM-DD" 
+                                    placeholderTextColor={Colors.outlineVariant}
+                                    value={tempToDate} 
+                                    onChangeText={setTempToDate} 
+                                    maxLength={10}
+                                />
+                            </View>
+                        </View>
+                        
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: Spacing.five }}>
+                            <TouchableOpacity style={styles.presetChip} onPress={() => { setTempFromDate(firstDay); setTempToDate(lastDay); }}>
+                                <Text style={styles.presetChipText}>Current Month</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.presetChip} onPress={() => { setTempFromDate(''); setTempToDate(''); }}>
+                                <Text style={styles.presetChipText}>All Time</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        <View style={{ flexDirection: 'row', gap: Spacing.three }}>
+                            <TouchableOpacity style={styles.modalCancel} onPress={() => setDateModalVisible(false)}>
+                                <Text style={styles.modalCancelText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.modalSubmit} onPress={applyDateFilter}>
+                                <Text style={styles.modalSubmitText}>Apply Filter</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </TouchableOpacity>
                 </TouchableOpacity>
             </Modal>
         </SafeAreaView>
@@ -368,6 +455,15 @@ const styles = StyleSheet.create({
     modalOptionActive: { backgroundColor: Colors.primaryContainer, borderRadius: Radius.lg, paddingHorizontal: Spacing.three, borderBottomWidth: 0, marginVertical: 2 },
     modalOptionText: { fontFamily: Fonts.bodyMedium, fontSize: 16, color: Colors.onSurface },
     modalOptionTextActive: { fontFamily: Fonts.bodyBold, color: Colors.onPrimaryContainer },
+
+    dateInputLabel: { fontFamily: Fonts.bodySemiBold, fontSize: 13, color: Colors.outline, marginBottom: 4 },
+    dateInput: { backgroundColor: Colors.surfaceContainerLowest, borderWidth: 1, borderColor: Colors.outlineVariant, borderRadius: Radius.lg, padding: Spacing.three, fontFamily: Fonts.bodyMedium, fontSize: 15, color: Colors.onSurface },
+    presetChip: { backgroundColor: Colors.surfaceContainerHigh, paddingHorizontal: 12, paddingVertical: 8, borderRadius: Radius.full },
+    presetChipText: { fontFamily: Fonts.bodyMedium, fontSize: 13, color: Colors.onSurfaceVariant },
+    modalCancel: { flex: 1, paddingVertical: 14, borderRadius: Radius.xl, backgroundColor: Colors.surfaceContainerHigh, alignItems: 'center' },
+    modalCancelText: { fontFamily: Fonts.headlineSemiBold, fontSize: 15, color: Colors.onSurfaceVariant },
+    modalSubmit: { flex: 1.5, paddingVertical: 14, borderRadius: Radius.xl, backgroundColor: Colors.primary, alignItems: 'center' },
+    modalSubmitText: { fontFamily: Fonts.headlineSemiBold, fontSize: 15, color: Colors.onPrimary },
 
     transactionCard: {
         backgroundColor: Colors.surfaceContainerLowest,

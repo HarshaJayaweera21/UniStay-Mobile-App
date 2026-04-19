@@ -86,6 +86,17 @@ const getPayments = async (req, res) => {
         }
         // Managers see all payments (no filter)
 
+        // Date filtering
+        if (req.query.fromDate || req.query.toDate) {
+            filter.createdAt = {};
+            if (req.query.fromDate) filter.createdAt.$gte = new Date(req.query.fromDate);
+            if (req.query.toDate) {
+                // If toDate is provided, make sure it includes the whole day if it's just a YYYY-MM-DD
+                const toDate = new Date(req.query.toDate);
+                filter.createdAt.$lte = toDate;
+            }
+        }
+
         const page = parseInt(req.query.page, 10) || 1;
         const limit = parseInt(req.query.limit, 10) || 50;
         const startIndex = (page - 1) * limit;
