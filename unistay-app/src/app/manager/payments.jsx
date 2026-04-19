@@ -107,10 +107,13 @@ export default function ManagerPayments() {
         return matchStatus && matchType;
     });
 
-    const totalReceived = payments.filter(p => p.status === 'Approved').reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
+    const periodApprovedTotal = payments.filter(p => p.status === 'Approved').reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
     const pendingCount = payments.filter(p => p.status === 'Pending').length;
     const approvedCount = payments.filter(p => p.status === 'Approved').length;
     const rejectedCount = payments.filter(p => p.status === 'Rejected').length;
+
+    const currentPeriodText = fromDate || toDate ? `${fromDate ? formatDate(fromDate) : 'Start'} to ${toDate ? formatDate(toDate) : 'End'}` : 'All Time';
+    const filteredTotalAmount = filteredPayments.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
 
     const renderHeader = () => (
         <View style={styles.headerSection}>
@@ -129,13 +132,18 @@ export default function ManagerPayments() {
 
             {/* Metrics Bento Grid */}
             <View style={styles.bentoGrid}>
-                {/* Total Received */}
+                {/* Period Summary Card */}
                 <View style={styles.bentoCardStandard}>
-                    <View style={[styles.bentoIconWrap, { backgroundColor: Colors.primaryFixed }]}>
-                        <MaterialIcons name="account-balance-wallet" size={24} color={Colors.primary} />
+                    <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: Spacing.two}}>
+                        <View style={[styles.bentoIconWrap, { backgroundColor: Colors.primaryFixed, marginBottom: 0 }]}>
+                            <MaterialIcons name="account-balance-wallet" size={24} color={Colors.primary} />
+                        </View>
+                        <View style={{backgroundColor: Colors.surfaceContainerHigh, paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.full}}>
+                            <Text style={{fontFamily: Fonts.bodyMedium, fontSize: 11, color: Colors.onSurfaceVariant}}>{currentPeriodText}</Text>
+                        </View>
                     </View>
-                    <Text style={styles.bentoLabel}>Total Received</Text>
-                    <Text style={styles.bentoHugeValue}>Rs. {totalReceived.toLocaleString()}</Text>
+                    <Text style={styles.bentoLabel}>Total Approved in this Period</Text>
+                    <Text style={styles.bentoHugeValue}>LKR {periodApprovedTotal.toLocaleString()}</Text>
                 </View>
 
                 {/* Pending */}
@@ -168,6 +176,21 @@ export default function ManagerPayments() {
                     </View>
                 </View>
             </View>
+
+            {/* Dynamic Filter Calculation */}
+            {(activeFilter !== 'All' || activeTypeFilter !== 'All Types') && filteredPayments.length > 0 && (
+                <View style={styles.filterAnalyticsBox}>
+                    <View style={styles.filterAnalyticsIcon}>
+                        <MaterialIcons name="calculate" size={20} color={Colors.primary} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                        <Text style={styles.filterAnalyticsLabel}>Calculated from active filters</Text>
+                        <Text style={styles.filterAnalyticsValue}>
+                            LKR {filteredTotalAmount.toLocaleString()} <Text style={styles.filterAnalyticsSubtext}>({filteredPayments.length} items)</Text>
+                        </Text>
+                    </View>
+                </View>
+            )}
 
             {/* Filters */}
             <View style={{ gap: Spacing.four, paddingBottom: Spacing.three }}>
@@ -470,5 +493,11 @@ const styles = StyleSheet.create({
     errorText: { fontFamily: Fonts.bodyMedium, fontSize: 15, color: Colors.error, marginTop: 12 },
     emptyTitle: { fontFamily: Fonts.headlineSemiBold, fontSize: 18, color: Colors.onSurfaceVariant, marginTop: 8 },
     viewAllBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: Spacing.four, marginVertical: Spacing.two, gap: 4, backgroundColor: Colors.surfaceContainerLowest, borderRadius: Radius.xl, borderWidth: 1, borderColor: Colors.primaryContainer, borderStyle: 'dashed' },
-    viewAllText: { fontFamily: Fonts.headlineSemiBold, fontSize: 14, color: Colors.primary }
+    viewAllText: { fontFamily: Fonts.headlineSemiBold, fontSize: 14, color: Colors.primary },
+
+    filterAnalyticsBox: { backgroundColor: Colors.surfaceContainerLowest, padding: Spacing.three, borderRadius: Radius.xl, marginBottom: Spacing.four, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: Colors.outlineVariant },
+    filterAnalyticsIcon: { width: 36, height: 36, borderRadius: Radius.lg, backgroundColor: Colors.surfaceContainer, justifyContent: 'center', alignItems: 'center', marginRight: Spacing.three },
+    filterAnalyticsLabel: { fontFamily: Fonts.bodyMedium, fontSize: 12, color: Colors.onSurfaceVariant, marginBottom: 2 },
+    filterAnalyticsValue: { fontFamily: Fonts.headlineExtraBold, fontSize: 16, color: Colors.onSurface },
+    filterAnalyticsSubtext: { fontFamily: Fonts.bodyMedium, fontSize: 13, color: Colors.outline }
 });
