@@ -9,6 +9,7 @@ const {
     updatePaymentStatus,
     getPaymentReceipt,
     resubmitPayment,
+    deletePayment,
 } = require("../controllers/paymentController");
 
 // POST /api/payments — Student creates a payment with receipt upload
@@ -42,5 +43,8 @@ router.get("/:id", protect, authorizeRoles("manager", "student"), getPaymentById
 
 // PUT /api/payments/:id — Manager approves or rejects a payment
 router.put("/:id", protect, authorizeRoles("manager"), updatePaymentStatus);
+
+// DELETE /api/payments/:id — Student cancels/deletes a pending payment
+router.delete("/:id", protect, authorizeRoles("student"), deletePayment);
 
 module.exports = router;

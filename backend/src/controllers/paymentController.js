@@ -2,6 +2,7 @@ const Payment = require("../models/Payment");
 const PaymentType = require("../models/PaymentType");
 const https = require("https");
 const http = require("http");
+const cloudinary = require("../config/cloudinary");
 
 /**
  * Create a new payment (Student only)
@@ -52,6 +53,7 @@ const createPayment = async (req, res) => {
             paymentType,
             amount: parsedAmount,
             receipt: req.file.path,
+            cloudinaryId: req.file.filename,
             status: "Pending",
         });
 
@@ -366,7 +368,18 @@ const resubmitPayment = async (req, res) => {
 
         // Update receipt if a new file was uploaded
         if (req.file) {
+            // Delete old file from Cloudinary if it exists
+            if (payment.cloudinaryId) {
+                try {
+                    await cloudinary.uploader.destroy(payment.cloudinaryId);
+                } catch (error) {
+                    console.error("Cloudinary delete old receipt error:", error);
+                    // Continue even if Cloudinary delete fails
+                }
+            }
+            
             payment.receipt = req.file.path;
+            payment.cloudinaryId = req.file.filename;
         }
 
         // Reset status back to Pending for re-review
@@ -400,6 +413,73 @@ const resubmitPayment = async (req, res) => {
     }
 };
 
+/**
+ * Delete a payment (Student only)
+ * DELETE /api/payments/:id
+ * Only allowed if status is Pending
+ */
+const deletePayment = async (req, res) => {
+    try {
+        const payment = await Payment.findById(req.params.id);
+
+        if (!payment) {
+            return res.status(404).json({
+                success: false,
+                message: "Payment not found.",
+            });
+        }
+
+        // Verify ownership
+        if (payment.studentId.toString() !== req.user.id) {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied. You can only delete your own payments.",
+            });
+        }
+
+        // Only allow deleting Pending payments
+        if (payment.status !== "Pending") {
+            return res.status(400).json({
+                success: false,
+                message: `You cannot delete a ${payment.status} payment.`,
+            });
+        }
+
+        // Delete from Cloudinary first
+        if (payment.cloudinaryId) {
+            try {
+                await cloudinary.uploader.destroy(payment.cloudinaryId);
+            } catch (error) {
+                console.error("Cloudinary delete receipt error:", error);
+                // We'll still proceed to delete the record so they aren't stuck
+            }
+        }
+
+        // Remove from database
+        await payment.deleteOne();
+
+        res.status(200).json({
+            success: true,
+            message: "Payment canceled successfully.",
+            id: req.params.id
+        });
+    } catch (error) {
+        console.error("deletePayment error:", error);
+        
+        if (error.kind === "ObjectId") {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid payment ID format.",
+            });
+        }
+        
+        res.status(500).json({
+            success: false,
+            message: "Server error while deleting payment.",
+        });
+    }
+};
+
 module.exports = {
     createPayment,
     getPayments,
@@ -408,4 +488,5 @@ module.exports = {
     getPaymentTypes,
     getPaymentReceipt,
     resubmitPayment,
+    deletePayment,
 };

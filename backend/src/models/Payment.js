@@ -25,6 +25,10 @@ const paymentSchema = new mongoose.Schema(
       required: true,
     },
 
+    cloudinaryId: {
+      type: String, // public_id for cloudinary cleanup
+    },
+
     status: {
       type: String,
       enum: ["Pending", "Approved", "Rejected"],

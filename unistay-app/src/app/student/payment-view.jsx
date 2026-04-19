@@ -31,6 +31,7 @@ export default function PaymentView() {
     // Edit mode
     const [isEditing, setIsEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const [editAmount, setEditAmount] = useState('');
     const [editType, setEditType] = useState(null);
     const [newFile, setNewFile] = useState(null);
@@ -170,6 +171,41 @@ export default function PaymentView() {
         } catch (err) {
             showAlert('Network Error', 'Please check your connection.', 'error');
         } finally { setIsSubmitting(false); }
+    };
+
+    const handleCancelPayment = () => {
+        setAlertConfig({
+            visible: true,
+            title: 'Cancel Payment?',
+            message: 'Are you sure you want to cancel and delete this payment request? This action cannot be undone.',
+            type: 'warning',
+            confirmText: 'Yes, Cancel',
+            showCancel: true,
+            onConfirm: async () => {
+                setIsDeleting(true);
+                try {
+                    const token = await getItem('userToken');
+                    const res = await fetch(`${PAYMENTS_URL}/${id}`, {
+                        method: 'DELETE',
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                    const data = await res.json();
+                    
+                    if (!res.ok) { 
+                        setIsDeleting(false);
+                        setTimeout(() => showAlert('Cancel Failed', data.message || 'Failed.', 'error'), 400);
+                        return; 
+                    }
+                    
+                    setTimeout(() => showAlert('Success', 'Payment canceled successfully.', 'success', () => {
+                        router.back();
+                    }), 400);
+                } catch (err) {
+                    setIsDeleting(false);
+                    setTimeout(() => showAlert('Network Error', 'Please check your connection.', 'error'), 400);
+                }
+            }
+        });
     };
 
     const isPdf = (url) => url && (url.toLowerCase().endsWith('.pdf') || url.includes('/raw/'));
@@ -439,12 +475,28 @@ export default function PaymentView() {
                             </TouchableOpacity>
                         </>
                     ) : (
-                        <TouchableOpacity style={styles.btnEditFull} onPress={enterEditMode}>
-                            <MaterialIcons name="edit" size={18} color={Colors.onPrimary} />
-                            <Text style={styles.btnResubmitText}>
-                                {payment.status === 'Rejected' ? 'Edit & Resubmit' : 'Edit Payment'}
-                            </Text>
-                        </TouchableOpacity>
+                        <>
+                            {payment.status === 'Pending' ? (
+                                <View style={{ flexDirection: 'row', gap: Spacing.three, flex: 1 }}>
+                                    <TouchableOpacity style={styles.btnCancelPending} onPress={handleCancelPayment} disabled={isDeleting}>
+                                        {isDeleting ? (
+                                            <ActivityIndicator color={Colors.error} size="small" />
+                                        ) : (
+                                            <Text style={styles.btnCancelPendingText}>Cancel Request</Text>
+                                        )}
+                                    </TouchableOpacity>
+                                    <TouchableOpacity style={styles.btnEditFlex} onPress={enterEditMode} disabled={isDeleting}>
+                                        <MaterialIcons name="edit" size={18} color={Colors.onPrimary} />
+                                        <Text style={styles.btnResubmitText}>Edit</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            ) : (
+                                <TouchableOpacity style={styles.btnEditFull} onPress={enterEditMode}>
+                                    <MaterialIcons name="edit" size={18} color={Colors.onPrimary} />
+                                    <Text style={styles.btnResubmitText}>Edit & Resubmit</Text>
+                                </TouchableOpacity>
+                            )}
+                        </>
                     )}
                 </View>
             )}
@@ -551,16 +603,26 @@ export default function PaymentView() {
                         </View>
                         <Text style={styles.alertTitle}>{alertConfig.title}</Text>
                         <Text style={styles.alertMessage}>{alertConfig.message}</Text>
-                        <TouchableOpacity
-                            style={[styles.alertBtn, { backgroundColor: ALERT_ICONS[alertConfig.type]?.color || Colors.primary }]}
-                            onPress={() => {
-                                const cb = alertConfig.onConfirm;
-                                closeAlert();
-                                if (cb) setTimeout(cb, 300);
-                            }}
-                        >
-                            <Text style={styles.alertBtnText}>{alertConfig.confirmText}</Text>
-                        </TouchableOpacity>
+                        <View style={{ flexDirection: 'row', gap: Spacing.three, width: '100%' }}>
+                            {alertConfig.showCancel && (
+                                <TouchableOpacity
+                                    style={[styles.alertBtn, { flex: 1, backgroundColor: Colors.surfaceContainerHigh }]}
+                                    onPress={closeAlert}
+                                >
+                                    <Text style={[styles.alertBtnText, { color: Colors.onSurface }]}>Go Back</Text>
+                                </TouchableOpacity>
+                            )}
+                            <TouchableOpacity
+                                style={[styles.alertBtn, { flex: 1, backgroundColor: ALERT_ICONS[alertConfig.type]?.color || Colors.primary }]}
+                                onPress={() => {
+                                    const cb = alertConfig.onConfirm;
+                                    closeAlert();
+                                    if (cb) setTimeout(cb, 300);
+                                }}
+                            >
+                                <Text style={styles.alertBtnText}>{alertConfig.confirmText}</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </Modal>
@@ -670,6 +732,15 @@ const styles = StyleSheet.create({
     },
     btnResubmitText: { fontFamily: Fonts.headlineSemiBold, fontSize: 15, color: Colors.onPrimary },
     btnEditFull: {
+        flex: 1, flexDirection: 'row', paddingVertical: 16, borderRadius: Radius.xl,
+        justifyContent: 'center', alignItems: 'center', gap: 8, backgroundColor: Colors.primary,
+    },
+    btnCancelPending: {
+        flex: 1, paddingVertical: 16, borderRadius: Radius.xl, justifyContent: 'center',
+        alignItems: 'center', backgroundColor: Colors.errorContainer, borderWidth: 1, borderColor: Colors.error + '40',
+    },
+    btnCancelPendingText: { fontFamily: Fonts.headlineSemiBold, fontSize: 15, color: Colors.error },
+    btnEditFlex: {
         flex: 1, flexDirection: 'row', paddingVertical: 16, borderRadius: Radius.xl,
         justifyContent: 'center', alignItems: 'center', gap: 8, backgroundColor: Colors.primary,
     },
