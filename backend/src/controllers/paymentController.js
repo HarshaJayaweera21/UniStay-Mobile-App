@@ -89,6 +89,7 @@ const getPayments = async (req, res) => {
         const payments = await Payment.find(filter)
             .populate("studentId", "firstName lastName email username")
             .populate("paymentType", "name")
+            .populate("reviewedBy", "firstName lastName")
             .sort({ createdAt: -1 });
 
         res.status(200).json({
@@ -113,7 +114,8 @@ const getPaymentById = async (req, res) => {
     try {
         const payment = await Payment.findById(req.params.id)
             .populate("studentId", "firstName lastName email username")
-            .populate("paymentType", "name");
+            .populate("paymentType", "name")
+            .populate("reviewedBy", "firstName lastName");
 
         if (!payment) {
             return res.status(404).json({
@@ -190,6 +192,8 @@ const updatePaymentStatus = async (req, res) => {
 
         // Update the payment
         payment.status = status;
+        payment.reviewedBy = req.user.id;
+        payment.reviewedAt = new Date();
         if (note) {
             payment.note = note;
         }
@@ -199,7 +203,8 @@ const updatePaymentStatus = async (req, res) => {
         // Return the populated payment
         const updatedPayment = await Payment.findById(payment._id)
             .populate("studentId", "firstName lastName email username")
-            .populate("paymentType", "name");
+            .populate("paymentType", "name")
+            .populate("reviewedBy", "firstName lastName");
 
         res.status(200).json({
             success: true,
@@ -384,14 +389,17 @@ const resubmitPayment = async (req, res) => {
 
         // Reset status back to Pending for re-review
         payment.status = "Pending";
-        // Clear any previous rejection note
+        // Clear any previous rejection note and audit logs
         payment.note = undefined;
+        payment.reviewedBy = undefined;
+        payment.reviewedAt = undefined;
 
         await payment.save();
 
         const updatedPayment = await Payment.findById(payment._id)
             .populate("studentId", "firstName lastName email username")
-            .populate("paymentType", "name");
+            .populate("paymentType", "name")
+            .populate("reviewedBy", "firstName lastName");
 
         res.status(200).json({
             success: true,

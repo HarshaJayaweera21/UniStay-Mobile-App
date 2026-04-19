@@ -333,6 +333,18 @@ export default function PaymentDetail() {
                             <Text style={styles.transLabel}>Reference ID</Text>
                             <Text style={styles.transValue}>TXN-{payment._id.slice(-6).toUpperCase()}</Text>
                         </View>
+                        {payment.status !== 'Pending' && payment.reviewedBy && (
+                            <>
+                                <View style={styles.transRow}>
+                                    <Text style={styles.transLabel}>Reviewed By</Text>
+                                    <Text style={styles.transValue}>{payment.reviewedBy.firstName} {payment.reviewedBy.lastName}</Text>
+                                </View>
+                                <View style={styles.transRow}>
+                                    <Text style={styles.transLabel}>Reviewed On</Text>
+                                    <Text style={styles.transValue}>{new Date(payment.reviewedAt || payment.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</Text>
+                                </View>
+                            </>
+                        )}
                     </View>
                 </View>
 

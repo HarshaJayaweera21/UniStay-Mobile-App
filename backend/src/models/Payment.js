@@ -39,6 +39,15 @@ const paymentSchema = new mongoose.Schema(
       type: String, // manager comment (optional)
       trim: true,
     },
+    
+    reviewedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+
+    reviewedAt: {
+      type: Date,
+    },
   },
   { timestamps: true },
 );
