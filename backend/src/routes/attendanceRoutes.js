@@ -1,12 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const {
+    verifyScan,
     scanQR,
     getAllLogs,
     getStudentLogs,
     getMyLogs
 } = require("../controllers/attendanceController");
 const { protect, authorizeRoles } = require("../middleware/authMiddleware");
+
+// Guard verifies QR (check rules, don't save)
+router.post("/verify-scan", protect, authorizeRoles("guard"), verifyScan);
 
 // Guard scans QR — entry or exit
 router.post("/scan", protect, authorizeRoles("guard"), scanQR);

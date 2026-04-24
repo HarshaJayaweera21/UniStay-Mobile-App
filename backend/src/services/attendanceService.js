@@ -3,6 +3,63 @@ const QRCode = require("../models/QRCode");
 const LeavePass = require("../models/LeavePass");
 const User = require("../models/User");
 
+const verifyQRService = async (qrData) => {
+    if (!qrData) {
+        throw new Error("QR data is required");
+    }
+
+    const qr = await QRCode.findOne({ qrData }).populate("student");
+    if (!qr) {
+        throw new Error("Invalid QR code");
+    }
+
+    if (!qr.isApproved) {
+        throw new Error("Student QR code is not approved yet");
+    }
+
+    const student = qr.student;
+    const now = new Date();
+
+    const hours = now.getHours();
+    const isAllowedTime = hours >= 6 && hours < 18;
+
+    let accessGranted = false;
+    let leavePassRef = null;
+
+    if (isAllowedTime) {
+        accessGranted = true;
+    } else {
+        const leavePass = await LeavePass.findOne({
+            student: student._id,
+            status: "approved",
+            requestedFrom: { $lte: now },
+            requestedTo: { $gte: now }
+        });
+
+        if (leavePass) {
+            accessGranted = true;
+            leavePassRef = leavePass._id;
+        } else {
+            accessGranted = false;
+        }
+    }
+
+    return {
+        success: true,
+        accessGranted,
+        message: accessGranted
+            ? `Access granted`
+            : "Access denied — outside allowed hours and no approved leave pass",
+        data: {
+            studentId: student._id,
+            studentName: `${student.firstName} ${student.lastName}`,
+            timestamp: now,
+            isAllowedTime,
+            accessGranted
+        }
+    };
+};
+
 const scanQRService = async (data) => {
     const { qrData, type, guardId } = data;
 
@@ -114,6 +171,7 @@ const getMyLogsService = async (studentId) => {
 };
 
 module.exports = {
+    verifyQRService,
     scanQRService,
     getAllLogsService,
     getStudentLogsService,

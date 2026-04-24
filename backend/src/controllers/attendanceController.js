@@ -1,9 +1,25 @@
 const {
+    verifyQRService,
     scanQRService,
     getAllLogsService,
     getStudentLogsService,
     getMyLogsService
 } = require("../services/attendanceService");
+
+// Guard verifies QR before logging
+const verifyScan = async (req, res) => {
+    try {
+        const { qrData } = req.body;
+        const result = await verifyQRService(qrData);
+
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
 
 // Guard scans QR
 const scanQR = async (req, res) => {
@@ -63,4 +79,4 @@ const getMyLogs = async (req, res) => {
     }
 };
 
-module.exports = { scanQR, getAllLogs, getStudentLogs, getMyLogs };
+module.exports = { verifyScan, scanQR, getAllLogs, getStudentLogs, getMyLogs };
