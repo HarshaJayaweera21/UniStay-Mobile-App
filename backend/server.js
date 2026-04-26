@@ -7,6 +7,9 @@ const connectDB = require("./src/config/db");
 
 // Import routes
 const authRoutes = require("./src/routes/authRoutes");
+const qrRoutes = require("./src/routes/qrRoutes");
+const leavePassRoutes = require("./src/routes/leavePassRoutes");
+const attendanceRoutes = require("./src/routes/attendanceRoutes");
 
 const app = express();
 const PORT = process.env.PORT;
@@ -14,6 +17,7 @@ const PORT = process.env.PORT;
 // Middleware
 app.use(cors()); // handles cross origin requests
 app.use(express.json()); // parses request body
+app.use(express.urlencoded({ extended: true }));
 
 // DB connection
 connectDB();
@@ -25,6 +29,9 @@ app.get("/", (req, res) => {
 
 // Mount routes
 app.use("/api/auth", authRoutes);
+app.use("/api/qr", qrRoutes);
+app.use("/api/leavepass", leavePassRoutes);
+app.use("/api/attendance", attendanceRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port http://localhost:${PORT}`);
