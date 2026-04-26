@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { deleteItem } from '@/utils/storage';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
+import BottomNav from '@/components/BottomNav';
 
 export default function ManagerDashboard() {
     const router = useRouter();
@@ -16,14 +17,19 @@ export default function ManagerDashboard() {
 
     return (
         <View style={styles.container}>
-            <View style={styles.card}>
-                <Text style={styles.title}>Manager Dashboard</Text>
-                <Text style={styles.subtitle}>Module under development</Text>
+            <View style={styles.content}>
+                <View style={styles.card}>
+                    <Text style={styles.title}>Manager Dashboard</Text>
+                    <Text style={styles.subtitle}>Module under development</Text>
 
-                <TouchableOpacity onPress={handleLogout} style={styles.button}>
-                    <Text style={styles.buttonText}>Log Out</Text>
-                </TouchableOpacity>
+                    <TouchableOpacity onPress={handleLogout} style={styles.button}>
+                        <Text style={styles.buttonText}>Log Out</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
+            
+            <BottomNav activeTab="home" />
+
         </View>
     );
 }
@@ -32,6 +38,9 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: Colors.background,
+    },
+    content: {
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         padding: Spacing.four,

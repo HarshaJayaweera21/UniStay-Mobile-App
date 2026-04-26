@@ -22,10 +22,10 @@
           "backgroundColor": "#00174b"
         }
       ],
-      "expo-secure-store"
-    ],
-    "experiments": {
-      "reactCompiler": true
-    }
+      "expo-secure-store",
+      "expo-font",
+      "expo-web-browser",
+      "@react-native-community/datetimepicker"
+    ]
   }
 }

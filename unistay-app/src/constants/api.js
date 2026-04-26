@@ -1,12 +1,14 @@
 import { Platform } from 'react-native';
 
-// For Android emulator, localhost translates to 10.0.2.2.
-// For Web or iOS simulator, it remains localhost.
+// Use your laptop's local network IP so physical devices (Expo Go) can reach the backend.
+// For web, localhost works since the browser runs on the same machine.
+// IMPORTANT: Update this IP if your WiFi network changes.
 const getBaseUrl = () => {
-    if (Platform.OS === 'android') {
-        return 'http://10.0.2.2:3000';
+    if (Platform.OS === 'web') {
+        return 'http://localhost:3000';
     }
-    return 'http://localhost:3000';
+    // Your laptop's LAN IP (from Expo's Metro output)
+    return 'http://10.148.98.28:3000';
 };
 
 export const API_URL = getBaseUrl();
