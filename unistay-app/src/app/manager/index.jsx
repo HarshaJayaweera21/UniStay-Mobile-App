@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { deleteItem } from '@/utils/storage';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function ManagerDashboard() {
     const router = useRouter();
@@ -18,7 +19,17 @@ export default function ManagerDashboard() {
         <View style={styles.container}>
             <View style={styles.card}>
                 <Text style={styles.title}>Manager Dashboard</Text>
-                <Text style={styles.subtitle}>Module under development</Text>
+                <Text style={styles.subtitle}>Hostel Management</Text>
+
+                <TouchableOpacity
+                    style={styles.navButton}
+                    onPress={() => router.push('/manager/payments')}
+                    activeOpacity={0.8}
+                >
+                    <MaterialIcons name="receipt-long" size={24} color={Colors.onPrimary} />
+                    <Text style={styles.navButtonText}>Manage Payments</Text>
+                    <MaterialIcons name="arrow-forward" size={20} color={Colors.onPrimary} />
+                </TouchableOpacity>
 
                 <TouchableOpacity onPress={handleLogout} style={styles.button}>
                     <Text style={styles.buttonText}>Log Out</Text>
@@ -51,14 +62,37 @@ const styles = StyleSheet.create({
     title: {
         fontFamily: Fonts.headlineExtraBold,
         fontSize: 24,
-        color: Colors.tertiary, // Orange accent for Manager
+        color: Colors.tertiary,
         marginBottom: Spacing.two,
     },
     subtitle: {
         fontFamily: Fonts.bodyMedium,
         fontSize: 16,
         color: Colors.onSurfaceVariant,
-        marginBottom: Spacing.six,
+        marginBottom: Spacing.five,
+    },
+    navButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: Colors.primary,
+        paddingHorizontal: Spacing.five,
+        paddingVertical: Spacing.three,
+        borderRadius: Radius.lg,
+        width: '100%',
+        marginBottom: Spacing.four,
+        gap: 10,
+        shadowColor: Colors.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    navButtonText: {
+        fontFamily: Fonts.headline,
+        fontSize: 16,
+        color: Colors.onPrimary,
+        flex: 1,
     },
     button: {
         backgroundColor: Colors.secondaryContainer,
