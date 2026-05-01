@@ -8,6 +8,7 @@ import {
     ActivityIndicator,
     RefreshControl,
     ScrollView,
+    Image,
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -91,7 +92,12 @@ export default function ManagerComplaintList() {
                     </Text>
                 </View>
                 {item.image && (
-                    <Ionicons name="image-outline" size={20} color={Colors.primary} />
+                    <View style={styles.thumbnailContainer}>
+                        <Image source={{ uri: item.image }} style={styles.thumbnail} />
+                        <View style={styles.thumbnailBadge}>
+                             <Ionicons name="image" size={10} color="#fff" />
+                        </View>
+                    </View>
                 )}
             </View>
         </Pressable>
@@ -302,9 +308,27 @@ const styles = StyleSheet.create({
         opacity: 0.5,
     },
     emptyText: {
-        fontFamily: Fonts.bodyMedium,
-        fontSize: 16,
         color: Colors.onSurfaceVariant,
         marginTop: Spacing.three,
+    },
+    thumbnailContainer: {
+        width: 44,
+        height: 44,
+        borderRadius: Radius.md,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: Colors.surfaceVariant,
+    },
+    thumbnail: {
+        width: '100%',
+        height: '100%',
+    },
+    thumbnailBadge: {
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        backgroundColor: Colors.primary,
+        padding: 2,
+        borderTopLeftRadius: 4,
     }
 });

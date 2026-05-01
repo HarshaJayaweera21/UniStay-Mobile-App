@@ -9,6 +9,7 @@ import {
     Pressable,
     Alert,
     Platform,
+    Modal,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -49,6 +50,7 @@ export default function ComplaintDetails() {
     const router = useRouter();
     const [complaint, setComplaint] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showImageModal, setShowImageModal] = useState(false);
     const [error, setError] = useState(null);
 
     const fetchDetails = async () => {
@@ -162,12 +164,41 @@ export default function ComplaintDetails() {
 
                     {complaint.image && (
                         <View style={styles.imageContainer}>
-                            <Text style={styles.sectionLabel}>Attached Image</Text>
-                            <Image 
-                                source={{ uri: complaint.image }} 
-                                style={styles.image} 
-                                resizeMode="cover"
-                            />
+                            <Text style={styles.sectionLabel}>Attached Image Evidence</Text>
+                            <Pressable onPress={() => setShowImageModal(true)}>
+                                <Image 
+                                    source={{ uri: complaint.image }} 
+                                    style={styles.image} 
+                                    resizeMode="cover"
+                                />
+                                <View style={styles.imageOverlay}>
+                                    <Ionicons name="expand-outline" size={18} color="#fff" />
+                                    <Text style={styles.imageOverlayText}>View Details</Text>
+                                </View>
+                            </Pressable>
+
+                            <Modal
+                                visible={showImageModal}
+                                transparent={true}
+                                animationType="fade"
+                                onRequestClose={() => setShowImageModal(false)}
+                            >
+                                <View style={styles.modalOverlay}>
+                                    <View style={styles.modalContent}>
+                                        <Image 
+                                            source={{ uri: complaint.image }} 
+                                            style={styles.fullImage} 
+                                            resizeMode="contain" 
+                                        />
+                                        <Pressable 
+                                            style={styles.closeModalButton}
+                                            onPress={() => setShowImageModal(false)}
+                                        >
+                                            <Ionicons name="close" size={30} color="#fff" />
+                                        </Pressable>
+                                    </View>
+                                </View>
+                            </Modal>
                         </View>
                     )}
                 </View>
@@ -309,4 +340,50 @@ const styles = StyleSheet.create({
         marginLeft: Spacing.two,
         flex: 1,
     },
+    imageOverlay: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        borderBottomLeftRadius: Radius.lg,
+        borderBottomRightRadius: Radius.lg,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    imageOverlayText: {
+        color: '#fff',
+        fontFamily: Fonts.bodySemiBold,
+        fontSize: 12,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.95)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContent: {
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    fullImage: {
+        width: '100%',
+        height: '80%',
+    },
+    closeModalButton: {
+        position: 'absolute',
+        top: 60,
+        right: 25,
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    }
 });
