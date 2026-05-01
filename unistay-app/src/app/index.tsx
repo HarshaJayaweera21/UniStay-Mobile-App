@@ -1,5 +1,4 @@
 import * as DocumentPicker from "expo-document-picker";
-import { Image } from "expo-image";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -397,16 +396,6 @@ export default function RequestRoomScreen() {
                     ) : null}
                   </Pressable>
 
-                  {proofUri && (
-                    <View style={styles.proofPreviewContainer}>
-                      <ThemedText style={styles.label}>PREVIEW</ThemedText>
-                      <Image
-                        source={{ uri: proofUri }}
-                        style={styles.proofPreviewImage}
-                        contentFit="contain"
-                      />
-                    </View>
-                  )}
                 </View>
               ) : (
                 <View style={styles.infoStrip}>
@@ -533,6 +522,33 @@ export default function RequestRoomScreen() {
                   </Pressable>
                 ))}
               </View>
+
+              {/* ── Room Type Description ── */}
+              {selectedCategory === "single" ? (
+                <View style={styles.roomDescCard}>
+                  <View style={styles.roomDescIconRow}>
+                    <View style={styles.roomDescIconBadge}>
+                      <ThemedText style={styles.roomDescIcon}>🛏</ThemedText>
+                    </View>
+                    <ThemedText style={styles.roomDescTitle}>Single Room</ThemedText>
+                  </View>
+                  <ThemedText style={styles.roomDescText}>
+                    A single room is designed for one person only. It includes one bed and offers full privacy, with no sharing required. This option is ideal for individuals who prefer a quiet and private space.
+                  </ThemedText>
+                </View>
+              ) : (
+                <View style={styles.roomDescCard}>
+                  <View style={styles.roomDescIconRow}>
+                    <View style={styles.roomDescIconBadge}>
+                      <ThemedText style={styles.roomDescIcon}>🛏🛏</ThemedText>
+                    </View>
+                    <ThemedText style={styles.roomDescTitle}>Double Room</ThemedText>
+                  </View>
+                  <ThemedText style={styles.roomDescText}>
+                    A double room is designed for two people. It includes either two separate beds or one shared double bed. In hostel settings, it usually means sharing the room with another person, each having their own bed.
+                  </ThemedText>
+                </View>
+              )}
 
               <View style={styles.infoStrip}>
                 <ThemedText style={styles.infoStripText}>
@@ -721,6 +737,41 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
+  roomDescCard: {
+    backgroundColor: ed.primaryFixed,
+    borderRadius: 14,
+    padding: 14,
+    gap: 10,
+    borderLeftWidth: 3,
+    borderLeftColor: ed.primaryContainer,
+  },
+  roomDescIconRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  roomDescIconBadge: {
+    backgroundColor: ed.surfaceLowest,
+    borderRadius: 10,
+    width: 36,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  roomDescIcon: {
+    fontSize: 16,
+  },
+  roomDescTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: ed.primary,
+  },
+  roomDescText: {
+    color: ed.mutedText,
+    fontSize: 13,
+    lineHeight: 20,
+  },
+
   submitButton: {
     backgroundColor: ed.primaryContainer,
     borderRadius: 16,
@@ -747,19 +798,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
-  proofPreviewContainer: {
-    marginTop: 16,
-    gap: 8,
-    borderTopWidth: 1,
-    borderTopColor: ed.surfaceHigh,
-    paddingTop: 16,
-  },
-  proofPreviewImage: {
-    width: '100%',
-    height: 300,
-    borderRadius: 16,
-    backgroundColor: ed.surfaceLow,
-    borderWidth: 1,
-    borderColor: ed.surfaceHigh,
-  },
 });
