@@ -221,10 +221,19 @@ export default function Header() {
                             <View style={styles.drawerAvatar}>
                                 <Text style={styles.drawerAvatarText}>{getInitials()}</Text>
                             </View>
-                            <View style={styles.drawerProfileInfo}>
-                                <Text style={styles.drawerNameText}>{getFullName()}</Text>
-                                <Text style={styles.drawerEmailText}>{userData ? userData.email : 'Loading...'}</Text>
-                                <Text style={styles.drawerIdText}>USERNAME: {userData ? userData.username : '...'}</Text>
+                            <View style={styles.drawerProfileRow}>
+                                <View style={styles.drawerProfileInfo}>
+                                    <Text style={styles.drawerNameText}>{getFullName()}</Text>
+                                    <Text style={styles.drawerEmailText}>{userData ? userData.email : 'Loading...'}</Text>
+                                    <Text style={styles.drawerIdText}>USERNAME: {userData ? userData.username : '...'}</Text>
+                                </View>
+                                <TouchableOpacity 
+                                    style={styles.profileDetailButton}
+                                    activeOpacity={0.7}
+                                    onPress={() => navigateTo('/profile')}
+                                >
+                                    <MaterialIcons name="chevron-right" size={24} color={Colors.primary} />
+                                </TouchableOpacity>
                             </View>
                         </View>
 
@@ -379,7 +388,21 @@ const styles = StyleSheet.create({
         color: Colors.onPrimary,
     },
     drawerProfileInfo: {
-        marginTop: Spacing.one,
+        flex: 1,
+    },
+    drawerProfileRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%',
+    },
+    profileDetailButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: Colors.surfaceContainerHigh,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     drawerNameText: {
         fontFamily: Fonts.headlineExtraBold,
