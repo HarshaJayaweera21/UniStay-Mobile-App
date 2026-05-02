@@ -153,7 +153,11 @@ export default function StudentDashboard() {
 
     const AssignedRoomView = ({ request }) => (
         <View style={styles.viewContainer}>
-            <View style={styles.card}>
+            <TouchableOpacity 
+                style={styles.card}
+                activeOpacity={0.9}
+                onPress={() => router.push('/student/my-room')}
+            >
                 <View style={styles.cardHeader}>
                     <View style={styles.badgePrimary}>
                         <Text style={styles.badgePrimaryText}>YOUR ROOM</Text>
@@ -185,7 +189,7 @@ export default function StudentDashboard() {
                         <Text style={styles.badgeSuccessText}>Occupied</Text>
                     </View>
                 </View>
-            </View>
+            </TouchableOpacity>
         </View>
     );
 
