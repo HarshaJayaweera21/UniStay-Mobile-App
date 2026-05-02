@@ -117,18 +117,6 @@ export default function ManagerPayments() {
 
     const renderHeader = () => (
         <View style={styles.headerSection}>
-            <View style={styles.topAppBar}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-                    <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
-                </TouchableOpacity>
-                <View style={{ flex: 1, paddingLeft: Spacing.three }}>
-                    <Text style={styles.headerTitle}>Manage Payments</Text>
-                    <Text style={styles.headerSubtitle}>Review and verify student payments</Text>
-                </View>
-                <View style={styles.adminAvatar}>
-                    <MaterialIcons name="admin-panel-settings" size={20} color={Colors.primary} />
-                </View>
-            </View>
 
             {/* Metrics Bento Grid */}
             <View style={styles.bentoGrid}>

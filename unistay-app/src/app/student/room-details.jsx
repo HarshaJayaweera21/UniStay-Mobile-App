@@ -191,9 +191,7 @@ export default function StudentRoomDetails() {
                     />
 
                     {/* Back Button */}
-                    <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                        <MaterialIcons name="arrow-back" size={22} color="#fff" />
-                    </TouchableOpacity>
+                    
 
                     {/* Room Number Overlay */}
                     <View style={styles.imageOverlayContent}>

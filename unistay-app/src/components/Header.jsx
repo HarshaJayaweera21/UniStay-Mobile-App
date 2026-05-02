@@ -28,17 +28,29 @@ export default function Header() {
     const slideAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
+    const [userRole, setUserRole] = useState(null);
+
     useEffect(() => {
         const fetchUserData = async () => {
             try {
                 const token = await getItem('userToken');
+                const role = await getItem('userRole');
+                if (role) setUserRole(role);
+                
                 if (token) {
                     const response = await fetch(`${API_URL}/api/auth/me`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
+                    
+                    if (response.status === 401) {
+                        await handleLogout();
+                        return;
+                    }
+                    
                     const data = await response.json();
                     if (data.success) {
                         setUserData(data.user);
+                        if (data.user.role) setUserRole(data.user.role);
                     }
                 }
             } catch (error) {
@@ -103,31 +115,75 @@ export default function Header() {
 
     const navigateTo = (path) => {
         closeDrawer();
-        if (pathname !== path) {
-            router.push(path);
-        }
+        // Allow time for drawer to close before navigating to prevent stutter
+        setTimeout(() => {
+            if (pathname !== path) {
+                router.push(path);
+            }
+        }, 150);
     };
 
     // Navigation Items
-    const navItems = [
-        { label: 'Dashboard', icon: 'dashboard', path: '/student' },
-        { label: 'My Bookings', icon: 'bed', path: '/student/room-index' },
-        { label: 'Payments', icon: 'receipt-long', path: '/student/payments' },
-        { label: 'Settings', icon: 'settings', path: '/student/settings' },
-    ];
+    const getNavItems = () => {
+        switch (userRole) {
+            case 'manager':
+                return [
+                    { label: 'Dashboard', icon: 'dashboard', path: '/manager' },
+                    { label: 'Room Requests', icon: 'list-alt', path: '/manager/requests' },
+                    { label: 'Payments', icon: 'receipt-long', path: '/manager/payments' },
+                    { label: 'Settings', icon: 'settings', path: '/manager/settings' },
+                ];
+            case 'admin':
+                return [
+                    { label: 'Dashboard', icon: 'dashboard', path: '/admin' },
+                ];
+            case 'guard':
+                return [
+                    { label: 'Dashboard', icon: 'dashboard', path: '/guard' },
+                ];
+            case 'student':
+            default:
+                return [
+                    { label: 'Dashboard', icon: 'dashboard', path: '/student' },
+                    { label: 'My Bookings', icon: 'bed', path: '/student/room-index' },
+                    { label: 'Payments', icon: 'receipt-long', path: '/student/payments' },
+                    { label: 'Settings', icon: 'settings', path: '/student/settings' },
+                ];
+        }
+    };
+    
+    const navItems = getNavItems();
+
+    const isRootScreen = [
+        '/student', '/student/room-index', '/student/payments', '/student/settings',
+        '/manager', '/manager/requests', '/manager/payments', '/manager/settings',
+        '/admin', '/guard'
+    ].includes(pathname);
+
+    const showBackButton = router.canGoBack() && !isRootScreen;
 
     return (
         <>
             {/* MAIN HEADER */}
             <View style={styles.container}>
                 <View style={styles.leftSection}>
-                    <TouchableOpacity 
-                        style={styles.menuButton} 
-                        activeOpacity={0.7}
-                        onPress={openDrawer}
-                    >
-                        <MaterialIcons name="menu" size={28} color={Colors.primary} />
-                    </TouchableOpacity>
+                    {showBackButton ? (
+                        <TouchableOpacity 
+                            style={styles.menuButton} 
+                            activeOpacity={0.7}
+                            onPress={() => router.back()}
+                        >
+                            <MaterialIcons name="arrow-back" size={28} color={Colors.primary} />
+                        </TouchableOpacity>
+                    ) : (
+                        <TouchableOpacity 
+                            style={styles.menuButton} 
+                            activeOpacity={0.7}
+                            onPress={openDrawer}
+                        >
+                            <MaterialIcons name="menu" size={28} color={Colors.primary} />
+                        </TouchableOpacity>
+                    )}
                     <Text style={styles.brandText}>UniStay</Text>
                 </View>
 

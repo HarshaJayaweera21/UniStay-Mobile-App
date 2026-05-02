@@ -237,9 +237,7 @@ export default function RoomDetailsScreen() {
                         </View>
                     )}
                     <LinearGradient colors={['transparent', 'rgba(0,0,0,0.6)']} style={styles.imageGradient} />
-                    <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                        <MaterialIcons name="arrow-back" size={22} color="#fff" />
-                    </TouchableOpacity>
+                    
                     <View style={styles.imageOverlayContent}>
                         <Text style={styles.roomNumberOverlay}>Room {room.roomNumber}</Text>
                         <View style={[styles.statusBadge, { backgroundColor: isAvailable ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)' }]}>

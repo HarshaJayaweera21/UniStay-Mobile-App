@@ -126,13 +126,7 @@ export default function UploadPayment() {
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
                 {/* Top App Bar */}
-                <View style={styles.topAppBar}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.appBarBtn}>
-                        <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
-                    </TouchableOpacity>
-                    <Text style={styles.topAppTitle}>Upload Payment</Text>
-                    <View style={{ width: 40 }} />
-                </View>
+                
 
                 <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} bounces={false}>
                     {/* Header Section */}

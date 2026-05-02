@@ -195,9 +195,7 @@ export default function EditRoomScreen() {
 
                 {/* Header */}
                 <View style={styles.header}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                        <MaterialIcons name="arrow-back" size={22} color={Colors.onSurface} />
-                    </TouchableOpacity>
+                    
                     <Text style={styles.headerTitle}>Edit Room</Text>
                     <View style={{ width: 44 }} />
                 </View>

@@ -158,9 +158,7 @@ export default function AddRoomScreen() {
 
                 {/* Header */}
                 <View style={styles.header}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                        <MaterialIcons name="arrow-back" size={22} color={Colors.onSurface} />
-                    </TouchableOpacity>
+                    
                     <Text style={styles.headerTitle}>Add New Room</Text>
                     <View style={{ width: 44 }} />
                 </View>

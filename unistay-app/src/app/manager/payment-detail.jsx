@@ -268,13 +268,7 @@ export default function PaymentDetail() {
     return (
         <SafeAreaView style={styles.safeArea}>
             {/* Top App Bar */}
-            <View style={styles.topAppBar}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.appBarBtn}>
-                    <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
-                </TouchableOpacity>
-                <Text style={styles.appBarTitle}>Payment Approval</Text>
-                <View style={{ width: 40 }} />
-            </View>
+            
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 

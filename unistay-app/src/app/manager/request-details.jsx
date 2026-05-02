@@ -132,13 +132,7 @@ export default function ManagerRequestDetails() {
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <View style={styles.topAppBar}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.appBarBtn}>
-                    <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
-                </TouchableOpacity>
-                <Text style={styles.topAppTitle}>Request Details</Text>
-                <View style={{ width: 40 }} />
-            </View>
+            
 
             <ScrollView contentContainerStyle={styles.content}>
                 

@@ -226,15 +226,7 @@ export default function StudentPayments() {
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
                 {/* Top App Bar */}
-                <View style={styles.topAppBar}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.appBarBtn}>
-                        <MaterialIcons name="arrow-back" size={24} color={Colors.primaryContainer} />
-                    </TouchableOpacity>
-                    <Text style={styles.topAppTitle}>Payments</Text>
-                    <TouchableOpacity style={styles.appBarBtn}>
-                        <MaterialIcons name="account-balance-wallet" size={24} color={Colors.primaryContainer} />
-                    </TouchableOpacity>
-                </View>
+                
 
                 {error ? (
                     <View style={styles.center}>
