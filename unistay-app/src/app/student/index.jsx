@@ -153,7 +153,15 @@ export default function StudentDashboard() {
 
     const PendingRequestView = ({ request }) => (
         <View style={styles.viewContainer}>
-            <View style={styles.card}>
+            <TouchableOpacity 
+                style={styles.card} 
+                activeOpacity={request?.status === 'AgreementSent' ? 0.9 : 1}
+                onPress={() => {
+                    if (request?.status === 'AgreementSent') {
+                        router.push('/student/my-room');
+                    }
+                }}
+            >
                 <View style={styles.cardHeader}>
                     <View>
                         <Text style={styles.overline}>STATUS OVERVIEW</Text>
@@ -200,7 +208,7 @@ export default function StudentDashboard() {
                         {request?.cancellationRequested ? "Cancellation Pending Approval" : "Request Cancellation"}
                     </Text>
                 </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
         </View>
     );
 
