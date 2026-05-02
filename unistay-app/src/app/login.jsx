@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
     View,
     Text,
@@ -18,9 +18,11 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { API_URL } from '@/constants/api';
+import { AuthContext } from '@/context/AuthContext';
 
 export default function LoginScreen() {
     const router = useRouter();
+    const { login } = useContext(AuthContext);
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -57,6 +59,9 @@ export default function LoginScreen() {
                     await setItem('userToken', data.token);
                     await setItem('userRole', data.user.role || 'student');
                 }
+
+                // Store user data in global AuthContext
+                login(data.user, data.token);
 
                 const userRole = data.user.role || 'student';
 
