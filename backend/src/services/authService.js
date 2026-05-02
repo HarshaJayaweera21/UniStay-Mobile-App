@@ -120,5 +120,23 @@ const loginUserService = async (data) => {
     }
 }
 
+const getMeService = async (userId) => {
+    const user = await User.findById(userId).populate("role");
+    if (!user) {
+        throw new Error("User not found");
+    }
+    return {
+        success: true,
+        user: {
+            id: user._id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            username: user.username,
+            email: user.email,
+            role: user.role.name
+        }
+    };
+}
 
-module.exports = {registerUserService, loginUserService};
+
+module.exports = {registerUserService, loginUserService, getMeService};
