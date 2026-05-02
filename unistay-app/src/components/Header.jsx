@@ -16,7 +16,6 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter, usePathname } from 'expo-router';
 import { deleteItem, getItem } from '@/utils/storage';
 import { API_URL } from '@/constants/api';
-import useAuth from '@/hooks/useAuth';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const DRAWER_WIDTH = 320;
@@ -24,21 +23,54 @@ const DRAWER_WIDTH = 320;
 export default function Header() {
     const router = useRouter();
     const pathname = usePathname();
-    const { user, logout } = useAuth();
     const [isDrawerOpen, setDrawerOpen] = useState(false);
+    const [userData, setUserData] = useState(null);
     const slideAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
+    const [userRole, setUserRole] = useState(null);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const token = await getItem('userToken');
+                const role = await getItem('userRole');
+                if (role) setUserRole(role);
+                
+                if (token) {
+                    const response = await fetch(`${API_URL}/api/auth/me`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    
+                    if (response.status === 401) {
+                        await handleLogout();
+                        return;
+                    }
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        setUserData(data.user);
+                        if (data.user.role) setUserRole(data.user.role);
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
     const getInitials = () => {
-        if (!user) return 'U';
-        const first = user.firstName ? user.firstName.charAt(0) : '';
-        const last = user.lastName ? user.lastName.charAt(0) : '';
+        if (!userData) return 'U';
+        const first = userData.firstName ? userData.firstName.charAt(0) : '';
+        const last = userData.lastName ? userData.lastName.charAt(0) : '';
         return (first + last).toUpperCase() || 'U';
     };
 
     const getFullName = () => {
-        if (!user) return 'User';
-        return `${user.firstName} ${user.lastName}`;
+        if (!userData) return 'User';
+        return `${userData.firstName} ${userData.lastName}`;
     };
 
     const openDrawer = () => {
@@ -76,7 +108,8 @@ export default function Header() {
 
     const handleLogout = async () => {
         closeDrawer();
-        logout();
+        await deleteItem('userToken');
+        await deleteItem('userRole');
         router.replace('/login');
     };
 
@@ -92,14 +125,13 @@ export default function Header() {
 
     // Navigation Items
     const getNavItems = () => {
-        const role = user?.role || 'student';
-        switch (role) {
+        switch (userRole) {
             case 'manager':
                 return [
                     { label: 'Dashboard', icon: 'dashboard', path: '/manager' },
                     { label: 'Room Requests', icon: 'list-alt', path: '/manager/requests' },
                     { label: 'Payments', icon: 'receipt-long', path: '/manager/payments' },
-                    { label: 'Settings', icon: 'settings', path: '/manager/settings' },
+                    { label: 'My QR', icon: 'qr-code-2', path: '/manager/qr' },
                 ];
             case 'admin':
                 return [
@@ -113,10 +145,9 @@ export default function Header() {
             default:
                 return [
                     { label: 'Dashboard', icon: 'dashboard', path: '/student' },
-                    { label: 'My Profile', icon: 'person', path: '/student/profile' },
                     { label: 'My Bookings', icon: 'bed', path: '/student/room-index' },
                     { label: 'Payments', icon: 'receipt-long', path: '/student/payments' },
-                    { label: 'Settings', icon: 'settings', path: '/student/settings' },
+                    { label: 'My QR', icon: 'qr-code-2', path: '/student/qr' },
                 ];
         }
     };
@@ -124,8 +155,8 @@ export default function Header() {
     const navItems = getNavItems();
 
     const isRootScreen = [
-        '/student', '/student/room-index', '/student/payments', '/student/settings',
-        '/manager', '/manager/requests', '/manager/payments', '/manager/settings',
+        '/student', '/student/room-index', '/student/payments', '/student/qr',
+        '/manager', '/manager/requests', '/manager/payments', '/manager/qr',
         '/admin', '/guard'
     ].includes(pathname);
 
@@ -190,10 +221,19 @@ export default function Header() {
                             <View style={styles.drawerAvatar}>
                                 <Text style={styles.drawerAvatarText}>{getInitials()}</Text>
                             </View>
-                            <View style={styles.drawerProfileInfo}>
-                                <Text style={styles.drawerNameText}>{getFullName()}</Text>
-                                <Text style={styles.drawerEmailText}>{user ? user.email : 'Loading...'}</Text>
-                                <Text style={styles.drawerIdText}>USERNAME: {user ? user.username : '...'}</Text>
+                            <View style={styles.drawerProfileRow}>
+                                <View style={styles.drawerProfileInfo}>
+                                    <Text style={styles.drawerNameText}>{getFullName()}</Text>
+                                    <Text style={styles.drawerEmailText}>{userData ? userData.email : 'Loading...'}</Text>
+                                    <Text style={styles.drawerIdText}>USERNAME: {userData ? userData.username : '...'}</Text>
+                                </View>
+                                <TouchableOpacity 
+                                    style={styles.profileDetailButton}
+                                    activeOpacity={0.7}
+                                    onPress={() => navigateTo('/profile')}
+                                >
+                                    <MaterialIcons name="chevron-right" size={24} color={Colors.primary} />
+                                </TouchableOpacity>
                             </View>
                         </View>
 
@@ -348,7 +388,21 @@ const styles = StyleSheet.create({
         color: Colors.onPrimary,
     },
     drawerProfileInfo: {
-        marginTop: Spacing.one,
+        flex: 1,
+    },
+    drawerProfileRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%',
+    },
+    profileDetailButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: Colors.surfaceContainerHigh,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     drawerNameText: {
         fontFamily: Fonts.headlineExtraBold,

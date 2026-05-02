@@ -67,7 +67,7 @@ export default function LoginScreen() {
 
                 // Redirect to role-based dashboard
                 if (userRole === 'admin') router.replace('/admin');
-                else if (userRole === 'manager') router.replace('/manager/room-index');
+                else if (userRole === 'manager') router.replace('/manager');
                 else if (userRole === 'guard') router.replace('/guard');
                 else router.replace('/student');
             }

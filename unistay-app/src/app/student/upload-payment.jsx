@@ -39,6 +39,15 @@ export default function UploadPayment() {
         checkRoomStatus();
     }, []);
 
+    // Auto-fill amount for Hostel Fee if room is approved
+    useEffect(() => {
+        if (selectedType?.name === 'Hostel Fee' && hasApprovedRoom && roomInfo?.pricePerMonth) {
+            setAmount(roomInfo.pricePerMonth.toString());
+        } else if (selectedType && selectedType.name !== 'Hostel Fee') {
+            setAmount(''); // Reset amount for other categories
+        }
+    }, [selectedType, hasApprovedRoom, roomInfo]);
+
     const checkRoomStatus = async () => {
         try {
             const token = await getItem('userToken');
@@ -52,6 +61,7 @@ export default function UploadPayment() {
                     setRoomInfo({
                         roomNumber: data.request.roomId.roomNumber || data.request.roomId,
                         roomType: data.request.roomId.roomType || null,
+                        pricePerMonth: data.request.roomId.pricePerMonth || null,
                     });
                 }
             }
