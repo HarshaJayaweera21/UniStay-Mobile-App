@@ -129,6 +129,7 @@ export default function Header() {
             case 'manager':
                 return [
                     { label: 'Dashboard', icon: 'dashboard', path: '/manager' },
+                    { label: 'Room Management', icon: 'meeting-room', path: '/manager/room-index' },
                     { label: 'Room Requests', icon: 'list-alt', path: '/manager/requests' },
                     { label: 'Payments', icon: 'receipt-long', path: '/manager/payments' },
                     { label: 'My QR', icon: 'qr-code-2', path: '/manager/qr' },

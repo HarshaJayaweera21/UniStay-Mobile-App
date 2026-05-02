@@ -15,6 +15,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { deleteItem } from '@/utils/storage';
+import useAuth from '@/hooks/useAuth';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { API_URL } from '@/constants/api';
@@ -23,6 +24,7 @@ const FILTERS = ['All', 'Available', 'Full'];
 
 export default function StudentRoomList() {
     const router = useRouter();
+    const { user } = useAuth();
     const [rooms, setRooms] = useState([]);
     const [filtered, setFiltered] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -32,7 +34,9 @@ export default function StudentRoomList() {
 
     const fetchRooms = async () => {
         try {
-            const response = await fetch(`${API_URL}/api/rooms`);
+            // Append gender if user is logged in
+            const genderQuery = user?.gender ? `?gender=${user.gender}` : '';
+            const response = await fetch(`${API_URL}/api/rooms${genderQuery}`);
             const data = await response.json();
             if (data.success) {
                 setRooms(data.rooms);
@@ -115,6 +119,16 @@ export default function StudentRoomList() {
                             <View style={[styles.statusDot, { backgroundColor: isAvailable ? '#22c55e' : '#ef4444' }]} />
                             <Text style={[styles.statusText, { color: isAvailable ? '#15803d' : '#dc2626' }]}>
                                 {item.availabilityStatus}
+                            </Text>
+                        </View>
+                        <View style={[styles.statusBadge, { backgroundColor: Colors.surfaceContainerHigh, marginLeft: 8 }]}>
+                            <MaterialIcons 
+                                name={item.gender === 'male' ? 'man' : 'woman'} 
+                                size={12} 
+                                color={Colors.onSurfaceVariant} 
+                            />
+                            <Text style={[styles.statusText, { color: Colors.onSurfaceVariant, textTransform: 'capitalize' }]}>
+                                {item.gender}
                             </Text>
                         </View>
                     </View>

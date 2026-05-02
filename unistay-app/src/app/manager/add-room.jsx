@@ -22,6 +22,7 @@ import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { API_URL } from '@/constants/api';
 
 const ROOM_TYPES = ['Single', 'Double', 'Triple'];
+const GENDER_OPTIONS = ['male', 'female'];
 
 export default function AddRoomScreen() {
     const router = useRouter();
@@ -33,6 +34,7 @@ export default function AddRoomScreen() {
         pricePerMonth: '',
         capacity: '',
         description: '',
+        gender: 'male',
     });
     const [errors, setErrors] = useState({});
 
@@ -87,6 +89,7 @@ export default function AddRoomScreen() {
                 body.append('pricePerMonth', formData.pricePerMonth);
                 body.append('capacity', formData.capacity);
                 body.append('description', formData.description.trim());
+                body.append('gender', formData.gender);
 
                 if (Platform.OS === 'web') {
                     // On web, fetch image URI as blob
@@ -125,6 +128,7 @@ export default function AddRoomScreen() {
                         pricePerMonth: formData.pricePerMonth,
                         capacity: formData.capacity,
                         description: formData.description.trim(),
+                        gender: formData.gender,
                     }),
                 });
             }
@@ -223,6 +227,37 @@ export default function AddRoomScreen() {
                                             formData.roomType === type ? styles.typeOptionTextActive : null,
                                         ]}>
                                             {type}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        </View>
+
+                        {/* Room Gender */}
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>ASSIGNED GENDER</Text>
+                            <View style={styles.typeSelector}>
+                                {GENDER_OPTIONS.map((g) => (
+                                    <TouchableOpacity
+                                        key={g}
+                                        style={[
+                                            styles.typeOption,
+                                            formData.gender === g ? styles.typeOptionActive : null,
+                                            { flexDirection: 'row', gap: 6 }
+                                        ]}
+                                        onPress={() => handleChange('gender', g)}
+                                    >
+                                        <MaterialIcons 
+                                            name={g === 'male' ? 'man' : 'woman'} 
+                                            size={18} 
+                                            color={formData.gender === g ? Colors.primary : Colors.onSurfaceVariant} 
+                                        />
+                                        <Text style={[
+                                            styles.typeOptionText,
+                                            formData.gender === g ? styles.typeOptionTextActive : null,
+                                            { textTransform: 'capitalize' }
+                                        ]}>
+                                            {g}
                                         </Text>
                                     </TouchableOpacity>
                                 ))}

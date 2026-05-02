@@ -128,6 +128,19 @@ export default function ManagerRoomList() {
                             {item.availabilityStatus}
                         </Text>
                     </View>
+                    <View style={[
+                        styles.statusBadge,
+                        { backgroundColor: Colors.surfaceContainerHigh, marginLeft: 8 }
+                    ]}>
+                        <MaterialIcons 
+                            name={item.gender === 'male' ? 'man' : 'woman'} 
+                            size={14} 
+                            color={Colors.onSurfaceVariant} 
+                        />
+                        <Text style={[styles.statusText, { color: Colors.onSurfaceVariant, textTransform: 'capitalize' }]}>
+                            {item.gender}
+                        </Text>
+                    </View>
                 </View>
 
                 <View style={styles.cardDetails}>

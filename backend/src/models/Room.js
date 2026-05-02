@@ -43,6 +43,12 @@ const roomSchema = new mongoose.Schema({
         type: String,
         enum: ["Available", "Full"],
         default: "Available"
+    },
+    gender: {
+        type: String,
+        enum: ["male", "female"],
+        required: true,
+        default: "male"
     }
 }, { timestamps: true });
 

@@ -17,11 +17,16 @@ const streamUpload = (fileBuffer, options) => {
 
 // Create a new room
 const createRoomService = async (data, file) => {
-    const { roomNumber, roomType, pricePerMonth, capacity, description } = data;
+    const { roomNumber, roomType, pricePerMonth, capacity, description, gender } = data;
 
     // Validate required fields
-    if (!roomNumber || !roomType || !pricePerMonth || !capacity) {
-        throw new Error("Room number, type, price, and capacity are required");
+    if (!roomNumber || !roomType || !pricePerMonth || !capacity || !gender) {
+        throw new Error("Room number, type, price, capacity, and gender are required");
+    }
+
+    // Validate gender
+    if (!["male", "female"].includes(gender)) {
+        throw new Error("Gender must be male or female");
     }
 
     // Validate roomType
@@ -63,7 +68,8 @@ const createRoomService = async (data, file) => {
         capacity: Number(capacity),
         currentOccupancy: 0,
         description: description || "",
-        image: imageUrl
+        image: imageUrl,
+        gender: gender
     });
 
     await newRoom.save();
@@ -76,8 +82,13 @@ const createRoomService = async (data, file) => {
 };
 
 // Get all rooms
-const getAllRoomsService = async () => {
-    const rooms = await Room.find().sort({ createdAt: -1 });
+const getAllRoomsService = async (filters = {}) => {
+    const query = {};
+    if (filters.gender) {
+        query.gender = filters.gender;
+    }
+    
+    const rooms = await Room.find(query).sort({ createdAt: -1 });
 
     return {
         success: true,
@@ -124,6 +135,11 @@ const updateRoomService = async (id, data, file) => {
         }
     }
 
+    // Validate gender if provided
+    if (data.gender && !["male", "female"].includes(data.gender)) {
+        throw new Error("Gender must be male or female");
+    }
+
     // Validate price if provided
     if (data.pricePerMonth !== undefined && data.pricePerMonth <= 0) {
         throw new Error("Price per month must be greater than 0");
@@ -161,6 +177,7 @@ const updateRoomService = async (id, data, file) => {
     if (data.description !== undefined) room.description = data.description;
     if (data.image) room.image = data.image;
     if (data.currentOccupancy !== undefined) room.currentOccupancy = Number(data.currentOccupancy);
+    if (data.gender) room.gender = data.gender;
 
     // Save triggers the pre-save hook to recalculate availabilityStatus
     await room.save();
