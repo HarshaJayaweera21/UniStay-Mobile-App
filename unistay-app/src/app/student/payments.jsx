@@ -201,7 +201,7 @@ export default function StudentPayments() {
                     </View>
                     <View style={styles.transactionTexts}>
                         <Text style={styles.transactionTitle}>{item.paymentType?.name || 'Unknown'}</Text>
-                        <Text style={styles.transactionDate}>{formatDate(item.createdAt)}</Text>
+                        <Text style={styles.transactionDate}>{formatDate(item.createdAt)}{item.roomId ? ` • Room ${item.roomId.roomNumber}` : ''}</Text>
                     </View>
                 </View>
                 

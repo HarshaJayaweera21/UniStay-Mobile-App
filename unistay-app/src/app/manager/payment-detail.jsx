@@ -297,6 +297,12 @@ export default function PaymentDetail() {
                             <MaterialIcons name="business" size={16} color={Colors.onSurfaceVariant} />
                             <Text style={styles.studentDetailText}>@{studentUsername}</Text>
                         </View>
+                        {payment.roomId && (
+                            <View style={styles.studentDetailRow}>
+                                <MaterialIcons name="meeting-room" size={16} color={Colors.onSurfaceVariant} />
+                                <Text style={styles.studentDetailText}>Room {payment.roomId.roomNumber} • {payment.roomId.roomType}</Text>
+                            </View>
+                        )}
                     </View>
                 </View>
 
