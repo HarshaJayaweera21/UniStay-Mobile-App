@@ -128,3 +128,5 @@ unistay-app/src/app/student/dashboard_with_room/dashboard_with_room.html
 unistay-app/src/app/student/dashboard_with_no_room/dashboard_with_no_room.png
 unistay-app/src/app/student/dashboard_with_pending_request/dashboard_with_pending_request.png
 unistay-app/src/app/student/dashboard_with_room/dashboard_with_room.png
+unistay-app/src/app/dashboard_side_panel/code.html
+unistay-app/src/app/dashboard_side_panel/screen.png

@@ -2,7 +2,7 @@ import React from 'react';
 import { Stack } from 'expo-router';
 import Header from '@/components/Header';
 
-export default function ManagerLayout() {
+export default function GuardLayout() {
     return (
         <Stack
             screenOptions={{
@@ -12,10 +12,7 @@ export default function ManagerLayout() {
                 animation: 'slide_from_right',
             }}
         >
-            <Stack.Screen name="room-index" />
-            <Stack.Screen name="add-room" />
-            <Stack.Screen name="edit-room" />
-            <Stack.Screen name="room-details" />
+            <Stack.Screen name="index" />
         </Stack>
     );
 }
