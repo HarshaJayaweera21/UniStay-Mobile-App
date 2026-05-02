@@ -101,13 +101,7 @@ export default function ManagerRequests() {
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <View style={styles.topAppBar}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.appBarBtn}>
-                    <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
-                </TouchableOpacity>
-                <Text style={styles.topAppTitle}>Room Requests</Text>
-                <View style={{ width: 40 }} />
-            </View>
+            
 
             <View style={styles.tabsContainer}>
                 <FlatList

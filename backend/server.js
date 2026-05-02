@@ -11,6 +11,7 @@ const roomRoutes = require("./src/routes/roomRoutes");
 const paymentRoutes = require("./src/routes/paymentRoutes");
 const paymentTypeRoutes = require("./src/routes/paymentTypeRoutes");
 const roomRequestRoutes = require("./src/routes/roomRequestRoutes");
+const userRoutes = require("./src/routes/userRoutes");
 const app = express();
 const PORT = process.env.PORT;
 
@@ -33,6 +34,7 @@ app.use("/api/rooms", roomRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/payment-types", paymentTypeRoutes);
 app.use("/api/room-requests", roomRequestRoutes);
+app.use("/api/users", userRoutes);
 // Global Error Handler
 app.use((err, req, res, next) => {
   console.error("🔥 Global Error Handler:", err);

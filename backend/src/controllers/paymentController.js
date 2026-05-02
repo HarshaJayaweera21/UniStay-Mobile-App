@@ -50,29 +50,44 @@ const createPayment = async (req, res) => {
 
         // Business Logic: Students can only pay monthly deposits if they have an "Approved" room
         // We only enforce this if the payment type is NOT "Key Money" (Key money is auto-created by the system)
+        let approvedRequest = null;
         if (typeExists.name.toLowerCase() !== "key money") {
-            const hasApprovedRoom = await RoomRequest.findOne({
+            approvedRequest = await RoomRequest.findOne({
                 studentId: req.user.id,
                 status: "Approved"
             });
 
-            if (!hasApprovedRoom) {
+            if (!approvedRequest) {
                 return res.status(403).json({
                     success: false,
                     message: "You must have an approved room request before making monthly payments.",
                 });
             }
+        } else {
+            // Even for key money, try to attach room info if available
+            approvedRequest = await RoomRequest.findOne({
+                studentId: req.user.id,
+                status: { $in: ["Approved", "ReceiptUploaded", "AgreementSent", "Pending"] }
+            });
         }
 
         // Create the payment — studentId from JWT, status forced to Pending
-        const payment = await Payment.create({
+        const paymentData = {
             studentId: req.user.id,
             paymentType,
             amount: parsedAmount,
             receipt: req.file.path,
             cloudinaryId: req.file.filename,
             status: "Pending",
-        });
+        };
+
+        // Attach room references if an active room request exists
+        if (approvedRequest) {
+            paymentData.roomId = approvedRequest.roomId;
+            paymentData.roomRequestId = approvedRequest._id;
+        }
+
+        const payment = await Payment.create(paymentData);
 
         res.status(201).json({
             success: true,
@@ -122,6 +137,7 @@ const getPayments = async (req, res) => {
             .populate("studentId", "firstName lastName email username")
             .populate("paymentType", "name")
             .populate("reviewedBy", "firstName lastName")
+            .populate("roomId", "roomNumber roomType pricePerMonth")
             .sort({ createdAt: -1 })
             .skip(startIndex)
             .limit(limit);
@@ -157,7 +173,8 @@ const getPaymentById = async (req, res) => {
         const payment = await Payment.findById(req.params.id)
             .populate("studentId", "firstName lastName email username")
             .populate("paymentType", "name")
-            .populate("reviewedBy", "firstName lastName");
+            .populate("reviewedBy", "firstName lastName")
+            .populate("roomId", "roomNumber roomType pricePerMonth");
 
         if (!payment) {
             return res.status(404).json({
@@ -246,7 +263,8 @@ const updatePaymentStatus = async (req, res) => {
         const updatedPayment = await Payment.findById(payment._id)
             .populate("studentId", "firstName lastName email username")
             .populate("paymentType", "name")
-            .populate("reviewedBy", "firstName lastName");
+            .populate("reviewedBy", "firstName lastName")
+            .populate("roomId", "roomNumber roomType pricePerMonth");
 
         res.status(200).json({
             success: true,
@@ -441,7 +459,8 @@ const resubmitPayment = async (req, res) => {
         const updatedPayment = await Payment.findById(payment._id)
             .populate("studentId", "firstName lastName email username")
             .populate("paymentType", "name")
-            .populate("reviewedBy", "firstName lastName");
+            .populate("reviewedBy", "firstName lastName")
+            .populate("roomId", "roomNumber roomType pricePerMonth");
 
         res.status(200).json({
             success: true,

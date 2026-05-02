@@ -29,6 +29,16 @@ const paymentSchema = new mongoose.Schema(
       type: String, // public_id for cloudinary cleanup
     },
 
+    roomId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Room",
+    },
+
+    roomRequestId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "RoomRequest",
+    },
+
     status: {
       type: String,
       enum: ["Pending", "Approved", "Rejected"],

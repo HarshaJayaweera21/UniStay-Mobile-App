@@ -8,7 +8,7 @@ import { useRouter } from 'expo-router';
 import { getItem } from '@/utils/storage';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
-import { PAYMENTS_URL, PAYMENT_TYPES_URL } from '@/constants/api';
+import { PAYMENTS_URL, PAYMENT_TYPES_URL, API_URL } from '@/constants/api';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
@@ -24,6 +24,7 @@ export default function UploadPayment() {
     const [showTypePicker, setShowTypePicker] = useState(false);
     const [hasApprovedRoom, setHasApprovedRoom] = useState(false);
     const [isLoadingRoom, setIsLoadingRoom] = useState(true);
+    const [roomInfo, setRoomInfo] = useState(null);
 
     // Custom UI States
     const [showFilePickerModal, setShowFilePickerModal] = useState(false);
@@ -47,6 +48,12 @@ export default function UploadPayment() {
             const data = await res.json();
             if (data.success && data.request && data.request.status === 'Approved') {
                 setHasApprovedRoom(true);
+                if (data.request.roomId) {
+                    setRoomInfo({
+                        roomNumber: data.request.roomId.roomNumber || data.request.roomId,
+                        roomType: data.request.roomId.roomType || null,
+                    });
+                }
             }
         } catch (err) {
             console.error('Error checking room status:', err);
@@ -126,13 +133,7 @@ export default function UploadPayment() {
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
                 {/* Top App Bar */}
-                <View style={styles.topAppBar}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.appBarBtn}>
-                        <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
-                    </TouchableOpacity>
-                    <Text style={styles.topAppTitle}>Upload Payment</Text>
-                    <View style={{ width: 40 }} />
-                </View>
+                
 
                 <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} bounces={false}>
                     {/* Header Section */}
@@ -156,6 +157,19 @@ export default function UploadPayment() {
                             >
                                 <Text style={{ fontFamily: Fonts.bodySemiBold, color: '#fff' }}>View My Room Status</Text>
                             </TouchableOpacity>
+                        </View>
+                    )}
+
+                    {(!isLoadingRoom && hasApprovedRoom && roomInfo) && (
+                        <View style={{ backgroundColor: Colors.primaryFixed, padding: Spacing.three, borderRadius: Radius.lg, marginBottom: Spacing.four, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                            <View style={{ width: 40, height: 40, borderRadius: Radius.lg, backgroundColor: Colors.primaryContainer, justifyContent: 'center', alignItems: 'center' }}>
+                                <MaterialIcons name="meeting-room" size={20} color={Colors.onPrimary} />
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text style={{ fontFamily: Fonts.bodySemiBold, color: Colors.primary, fontSize: 14 }}>Paying for Room {roomInfo.roomNumber}</Text>
+                                {roomInfo.roomType && <Text style={{ fontFamily: Fonts.bodyMedium, color: Colors.onSurfaceVariant, fontSize: 12 }}>{roomInfo.roomType} Room</Text>}
+                            </View>
+                            <MaterialIcons name="verified" size={20} color={Colors.primary} />
                         </View>
                     )}
 
@@ -324,7 +338,7 @@ export default function UploadPayment() {
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.surface, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
+    safeArea: { flex: 1, backgroundColor: Colors.surface },
     container: { flex: 1, backgroundColor: Colors.surface },
     
     topAppBar: {

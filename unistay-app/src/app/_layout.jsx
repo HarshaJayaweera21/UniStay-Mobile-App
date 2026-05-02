@@ -3,6 +3,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import { AuthProvider } from '../context/AuthContext';
 import {
   PlusJakartaSans_600SemiBold,
   PlusJakartaSans_700Bold,
@@ -40,7 +41,7 @@ export default function RootLayout() {
   }
 
   return (
-    <>
+    <AuthProvider>
       <StatusBar style="light" />
       <Stack
         screenOptions={{
@@ -51,6 +52,6 @@ export default function RootLayout() {
       >
         <Stack.Screen name="index" />
       </Stack>
-    </>
+    </AuthProvider>
   );
 }

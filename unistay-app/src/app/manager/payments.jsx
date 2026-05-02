@@ -117,18 +117,6 @@ export default function ManagerPayments() {
 
     const renderHeader = () => (
         <View style={styles.headerSection}>
-            <View style={styles.topAppBar}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-                    <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
-                </TouchableOpacity>
-                <View style={{ flex: 1, paddingLeft: Spacing.three }}>
-                    <Text style={styles.headerTitle}>Manage Payments</Text>
-                    <Text style={styles.headerSubtitle}>Review and verify student payments</Text>
-                </View>
-                <View style={styles.adminAvatar}>
-                    <MaterialIcons name="admin-panel-settings" size={20} color={Colors.primary} />
-                </View>
-            </View>
 
             {/* Metrics Bento Grid */}
             <View style={styles.bentoGrid}>
@@ -234,7 +222,7 @@ export default function ManagerPayments() {
                     </View>
                     <View style={styles.studentInfo}>
                         <Text style={styles.studentName} numberOfLines={1}>{studentName}</Text>
-                        <Text style={styles.studentRoom}>@{studentUsername}</Text>
+                        <Text style={styles.studentRoom}>{item.roomId ? `Room ${item.roomId.roomNumber}` : `@${studentUsername}`}</Text>
                     </View>
                     <View style={styles.chevronBox}>
                         <MaterialIcons name="chevron-right" size={24} color={Colors.onSurface} />
@@ -398,7 +386,7 @@ export default function ManagerPayments() {
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.surface, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
+    safeArea: { flex: 1, backgroundColor: Colors.surface },
     centerContainer: { flex: 1, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center' },
     listContent: { paddingBottom: 100 },
     

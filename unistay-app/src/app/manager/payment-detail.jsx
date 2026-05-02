@@ -268,13 +268,7 @@ export default function PaymentDetail() {
     return (
         <SafeAreaView style={styles.safeArea}>
             {/* Top App Bar */}
-            <View style={styles.topAppBar}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.appBarBtn}>
-                    <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
-                </TouchableOpacity>
-                <Text style={styles.appBarTitle}>Payment Approval</Text>
-                <View style={{ width: 40 }} />
-            </View>
+            
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 
@@ -303,6 +297,12 @@ export default function PaymentDetail() {
                             <MaterialIcons name="business" size={16} color={Colors.onSurfaceVariant} />
                             <Text style={styles.studentDetailText}>@{studentUsername}</Text>
                         </View>
+                        {payment.roomId && (
+                            <View style={styles.studentDetailRow}>
+                                <MaterialIcons name="meeting-room" size={16} color={Colors.onSurfaceVariant} />
+                                <Text style={styles.studentDetailText}>Room {payment.roomId.roomNumber} • {payment.roomId.roomType}</Text>
+                            </View>
+                        )}
                     </View>
                 </View>
 
@@ -519,7 +519,7 @@ export default function PaymentDetail() {
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.surface, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
+    safeArea: { flex: 1, backgroundColor: Colors.surface },
     centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     errorText: { fontFamily: Fonts.bodyMedium, fontSize: 16, color: Colors.onSurfaceVariant },
     

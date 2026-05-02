@@ -120,5 +120,4 @@ const loginUserService = async (data) => {
     }
 }
 
-
-module.exports = {registerUserService, loginUserService};
+module.exports = {registerUserService, loginUserService};
