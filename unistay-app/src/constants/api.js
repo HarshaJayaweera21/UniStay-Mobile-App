@@ -18,9 +18,9 @@ const getBaseUrl = () => {
 
     // Fallbacks for production or environments where hostUri isn't available
     if (Platform.OS === 'android') {
-        return 'http://192.168.1.9:3000'; // Default for Android Emulator
+        return `http://${IP_ADDRESS}`;
     }
-    return 'http://localhost:3000'; // Default for iOS/Web/Local
+    return `http://${IP_ADDRESS}`;
 };
 
 export const API_URL = getBaseUrl();
