@@ -11,7 +11,6 @@
         "backgroundColor": "#00174b"
       },
       "permissions": [
-        "android.permission.RECORD_AUDIO",
         "android.permission.RECORD_AUDIO"
       ],
       "package": "com.anonymous.unistayapp"
@@ -35,7 +34,8 @@
         }
       ],
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      "@react-native-community/datetimepicker"
     ],
     "newArchEnabled": true
   }

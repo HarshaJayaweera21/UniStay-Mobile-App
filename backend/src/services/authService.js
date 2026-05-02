@@ -1,6 +1,6 @@
 const User = require("../models/User");
 const Role = require("../models/Role")
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const registerUserService = async (data) => {

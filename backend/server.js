@@ -8,6 +8,8 @@ const connectDB = require("./src/config/db");
 // Import routes
 const authRoutes = require("./src/routes/authRoutes");
 const roomRoutes = require("./src/routes/roomRoutes");
+const paymentRoutes = require("./src/routes/paymentRoutes");
+const paymentTypeRoutes = require("./src/routes/paymentTypeRoutes");
 
 const app = express();
 const PORT = process.env.PORT;
@@ -28,6 +30,8 @@ app.get("/", (req, res) => {
 // Mount routes
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
+app.use("/api/payments", paymentRoutes);
+app.use("/api/payment-types", paymentTypeRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
@@ -53,5 +57,3 @@ cloudinary.api
   .catch((error) => {
     console.error("❌ Cloudinary connection failed:", error);
 });
-
-
