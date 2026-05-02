@@ -12,6 +12,7 @@ export default function ManagerLayout() {
                 animation: 'slide_from_right',
             }}
         >
+            <Stack.Screen name="index" />
             <Stack.Screen name="room-index" />
             <Stack.Screen name="add-room" />
             <Stack.Screen name="edit-room" />
