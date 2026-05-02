@@ -231,7 +231,7 @@ export default function Header() {
                                 <TouchableOpacity 
                                     style={styles.profileDetailButton}
                                     activeOpacity={0.7}
-                                    onPress={() => navigateTo('/profile')}
+                                    onPress={() => navigateTo('/student/profile')}
                                 >
                                     <MaterialIcons name="chevron-right" size={24} color={Colors.primary} />
                                 </TouchableOpacity>
