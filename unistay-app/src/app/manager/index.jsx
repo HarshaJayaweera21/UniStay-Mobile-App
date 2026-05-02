@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from 'react-native';
-import { useRouter } from 'expo-router';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform, ActivityIndicator } from 'react-native';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { deleteItem, getItem } from '@/utils/storage';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
@@ -10,6 +10,10 @@ import { API_URL } from '@/constants/api';
 export default function ManagerDashboard() {
     const router = useRouter();
     const [userName, setUserName] = useState('');
+
+    const [pendingRequests, setPendingRequests] = useState(0);
+    const [pendingPayments, setPendingPayments] = useState(0);
+    const [isLoadingMetrics, setIsLoadingMetrics] = useState(true);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -31,6 +35,43 @@ export default function ManagerDashboard() {
 
         fetchUserData();
     }, []);
+
+    useFocusEffect(
+        useCallback(() => {
+            const fetchMetrics = async () => {
+                setIsLoadingMetrics(true);
+                try {
+                    const token = await getItem('userToken');
+                    if (token) {
+                        // Fetch room requests
+                        const reqRes = await fetch(`${API_URL}/api/room-requests?status=Pending`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        const reqData = await reqRes.json();
+                        if (reqData.success) {
+                            setPendingRequests(reqData.requests?.length || 0);
+                        }
+
+                        // Fetch payments
+                        const payRes = await fetch(`${API_URL}/api/payments?limit=5000`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        const payData = await payRes.json();
+                        if (payData.success) {
+                            const pending = (payData.payments || []).filter(p => p.status === 'Pending').length;
+                            setPendingPayments(pending);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching metrics:', error);
+                } finally {
+                    setIsLoadingMetrics(false);
+                }
+            };
+
+            fetchMetrics();
+        }, [])
+    );
 
     const handleLogout = async () => {
         await deleteItem('userToken');
@@ -59,10 +100,22 @@ export default function ManagerDashboard() {
                         </View>
                     </View>
 
-                    <View style={styles.assignedRoomMain}>
-                        <Text style={styles.cardDescription}>
-                            Pending tasks and recent activities will appear here once the backend analytics are fully integrated.
-                        </Text>
+                    <View style={styles.metricsContainer}>
+                        {isLoadingMetrics ? (
+                            <ActivityIndicator size="small" color={Colors.primary} />
+                        ) : (
+                            <>
+                                <View style={styles.metricBox}>
+                                    <Text style={styles.metricValue}>{pendingRequests}</Text>
+                                    <Text style={styles.metricLabel}>Pending{'\n'}Requests</Text>
+                                </View>
+                                <View style={styles.metricDivider} />
+                                <View style={styles.metricBox}>
+                                    <Text style={styles.metricValue}>{pendingPayments}</Text>
+                                    <Text style={styles.metricLabel}>Pending{'\n'}Payments</Text>
+                                </View>
+                            </>
+                        )}
                     </View>
                 </View>
             </View>
@@ -190,6 +243,39 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: Colors.onSurfaceVariant,
         lineHeight: 24,
+    },
+    metricsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        backgroundColor: Colors.surfaceContainerHigh,
+        borderRadius: 24,
+        paddingVertical: Spacing.four,
+        paddingHorizontal: Spacing.two,
+        marginBottom: Spacing.four,
+    },
+    metricBox: {
+        alignItems: 'center',
+        flex: 1,
+    },
+    metricValue: {
+        fontFamily: Fonts.headlineExtraBold,
+        fontSize: 32,
+        color: Colors.primary,
+        marginBottom: Spacing.one,
+    },
+    metricLabel: {
+        fontFamily: Fonts.bodyBold,
+        fontSize: 12,
+        color: Colors.onSurfaceVariant,
+        textAlign: 'center',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    metricDivider: {
+        width: 1,
+        height: 40,
+        backgroundColor: Colors.outlineVariant,
     },
     quickActionsContainer: {
         marginTop: Spacing.two,
