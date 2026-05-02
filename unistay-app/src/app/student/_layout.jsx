@@ -10,7 +10,7 @@ export default function StudentLayout() {
                 animation: 'slide_from_right',
             }}
         >
-            <Stack.Screen name="index" />
+            <Stack.Screen name="room-index" />
             <Stack.Screen name="room-details" />
         </Stack>
     );
