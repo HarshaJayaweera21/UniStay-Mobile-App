@@ -64,7 +64,7 @@ export default function LoginScreen() {
                 if (userRole === 'admin') router.replace('/admin');
                 else if (userRole === 'manager') router.replace('/manager/room-index');
                 else if (userRole === 'guard') router.replace('/guard');
-                else router.replace('/student/room-index');
+                else router.replace('/student');
             }
         } catch (error) {
             console.error('Login Error:', error);

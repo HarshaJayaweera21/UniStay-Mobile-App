@@ -121,3 +121,10 @@ expo-env.d.js
 Design/
 unistay-app/DESIGN.md
 payment-integration-plan.md
+unistay-app/src/app/student/dashboard_with_no_room/dashboard_with_no_room.html
+.gitignore
+unistay-app/src/app/student/dashboard_with_pending_request/dashboard_with_pending_request.html
+unistay-app/src/app/student/dashboard_with_room/dashboard_with_room.html
+unistay-app/src/app/student/dashboard_with_no_room/dashboard_with_no_room.png
+unistay-app/src/app/student/dashboard_with_pending_request/dashboard_with_pending_request.png
+unistay-app/src/app/student/dashboard_with_room/dashboard_with_room.png
