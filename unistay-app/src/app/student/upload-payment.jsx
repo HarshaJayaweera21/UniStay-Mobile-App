@@ -318,7 +318,7 @@ export default function UploadPayment() {
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.surface, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
+    safeArea: { flex: 1, backgroundColor: Colors.surface },
     container: { flex: 1, backgroundColor: Colors.surface },
     
     topAppBar: {

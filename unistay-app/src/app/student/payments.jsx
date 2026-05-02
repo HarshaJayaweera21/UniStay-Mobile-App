@@ -348,7 +348,7 @@ export default function StudentPayments() {
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.surface, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
+    safeArea: { flex: 1, backgroundColor: Colors.surface },
     container: { flex: 1, backgroundColor: Colors.surface },
     center: { flex: 1, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center' },
     loadText: { fontFamily: Fonts.bodyMedium, fontSize: 16, color: Colors.onSurfaceVariant, marginTop: Spacing.three },

@@ -386,7 +386,7 @@ export default function ManagerPayments() {
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.surface, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
+    safeArea: { flex: 1, backgroundColor: Colors.surface },
     centerContainer: { flex: 1, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center' },
     listContent: { paddingBottom: 100 },
     
