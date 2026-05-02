@@ -386,7 +386,7 @@ export default function PaymentDetail() {
                 </View>
 
                 {/* If rejected and has note, display it here */}
-                {payment.status === 'Rejected' && payment.note && (
+                {payment.status === 'Rejected' && !!payment.note && (
                     <View style={[styles.card, { marginTop: Spacing.four, backgroundColor: '#FEF2F2' }]}>
                         <View style={{flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8}}>
                              <MaterialIcons name="info" size={20} color={Colors.error} />

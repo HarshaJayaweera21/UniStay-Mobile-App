@@ -22,6 +22,8 @@ export default function UploadPayment() {
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingTypes, setIsLoadingTypes] = useState(true);
     const [showTypePicker, setShowTypePicker] = useState(false);
+    const [hasApprovedRoom, setHasApprovedRoom] = useState(false);
+    const [isLoadingRoom, setIsLoadingRoom] = useState(true);
 
     // Custom UI States
     const [showFilePickerModal, setShowFilePickerModal] = useState(false);
@@ -31,7 +33,27 @@ export default function UploadPayment() {
         setAlertConfig({ visible: true, title, message, type, onConfirm });
     };
 
-    useEffect(() => { fetchPaymentTypes(); }, []);
+    useEffect(() => { 
+        fetchPaymentTypes(); 
+        checkRoomStatus();
+    }, []);
+
+    const checkRoomStatus = async () => {
+        try {
+            const token = await getItem('userToken');
+            const res = await fetch(`${API_URL}/api/room-requests/my-request`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success && data.request && data.request.status === 'Approved') {
+                setHasApprovedRoom(true);
+            }
+        } catch (err) {
+            console.error('Error checking room status:', err);
+        } finally {
+            setIsLoadingRoom(false);
+        }
+    };
 
     const fetchPaymentTypes = async () => {
         try {
@@ -119,8 +141,26 @@ export default function UploadPayment() {
                         <Text style={styles.pageSubtitle}>Submit your payment receipt to confirm your transaction.</Text>
                     </View>
 
+                    {(!isLoadingRoom && !hasApprovedRoom) && (
+                        <View style={{ backgroundColor: Colors.errorContainer, padding: Spacing.four, borderRadius: Radius.lg, marginBottom: Spacing.four }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                                <MaterialIcons name="error-outline" size={20} color={Colors.error} />
+                                <Text style={{ fontFamily: Fonts.headline, color: Colors.error, fontSize: 16 }}>Action Restricted</Text>
+                            </View>
+                            <Text style={{ fontFamily: Fonts.bodyMedium, color: Colors.onErrorContainer, fontSize: 14 }}>
+                                You must have an approved room request with verified key money before you can make regular payments. Please check your room request status.
+                            </Text>
+                            <TouchableOpacity 
+                                style={{ marginTop: Spacing.three, backgroundColor: Colors.error, alignSelf: 'flex-start', paddingHorizontal: 16, paddingVertical: 8, borderRadius: Radius.full }}
+                                onPress={() => router.push('/student/my-room')}
+                            >
+                                <Text style={{ fontFamily: Fonts.bodySemiBold, color: '#fff' }}>View My Room Status</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+
                     {/* Payment Type */}
-                    <View style={{ zIndex: 10 }}>
+                    <View style={{ zIndex: 10, opacity: (!isLoadingRoom && !hasApprovedRoom) ? 0.5 : 1 }} pointerEvents={(!isLoadingRoom && !hasApprovedRoom) ? 'none' : 'auto'}>
                         <Text style={styles.label}>Payment Category</Text>
                         {isLoadingTypes ? <ActivityIndicator color={Colors.primary} style={{ alignSelf: 'flex-start', marginTop: 10 }} /> : (
                             <View>

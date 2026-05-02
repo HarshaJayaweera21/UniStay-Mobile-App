@@ -181,7 +181,7 @@ export default function AddRoomScreen() {
                                 <Text style={styles.imagePickerText}>Tap to add room photo</Text>
                             </View>
                         )}
-                        {imageUri && (
+                        {!!imageUri && (
                             <View style={styles.imageOverlay}>
                                 <MaterialIcons name="camera-alt" size={20} color="#fff" />
                                 <Text style={styles.imageOverlayText}>Change Photo</Text>

@@ -334,7 +334,7 @@ export default function PaymentView() {
                 </View>
 
                 {/* Rejection Note Banner */}
-                {payment.status === 'Rejected' && payment.note && (
+                {payment.status === 'Rejected' && !!payment.note && (
                     <View style={styles.rejectionBanner}>
                         <View style={styles.rejectionHeader}>
                             <MaterialIcons name="info" size={20} color={Colors.error} />

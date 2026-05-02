@@ -8,11 +8,17 @@ import {
     ActivityIndicator,
     Dimensions,
     FlatList,
+    Modal,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    TextInput,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { getItem } from '@/utils/storage';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { API_URL } from '@/constants/api';
@@ -25,23 +31,79 @@ export default function StudentRoomDetails() {
     const [room, setRoom] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const [activeRequest, setActiveRequest] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [duration, setDuration] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
     const flatListRef = useRef(null);
 
     useEffect(() => {
-        fetchRoom();
+        fetchRoomAndRequest();
     }, [id]);
 
-    const fetchRoom = async () => {
+    const fetchRoomAndRequest = async () => {
         try {
-            const response = await fetch(`${API_URL}/api/rooms/${id}`);
-            const data = await response.json();
-            if (data.success) {
-                setRoom(data.room);
-            }
+            const token = await getItem('userToken');
+            
+            const [roomRes, reqRes] = await Promise.all([
+                fetch(`${API_URL}/api/rooms/${id}`),
+                fetch(`${API_URL}/api/room-requests/my-request`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+            ]);
+
+            const roomData = await roomRes.json();
+            const reqData = await reqRes.json();
+
+            if (roomData.success) setRoom(roomData.room);
+            if (reqData.success) setActiveRequest(reqData.request);
+            
         } catch (error) {
-            console.error('Error fetching room:', error);
+            console.error('Error fetching data:', error);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleRequestRoom = async () => {
+        if (!duration || isNaN(parseInt(duration)) || parseInt(duration) < 1) {
+            if (Platform.OS === 'web') window.alert('Please enter a valid duration in months.');
+            else Alert.alert('Invalid Input', 'Please enter a valid duration in months.');
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const token = await getItem('userToken');
+            const response = await fetch(`${API_URL}/api/room-requests`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    roomId: id,
+                    durationInMonths: parseInt(duration)
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                if (Platform.OS === 'web') window.alert('Room requested successfully!');
+                else Alert.alert('Success', 'Room requested successfully!');
+                setShowModal(false);
+                fetchRoomAndRequest(); // Refresh to update active request state
+            } else {
+                if (Platform.OS === 'web') window.alert(data.message);
+                else Alert.alert('Error', data.message);
+            }
+        } catch (error) {
+            console.error('Request room error:', error);
+            if (Platform.OS === 'web') window.alert('Failed to request room');
+            else Alert.alert('Error', 'Failed to request room');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -240,8 +302,111 @@ export default function StudentRoomDetails() {
                                 : 'This room is currently full. Check back later or browse other rooms.'}
                         </Text>
                     </View>
+
+                    {/* Request Button */}
+                    <View style={styles.actionContainer}>
+                        {activeRequest ? (
+                            <View style={styles.activeRequestCard}>
+                                <Text style={styles.activeRequestText}>
+                                    You already have an active room request.
+                                </Text>
+                                <TouchableOpacity 
+                                    style={styles.viewRequestBtn}
+                                    onPress={() => router.push('/student/my-room')}
+                                >
+                                    <Text style={styles.viewRequestBtnText}>View My Request</Text>
+                                </TouchableOpacity>
+                            </View>
+                        ) : (
+                            <TouchableOpacity
+                                style={[styles.requestButton, !isAvailable && styles.requestButtonDisabled]}
+                                activeOpacity={0.8}
+                                disabled={!isAvailable}
+                                onPress={() => setShowModal(true)}
+                            >
+                                <LinearGradient
+                                    colors={isAvailable ? [Colors.primaryContainer, Colors.primary] : [Colors.surfaceContainerHigh, Colors.surfaceContainerHigh]}
+                                    style={styles.requestButtonGradient}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 1 }}
+                                >
+                                    <MaterialIcons name="event-available" size={24} color={isAvailable ? '#fff' : Colors.outline} />
+                                    <Text style={[styles.requestButtonText, !isAvailable && { color: Colors.outline }]}>
+                                        {isAvailable ? 'Request This Room' : 'Room Not Available'}
+                                    </Text>
+                                </LinearGradient>
+                            </TouchableOpacity>
+                        )}
+                    </View>
                 </View>
             </ScrollView>
+
+            {/* Request Modal */}
+            <Modal visible={showModal} transparent animationType="slide">
+                <View style={styles.modalOverlay}>
+                    <KeyboardAvoidingView 
+                        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                        style={styles.modalContent}
+                    >
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>Request Room {room.roomNumber}</Text>
+                            <TouchableOpacity onPress={() => setShowModal(false)} style={styles.modalClose}>
+                                <MaterialIcons name="close" size={24} color={Colors.onSurfaceVariant} />
+                            </TouchableOpacity>
+                        </View>
+                        
+                        <View style={styles.modalBody}>
+                            <Text style={styles.modalDesc}>
+                                Your personal details will be automatically included in this request.
+                                Please specify how long you plan to stay.
+                            </Text>
+
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.label}>DURATION OF STAY (MONTHS)</Text>
+                                <View style={styles.inputContainer}>
+                                    <MaterialIcons name="date-range" size={20} color={Colors.outline} style={styles.inputIcon} />
+                                    <TextInput
+                                        style={styles.input}
+                                        placeholder="e.g. 6"
+                                        placeholderTextColor={Colors.outline}
+                                        keyboardType="numeric"
+                                        value={duration}
+                                        onChangeText={setDuration}
+                                    />
+                                </View>
+                            </View>
+
+                            <View style={styles.keyMoneyPreview}>
+                                <MaterialIcons name="info-outline" size={18} color={Colors.tertiary} />
+                                <Text style={styles.keyMoneyText}>
+                                    Note: Key money will be calculated as 3x the monthly rent (Rs. {(room.pricePerMonth * 3).toLocaleString()}) if approved.
+                                </Text>
+                            </View>
+                        </View>
+
+                        <View style={styles.modalFooter}>
+                            <TouchableOpacity 
+                                style={styles.cancelBtn} 
+                                onPress={() => setShowModal(false)}
+                                disabled={isSubmitting}
+                            >
+                                <Text style={styles.cancelBtnText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity 
+                                style={styles.submitBtn} 
+                                onPress={handleRequestRoom}
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? (
+                                    <ActivityIndicator size="small" color="#fff" />
+                                ) : (
+                                    <Text style={styles.submitBtnText}>Submit Request</Text>
+                                )}
+                            </TouchableOpacity>
+                        </View>
+                    </KeyboardAvoidingView>
+                </View>
+            </Modal>
         </View>
     );
 }
@@ -317,7 +482,35 @@ const styles = StyleSheet.create({
     noticeCard: {
         flexDirection: 'row', alignItems: 'flex-start', gap: 10,
         borderRadius: Radius.xl, borderWidth: 1,
-        padding: Spacing.three, marginTop: 4,
+        padding: Spacing.three, marginTop: 4, marginBottom: Spacing.four,
     },
     noticeText: { fontFamily: Fonts.bodyMedium, fontSize: 14, lineHeight: 21, flex: 1 },
+    actionContainer: { marginTop: Spacing.two },
+    requestButton: { borderRadius: Radius.xl, overflow: 'hidden', shadowColor: Colors.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 12, elevation: 4 },
+    requestButtonDisabled: { shadowOpacity: 0, elevation: 0 },
+    requestButtonGradient: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 18, gap: 10 },
+    requestButtonText: { fontFamily: Fonts.headline, fontSize: 18, color: '#fff' },
+    activeRequestCard: { backgroundColor: Colors.surfaceContainerHighest, borderRadius: Radius.xl, padding: Spacing.four, alignItems: 'center', gap: 12 },
+    activeRequestText: { fontFamily: Fonts.bodySemiBold, fontSize: 15, color: Colors.onSurfaceVariant, textAlign: 'center' },
+    viewRequestBtn: { backgroundColor: Colors.primary, paddingHorizontal: Spacing.four, paddingVertical: 10, borderRadius: Radius.full },
+    viewRequestBtnText: { fontFamily: Fonts.bodySemiBold, fontSize: 14, color: '#fff' },
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+    modalContent: { backgroundColor: Colors.surfaceContainerLowest, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.five },
+    modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.four },
+    modalTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 22, color: Colors.onSurface },
+    modalClose: { width: 36, height: 36, borderRadius: 18, backgroundColor: Colors.surfaceContainerHighest, justifyContent: 'center', alignItems: 'center' },
+    modalBody: { marginBottom: Spacing.four },
+    modalDesc: { fontFamily: Fonts.bodyMedium, fontSize: 14, color: Colors.onSurfaceVariant, marginBottom: Spacing.four, lineHeight: 22 },
+    inputGroup: { marginBottom: Spacing.four },
+    label: { fontFamily: Fonts.bodyBold, fontSize: 12, color: Colors.onSurfaceVariant, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: Spacing.two, marginLeft: Spacing.one },
+    inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.surfaceContainerHighest, borderRadius: Radius.xl, paddingHorizontal: Spacing.three },
+    inputIcon: { marginRight: Spacing.two },
+    input: { flex: 1, paddingVertical: 14, fontFamily: Fonts.bodyMedium, fontSize: 16, color: Colors.onSurface },
+    keyMoneyPreview: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: Colors.tertiaryContainer, padding: Spacing.three, borderRadius: Radius.lg },
+    keyMoneyText: { flex: 1, fontFamily: Fonts.bodyMedium, fontSize: 13, color: Colors.onTertiaryContainer, lineHeight: 20 },
+    modalFooter: { flexDirection: 'row', gap: 12 },
+    cancelBtn: { flex: 1, paddingVertical: 16, borderRadius: Radius.xl, backgroundColor: Colors.surfaceContainerHigh, alignItems: 'center' },
+    cancelBtnText: { fontFamily: Fonts.headline, fontSize: 16, color: Colors.onSurfaceVariant },
+    submitBtn: { flex: 1, paddingVertical: 16, borderRadius: Radius.xl, backgroundColor: Colors.primary, alignItems: 'center' },
+    submitBtnText: { fontFamily: Fonts.headline, fontSize: 16, color: '#fff' },
 });

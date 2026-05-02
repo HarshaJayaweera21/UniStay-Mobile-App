@@ -170,9 +170,17 @@ export default function StudentRoomList() {
                     <Text style={styles.greeting}>Welcome</Text>
                     <Text style={styles.title}>Find Your Room</Text>
                 </View>
-                <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-                    <MaterialIcons name="logout" size={22} color={Colors.onSurfaceVariant} />
-                </TouchableOpacity>
+                <View style={styles.headerActions}>
+                    <TouchableOpacity onPress={() => router.push('/student/my-room')} style={styles.iconButton}>
+                        <MaterialIcons name="home" size={22} color={Colors.primary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => router.push('/student/payments')} style={styles.iconButton}>
+                        <MaterialIcons name="receipt-long" size={22} color={Colors.primary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleLogout} style={styles.iconButton}>
+                        <MaterialIcons name="logout" size={22} color={Colors.onSurfaceVariant} />
+                    </TouchableOpacity>
+                </View>
             </View>
 
             {/* Stats */}
@@ -257,7 +265,8 @@ const styles = StyleSheet.create({
     },
     greeting: { fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.onSurfaceVariant, marginBottom: 2 },
     title: { fontFamily: Fonts.headlineExtraBold, fontSize: 26, color: Colors.onSurface, letterSpacing: -0.5 },
-    logoutButton: {
+    headerActions: { flexDirection: 'row', gap: 8 },
+    iconButton: {
         width: 44, height: 44, borderRadius: 22, backgroundColor: Colors.surfaceContainerLowest,
         justifyContent: 'center', alignItems: 'center',
         shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 3,

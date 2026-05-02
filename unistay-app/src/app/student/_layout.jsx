@@ -12,6 +12,7 @@ export default function StudentLayout() {
         >
             <Stack.Screen name="room-index" />
             <Stack.Screen name="room-details" />
+            <Stack.Screen name="my-room" />
         </Stack>
     );
 }
