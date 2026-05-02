@@ -131,7 +131,7 @@ export default function Header() {
                     { label: 'Dashboard', icon: 'dashboard', path: '/manager' },
                     { label: 'Room Requests', icon: 'list-alt', path: '/manager/requests' },
                     { label: 'Payments', icon: 'receipt-long', path: '/manager/payments' },
-                    { label: 'Settings', icon: 'settings', path: '/manager/settings' },
+                    { label: 'My QR', icon: 'qr-code-2', path: '/manager/qr' },
                 ];
             case 'admin':
                 return [
@@ -147,7 +147,7 @@ export default function Header() {
                     { label: 'Dashboard', icon: 'dashboard', path: '/student' },
                     { label: 'My Bookings', icon: 'bed', path: '/student/room-index' },
                     { label: 'Payments', icon: 'receipt-long', path: '/student/payments' },
-                    { label: 'Settings', icon: 'settings', path: '/student/settings' },
+                    { label: 'My QR', icon: 'qr-code-2', path: '/student/qr' },
                 ];
         }
     };
@@ -155,8 +155,8 @@ export default function Header() {
     const navItems = getNavItems();
 
     const isRootScreen = [
-        '/student', '/student/room-index', '/student/payments', '/student/settings',
-        '/manager', '/manager/requests', '/manager/payments', '/manager/settings',
+        '/student', '/student/room-index', '/student/payments', '/student/qr',
+        '/manager', '/manager/requests', '/manager/payments', '/manager/qr',
         '/admin', '/guard'
     ].includes(pathname);
 
