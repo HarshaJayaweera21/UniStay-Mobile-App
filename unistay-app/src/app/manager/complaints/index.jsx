@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { getAllComplaints } from '@/services/complaintService';
+import BottomNav from '@/components/BottomNav';
 
 export default function ManagerComplaintList() {
     const router = useRouter();
@@ -165,6 +166,8 @@ export default function ManagerComplaintList() {
                     </View>
                 }
             />
+
+            <BottomNav activeTab="messages" />
         </View>
     );
 }

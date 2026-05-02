@@ -29,6 +29,13 @@ export default function BottomNav({ activeTab = 'home', onTabPress }) {
             } else {
                 router.push('/student/leave-passes');
             }
+        } else if (id === 'messages') {
+            const role = await getItem('userRole');
+            if (role === 'student') {
+                router.push('/student/complaints');
+            } else if (role === 'manager') {
+                router.push('/manager/complaints');
+            }
         } else if (id === 'home') {
             const role = await getItem('userRole');
             if (role) {

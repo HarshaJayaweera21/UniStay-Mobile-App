@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { getComplaintById, updateComplaintStatus, deleteComplaint } from '@/services/complaintService';
+import BottomNav from '@/components/BottomNav';
 
 export default function ManagerComplaintDetail() {
     const { id } = useLocalSearchParams();
@@ -254,6 +255,8 @@ export default function ManagerComplaintDetail() {
                     {updating && <ActivityIndicator color={Colors.primary} style={{ marginTop: 10 }} />}
                 </View>
             </ScrollView>
+
+            <BottomNav activeTab="messages" />
         </View>
     );
 }
@@ -312,7 +315,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
-        paddingBottom: Spacing.eight,
+        paddingBottom: 120,
     },
     statusBanner: {
         paddingVertical: 12,

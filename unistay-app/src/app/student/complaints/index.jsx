@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { getMyComplaints } from '@/services/complaintService';
+import BottomNav from '@/components/BottomNav';
 
 const StatusBadge = ({ status }) => {
     const getBadgeStyle = () => {
@@ -115,8 +116,13 @@ export default function ComplaintsList() {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.headerTitle}>Your Complaints</Text>
-                <Text style={styles.headerSubtitle}>Track and manage your hostel issues</Text>
+                <Pressable onPress={() => router.back()} style={({ pressed }) => [styles.backButton, pressed && { opacity: 0.7 }]}>
+                    <Ionicons name="arrow-back" size={24} color={Colors.onSurface} />
+                </Pressable>
+                <View>
+                    <Text style={styles.headerTitle}>Your Complaints</Text>
+                    <Text style={styles.headerSubtitle}>Track and manage your hostel issues</Text>
+                </View>
             </View>
 
             {error ? (
@@ -156,6 +162,8 @@ export default function ComplaintsList() {
             >
                 <Ionicons name="add" size={32} color={Colors.onPrimary} />
             </Pressable>
+
+            <BottomNav activeTab="messages" />
         </View>
     );
 }
@@ -169,6 +177,15 @@ const styles = StyleSheet.create({
         paddingHorizontal: Spacing.four,
         paddingTop: Spacing.six,
         paddingBottom: Spacing.three,
+    },
+    backButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: Colors.surfaceContainerHigh,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: Spacing.four,
     },
     headerTitle: {
         fontFamily: Fonts.headlineExtraBold,
@@ -249,7 +266,7 @@ const styles = StyleSheet.create({
     fab: {
         position: 'absolute',
         right: Spacing.four,
-        bottom: Spacing.four,
+        bottom: 100,
         width: 64,
         height: 64,
         borderRadius: 32,

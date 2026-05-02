@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { getComplaintById, deleteComplaint } from '@/services/complaintService';
+import BottomNav from '@/components/BottomNav';
 
 const StatusBadge = ({ status }) => {
     const getBadgeStyle = () => {
@@ -212,6 +213,8 @@ export default function ComplaintDetails() {
                     </View>
                 )}
             </ScrollView>
+
+            <BottomNav activeTab="messages" />
         </View>
     );
 }
@@ -238,6 +241,7 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         padding: Spacing.four,
+        paddingBottom: 120,
     },
     infoCard: {
         backgroundColor: Colors.surfaceContainerLowest,

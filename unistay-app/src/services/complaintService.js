@@ -1,8 +1,8 @@
-import storage from '@/utils/storage';
+import { getItem } from '@/utils/storage';
 import { API_URL } from '@/constants/api';
 
 const getAuthHeader = async () => {
-    const token = await storage.getItem('userToken');
+    const token = await getItem('userToken');
     return {
         'Authorization': `Bearer ${token}`,
     };

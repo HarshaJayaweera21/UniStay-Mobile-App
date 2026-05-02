@@ -157,11 +157,11 @@ const deleteComplaint = async (req, res) => {
         const currentUserId = (req.user.id || req.user._id).toString();
         const complaintOwnerId = complaint.userId.toString();
         const isOwner = complaintOwnerId === currentUserId;
-        const isAdmin = req.user.role === 'admin';
+        const isAdminOrManager = req.user.role === 'admin' || req.user.role === 'manager';
 
-        logger.info(`Authorization Check - isOwner: ${isOwner}, isAdmin: ${isAdmin}`);
+        logger.info(`Authorization Check - isOwner: ${isOwner}, isAdminOrManager: ${isAdminOrManager}`);
 
-        if (!isOwner && !isAdmin) {
+        if (!isOwner && !isAdminOrManager) {
             logger.denied(`User ${currentUserId} attempted to delete complaint ${req.params.id}`);
             return res.status(403).json({ success: false, message: "Not authorized to delete this complaint" });
         }
