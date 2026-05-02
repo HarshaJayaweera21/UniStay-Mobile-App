@@ -16,13 +16,14 @@ const getMeService = async (userId) => {
             gender: user.gender,
             username: user.username,
             email: user.email,
+            profilePicture: user.profilePicture,
             role: user.role.name
         }
     };
 };
 
 const updateProfileService = async (userId, data) => {
-    const { firstName, lastName, dateOfBirth, gender } = data;
+    const { firstName, lastName, dateOfBirth, gender, profilePicture } = data;
 
     // Only allow updating specific fields to prevent email/username changes without verification
     const updateData = {};
@@ -30,6 +31,7 @@ const updateProfileService = async (userId, data) => {
     if (lastName) updateData.lastName = lastName;
     if (dateOfBirth) updateData.dateOfBirth = dateOfBirth;
     if (gender) updateData.gender = gender;
+    if (profilePicture) updateData.profilePicture = profilePicture;
 
     const user = await User.findByIdAndUpdate(userId, updateData, { new: true, runValidators: true }).populate("role");
     
@@ -48,6 +50,7 @@ const updateProfileService = async (userId, data) => {
             gender: user.gender,
             username: user.username,
             email: user.email,
+            profilePicture: user.profilePicture,
             role: user.role.name
         }
     };

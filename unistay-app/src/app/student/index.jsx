@@ -15,6 +15,8 @@ import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { API_URL } from '@/constants/api';
+import ProfileHeader from '@/components/common/ProfileHeader';
+import useAuth from '@/hooks/useAuth';
 
 const DASHBOARD_STATES = {
     LOADING: 'LOADING',
@@ -25,19 +27,14 @@ const DASHBOARD_STATES = {
 
 export default function StudentDashboard() {
     const router = useRouter();
+    const { user, logout } = useAuth();
     const [dashboardState, setDashboardState] = useState(DASHBOARD_STATES.LOADING);
     const [requestData, setRequestData] = useState(null);
-    const [userName, setUserName] = useState('');
     const [refreshing, setRefreshing] = useState(false);
 
     const fetchDashboardData = async () => {
         try {
             const token = await getItem('userToken');
-            
-            // In a real app we might fetch user profile here as well
-            // const userRes = await fetch(`${API_URL}/api/auth/me`, { headers: { 'Authorization': `Bearer ${token}` } });
-            // const userData = await userRes.json();
-            // if (userData.success) setUserName(userData.user.firstName);
 
             const response = await fetch(`${API_URL}/api/room-requests/my-request`, {
                 headers: {
@@ -216,13 +213,14 @@ export default function StudentDashboard() {
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />
             }
         >
+            <ProfileHeader />
             <View style={styles.header}>
                 {dashboardState !== DASHBOARD_STATES.LOADING && (
                     <>
                         {dashboardState === DASHBOARD_STATES.HAS_ROOM && (
                             <Text style={styles.overlineHeader}>STUDENT PORTAL</Text>
                         )}
-                        <Text style={styles.headerTitle}>Welcome back{userName ? `, ${userName}` : ''}.</Text>
+                        <Text style={styles.headerTitle}>Welcome back{user?.firstName ? `, ${user.firstName}` : ''}.</Text>
                         <Text style={styles.headerSubtitle}>
                             {dashboardState === DASHBOARD_STATES.HAS_ROOM 
                                 ? "Your accommodation status has been updated. Explore your assigned room details below."
