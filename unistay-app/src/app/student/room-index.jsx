@@ -172,13 +172,7 @@ export default function StudentRoomList() {
                 </View>
                 <View style={styles.headerActions}>
                     <TouchableOpacity onPress={() => router.push('/student/my-room')} style={styles.iconButton}>
-                        <MaterialIcons name="home" size={22} color={Colors.primary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => router.push('/student/payments')} style={styles.iconButton}>
-                        <MaterialIcons name="receipt-long" size={22} color={Colors.primary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={handleLogout} style={styles.iconButton}>
-                        <MaterialIcons name="logout" size={22} color={Colors.onSurfaceVariant} />
+                        <MaterialIcons name="bookmark" size={22} color={Colors.primary} />
                     </TouchableOpacity>
                 </View>
             </View>
