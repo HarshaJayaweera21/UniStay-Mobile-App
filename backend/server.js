@@ -11,6 +11,7 @@ const qrRoutes = require("./src/routes/qrRoutes");
 const leavePassRoutes = require("./src/routes/leavePassRoutes");
 const attendanceRoutes = require("./src/routes/attendanceRoutes");
 const complaintRoutes = require("./src/routes/complaintRoutes");
+const announcementRoutes = require("./src/routes/announcementRoutes"); // ✅ ADDED
 
 const app = express();
 const PORT = process.env.PORT;
@@ -34,6 +35,7 @@ app.use("/api/qr", qrRoutes);
 app.use("/api/leavepass", leavePassRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/complaints", complaintRoutes);
+app.use("/api/announcements", announcementRoutes); // ✅ ADDED
 
 app.listen(PORT, () => {
   console.log(`Server running on port http://localhost:${PORT}`);
