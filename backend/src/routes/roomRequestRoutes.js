@@ -10,7 +10,10 @@ const {
     updateRequestStatus,
     uploadAgreement,
     uploadReceipt,
-    verifyReceipt
+    verifyReceipt,
+    requestCancellation,
+    approveCancellation,
+    rejectCancellation
 } = require("../controllers/roomRequestController");
 
 // POST /api/room-requests (Student)
@@ -50,5 +53,14 @@ router.post(
 
 // PUT /api/room-requests/:id/verify (Manager: Verify receipt & confirm room)
 router.put("/:id/verify", protect, authorizeRoles("manager"), verifyReceipt);
+
+// PUT /api/room-requests/my-request/cancel (Student: Request cancellation)
+router.put("/my-request/cancel", protect, authorizeRoles("student"), requestCancellation);
+
+// PUT /api/room-requests/:id/approve-cancellation (Manager: Approve cancellation)
+router.put("/:id/approve-cancellation", protect, authorizeRoles("manager"), approveCancellation);
+
+// PUT /api/room-requests/:id/reject-cancellation (Manager: Reject cancellation)
+router.put("/:id/reject-cancellation", protect, authorizeRoles("manager"), rejectCancellation);
 
 module.exports = router;

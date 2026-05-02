@@ -16,6 +16,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter, usePathname } from 'expo-router';
 import { deleteItem, getItem } from '@/utils/storage';
 import { API_URL } from '@/constants/api';
+import useAuth from '@/hooks/useAuth';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const DRAWER_WIDTH = 320;
@@ -23,54 +24,21 @@ const DRAWER_WIDTH = 320;
 export default function Header() {
     const router = useRouter();
     const pathname = usePathname();
+    const { user, logout } = useAuth();
     const [isDrawerOpen, setDrawerOpen] = useState(false);
-    const [userData, setUserData] = useState(null);
     const slideAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
-    const [userRole, setUserRole] = useState(null);
-
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const token = await getItem('userToken');
-                const role = await getItem('userRole');
-                if (role) setUserRole(role);
-                
-                if (token) {
-                    const response = await fetch(`${API_URL}/api/auth/me`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    
-                    if (response.status === 401) {
-                        await handleLogout();
-                        return;
-                    }
-                    
-                    const data = await response.json();
-                    if (data.success) {
-                        setUserData(data.user);
-                        if (data.user.role) setUserRole(data.user.role);
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        };
-
-        fetchUserData();
-    }, []);
-
     const getInitials = () => {
-        if (!userData) return 'U';
-        const first = userData.firstName ? userData.firstName.charAt(0) : '';
-        const last = userData.lastName ? userData.lastName.charAt(0) : '';
+        if (!user) return 'U';
+        const first = user.firstName ? user.firstName.charAt(0) : '';
+        const last = user.lastName ? user.lastName.charAt(0) : '';
         return (first + last).toUpperCase() || 'U';
     };
 
     const getFullName = () => {
-        if (!userData) return 'User';
-        return `${userData.firstName} ${userData.lastName}`;
+        if (!user) return 'User';
+        return `${user.firstName} ${user.lastName}`;
     };
 
     const openDrawer = () => {
@@ -108,8 +76,7 @@ export default function Header() {
 
     const handleLogout = async () => {
         closeDrawer();
-        await deleteItem('userToken');
-        await deleteItem('userRole');
+        logout();
         router.replace('/login');
     };
 
@@ -125,7 +92,8 @@ export default function Header() {
 
     // Navigation Items
     const getNavItems = () => {
-        switch (userRole) {
+        const role = user?.role || 'student';
+        switch (role) {
             case 'manager':
                 return [
                     { label: 'Dashboard', icon: 'dashboard', path: '/manager' },
@@ -145,6 +113,7 @@ export default function Header() {
             default:
                 return [
                     { label: 'Dashboard', icon: 'dashboard', path: '/student' },
+                    { label: 'My Profile', icon: 'person', path: '/student/profile' },
                     { label: 'My Bookings', icon: 'bed', path: '/student/room-index' },
                     { label: 'Payments', icon: 'receipt-long', path: '/student/payments' },
                     { label: 'Settings', icon: 'settings', path: '/student/settings' },
@@ -223,8 +192,8 @@ export default function Header() {
                             </View>
                             <View style={styles.drawerProfileInfo}>
                                 <Text style={styles.drawerNameText}>{getFullName()}</Text>
-                                <Text style={styles.drawerEmailText}>{userData ? userData.email : 'Loading...'}</Text>
-                                <Text style={styles.drawerIdText}>USERNAME: {userData ? userData.username : '...'}</Text>
+                                <Text style={styles.drawerEmailText}>{user ? user.email : 'Loading...'}</Text>
+                                <Text style={styles.drawerIdText}>USERNAME: {user ? user.username : '...'}</Text>
                             </View>
                         </View>
 

@@ -12,7 +12,11 @@ const getMe = async (req, res) => {
 
 const updateProfile = async (req, res) => {
     try {
-        const result = await updateProfileService(req.user.id, req.body);
+        const profileData = { ...req.body };
+        if (req.file && req.file.path) {
+            profileData.profilePicture = req.file.path;
+        }
+        const result = await updateProfileService(req.user.id, profileData);
         res.status(200).json(result);
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
