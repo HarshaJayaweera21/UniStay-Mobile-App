@@ -276,7 +276,7 @@ export default function Header() {
                                 onPress={handleLogout}
                             >
                                 <MaterialIcons name="logout" size={24} color={Colors.onError} />
-                                <Text style={styles.logoutButtonText}>Log Out</Text>
+                                <Text style={styles.logoutButtonText}>LOG OUT</Text>
                             </TouchableOpacity>
                         </View>
 
@@ -296,9 +296,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: Spacing.four,
         paddingTop: Platform.OS === 'ios' ? 60 : 40,
         paddingBottom: Spacing.four,
-        backgroundColor: `${Colors.background}F2`, // Transparent background
+        backgroundColor: Colors.background,
         borderBottomWidth: 0,
-        zIndex: 50,
+        zIndex: 1000,
+        elevation: 10,
     },
     leftSection: {
         flexDirection: 'row',
@@ -344,6 +345,8 @@ const styles = StyleSheet.create({
     modalOverlayContainer: {
         flex: 1,
         flexDirection: 'row',
+        backgroundColor: 'transparent',
+        zIndex: 9999,
     },
     backdrop: {
         ...StyleSheet.absoluteFillObject,
@@ -455,25 +458,26 @@ const styles = StyleSheet.create({
     },
     drawerFooterSection: {
         padding: Spacing.six,
-        paddingBottom: Platform.OS === 'ios' ? 60 : Spacing.six,
+        paddingBottom: Platform.OS === 'ios' ? 80 : 60,
     },
     logoutButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: Colors.error,
-        paddingVertical: 16,
+        paddingVertical: 18,
         borderRadius: Radius.xl,
         gap: Spacing.three,
         shadowColor: Colors.error,
         shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.2,
-        shadowRadius: 12,
-        elevation: 6,
+        shadowOpacity: 0.25,
+        shadowRadius: 16,
+        elevation: 8,
     },
     logoutButtonText: {
         fontFamily: Fonts.headlineExtraBold,
-        fontSize: 16,
+        fontSize: 15,
         color: Colors.onError,
+        letterSpacing: 1.2,
     }
 });
