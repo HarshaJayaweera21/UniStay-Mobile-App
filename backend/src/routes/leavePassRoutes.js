@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const {
     uploadLeavePass,
+    updateLeavePass,
     getAllLeavePasses,
     getMyLeavePasses,
     approveLeavePass,
@@ -26,6 +27,9 @@ router.post("/", protect, authorizeRoles("student"), (req, res, next) => {
 
 // Student gets own leave pass requests
 router.get("/mine", protect, authorizeRoles("student"), getMyLeavePasses);
+
+// Student updates own pending leave pass request
+router.put("/:id", protect, authorizeRoles("student"), updateLeavePass);
 
 // Manager gets all leave pass requests
 router.get("/", protect, authorizeRoles("manager"), getAllLeavePasses);

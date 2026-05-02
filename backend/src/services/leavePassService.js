@@ -47,6 +47,41 @@ const createLeavePassService = async (data, file) => {
     };
 };
 
+// Student updates pending leave pass
+const updateLeavePassService = async (leavePassId, studentId, data) => {
+    const leavePass = await LeavePass.findById(leavePassId);
+
+    if (!leavePass) {
+        throw new Error("Leave pass not found");
+    }
+
+    if (leavePass.student.toString() !== studentId.toString()) {
+        throw new Error("Unauthorized to edit this leave pass");
+    }
+
+    if (leavePass.status !== "pending") {
+        throw new Error("Only pending leave passes can be edited");
+    }
+
+    const { reason, requestedFrom, requestedTo } = data;
+
+    if (reason) leavePass.reason = reason;
+    if (requestedFrom) leavePass.requestedFrom = new Date(requestedFrom);
+    if (requestedTo) leavePass.requestedTo = new Date(requestedTo);
+
+    if (leavePass.requestedFrom >= leavePass.requestedTo) {
+        throw new Error("requestedFrom must be before requestedTo");
+    }
+
+    await leavePass.save();
+
+    return {
+        success: true,
+        message: "Leave pass updated successfully",
+        data: leavePass
+    };
+};
+
 // Manager gets all leave pass requests
 const getAllLeavePassesService = async () => {
     const leavePasses = await LeavePass.find()
@@ -135,6 +170,7 @@ const deleteLeavePassService = async (leavePassId) => {
 
 module.exports = {
     createLeavePassService,
+    updateLeavePassService,
     getAllLeavePassesService,
     getMyLeavePassesService,
     approveLeavePassService,

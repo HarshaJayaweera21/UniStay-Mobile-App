@@ -1,5 +1,6 @@
 const {
     createLeavePassService,
+    updateLeavePassService,
     getAllLeavePassesService,
     getMyLeavePassesService,
     approveLeavePassService,
@@ -18,6 +19,19 @@ const uploadLeavePass = async (req, res) => {
         const result = await createLeavePassService(data, req.file);
 
         res.status(201).json(result);
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// Student updates pending leave pass
+const updateLeavePass = async (req, res) => {
+    try {
+        const result = await updateLeavePassService(req.params.id, req.user.id, req.body);
+        res.status(200).json(result);
     } catch (error) {
         res.status(400).json({
             success: false,
@@ -92,6 +106,7 @@ const deleteLeavePass = async (req, res) => {
 
 module.exports = {
     uploadLeavePass,
+    updateLeavePass,
     getAllLeavePasses,
     getMyLeavePasses,
     approveLeavePass,
