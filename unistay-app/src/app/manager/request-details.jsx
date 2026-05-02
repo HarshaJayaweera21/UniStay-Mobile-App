@@ -96,6 +96,10 @@ export default function ManagerRequestDetails() {
             } else if (actionType === 'reject') {
                 endpoint += '/status';
                 body = JSON.stringify({ status: 'Rejected' });
+            } else if (actionType === 'approve-cancellation') {
+                endpoint += '/approve-cancellation';
+            } else if (actionType === 'reject-cancellation') {
+                endpoint += '/reject-cancellation';
             }
 
             const res = await fetch(endpoint, {
@@ -109,7 +113,7 @@ export default function ManagerRequestDetails() {
             
             const data = await res.json();
             if (data.success) {
-                if (Platform.OS === 'web') window.alert(`Request ${actionType === 'verify' ? 'verified and room confirmed' : 'rejected'}.`);
+                if (Platform.OS === 'web') window.alert(`Request action successful.`);
                 setRequest(data.request);
             } else {
                 if (Platform.OS === 'web') window.alert(data.message);
@@ -137,14 +141,14 @@ export default function ManagerRequestDetails() {
             <ScrollView contentContainerStyle={styles.content}>
                 
                 {/* Status Banner */}
-                <View style={[styles.statusBanner, { backgroundColor: request.status === 'Approved' ? '#dcfce7' : request.status === 'Rejected' ? '#fee2e2' : Colors.primaryContainer }]}>
+                <View style={[styles.statusBanner, { backgroundColor: request.cancellationRequested ? '#fee2e2' : request.status === 'Approved' ? '#dcfce7' : request.status === 'Rejected' ? '#fee2e2' : Colors.primaryContainer }]}>
                     <MaterialIcons 
-                        name={request.status === 'Approved' ? 'check-circle' : request.status === 'Rejected' ? 'cancel' : 'info'} 
+                        name={request.cancellationRequested ? 'warning' : request.status === 'Approved' ? 'check-circle' : request.status === 'Rejected' ? 'cancel' : 'info'} 
                         size={24} 
-                        color={request.status === 'Approved' ? '#16a34a' : request.status === 'Rejected' ? '#dc2626' : Colors.onPrimaryContainer} 
+                        color={request.cancellationRequested ? '#dc2626' : request.status === 'Approved' ? '#16a34a' : request.status === 'Rejected' ? '#dc2626' : Colors.onPrimaryContainer} 
                     />
-                    <Text style={[styles.statusBannerText, { color: request.status === 'Approved' ? '#16a34a' : request.status === 'Rejected' ? '#dc2626' : Colors.onPrimaryContainer }]}>
-                        Current Status: {request.status}
+                    <Text style={[styles.statusBannerText, { color: request.cancellationRequested ? '#dc2626' : request.status === 'Approved' ? '#16a34a' : request.status === 'Rejected' ? '#dc2626' : Colors.onPrimaryContainer }]}>
+                        Current Status: {request.cancellationRequested ? 'Cancellation Pending Approval' : request.status}
                     </Text>
                 </View>
 
@@ -240,6 +244,33 @@ export default function ManagerRequestDetails() {
                                 onPress={() => handleAction('verify')}
                             >
                                 {isActionLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.verifyBtnText}>Verify & Confirm Room</Text>}
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                )}
+
+                {/* Action Section: Cancellation Requested */}
+                {request.cancellationRequested && (
+                    <View style={styles.actionCard}>
+                        <Text style={[styles.sectionTitle, { color: Colors.error }]}>Manager Action: Room Cancellation Request</Text>
+                        <Text style={styles.instructionText}>
+                            This student has requested to cancel their room assignment. Approving this will free up the room and mark this request as Cancelled.
+                        </Text>
+                        <View style={styles.buttonRow}>
+                            <TouchableOpacity 
+                                style={[styles.rejectBtn, isActionLoading && { opacity: 0.5 }]}
+                                disabled={isActionLoading}
+                                onPress={() => handleAction('reject-cancellation')}
+                            >
+                                <Text style={styles.rejectBtnText}>Reject Cancellation</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity 
+                                style={[styles.verifyBtn, { backgroundColor: Colors.error }, isActionLoading && { opacity: 0.5 }]}
+                                disabled={isActionLoading}
+                                onPress={() => handleAction('approve-cancellation')}
+                            >
+                                {isActionLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.verifyBtnText}>Approve & Remove Room</Text>}
                             </TouchableOpacity>
                         </View>
                     </View>

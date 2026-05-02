@@ -7,7 +7,8 @@ import {
     ActivityIndicator,
     ScrollView,
     RefreshControl,
-    Platform
+    Platform,
+    Alert
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { deleteItem, getItem } from '@/utils/storage';
@@ -47,7 +48,7 @@ export default function StudentDashboard() {
 
             if (response.ok && data.success) {
                 const request = data.request;
-                if (!request || request.status === 'Rejected') {
+                if (!request || request.status === 'Rejected' || request.status === 'Cancelled') {
                     setDashboardState(DASHBOARD_STATES.NO_ROOM);
                     setRequestData(null);
                 } else if (request.status === 'Approved') {
@@ -64,6 +65,41 @@ export default function StudentDashboard() {
             console.error("Error fetching dashboard data:", error);
             setDashboardState(DASHBOARD_STATES.NO_ROOM);
         }
+    };
+
+    const handleCancelRequest = async () => {
+        Alert.alert(
+            "Request Cancellation",
+            "Are you sure you want to request cancellation for this room? This requires manager approval.",
+            [
+                { text: "No", style: "cancel" },
+                {
+                    text: "Yes, Cancel",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            const token = await getItem('userToken');
+                            const response = await fetch(`${API_URL}/api/room-requests/my-request/cancel`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`,
+                                    'Content-Type': 'application/json'
+                                }
+                            });
+                            const data = await response.json();
+                            if (response.ok && data.success) {
+                                Alert.alert("Success", "Cancellation requested successfully.");
+                                fetchDashboardData();
+                            } else {
+                                Alert.alert("Error", data.message || "Failed to request cancellation.");
+                            }
+                        } catch (error) {
+                            Alert.alert("Error", "Network error occurred.");
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     useEffect(() => {
@@ -144,6 +180,19 @@ export default function StudentDashboard() {
                         <Text style={styles.infoValue}>3-5 Business Days</Text>
                     </View>
                 </View>
+
+                {/* Cancel Request Button */}
+                <TouchableOpacity 
+                    style={[styles.cancelButton, request?.cancellationRequested && styles.cancelButtonDisabled]} 
+                    onPress={handleCancelRequest}
+                    disabled={request?.cancellationRequested}
+                    activeOpacity={0.8}
+                >
+                    <MaterialIcons name="cancel" size={20} color={request?.cancellationRequested ? Colors.outline : Colors.error} />
+                    <Text style={[styles.cancelButtonText, request?.cancellationRequested && styles.cancelButtonTextDisabled]}>
+                        {request?.cancellationRequested ? "Cancellation Pending Approval" : "Request Cancellation"}
+                    </Text>
+                </TouchableOpacity>
             </View>
         </View>
     );
@@ -182,6 +231,19 @@ export default function StudentDashboard() {
                         <Text style={styles.badgeSuccessText}>Occupied</Text>
                     </View>
                 </View>
+
+                {/* Cancel Request Button */}
+                <TouchableOpacity 
+                    style={[styles.cancelButton, request?.cancellationRequested && styles.cancelButtonDisabled]} 
+                    onPress={handleCancelRequest}
+                    disabled={request?.cancellationRequested}
+                    activeOpacity={0.8}
+                >
+                    <MaterialIcons name="cancel" size={20} color={request?.cancellationRequested ? Colors.outline : Colors.error} />
+                    <Text style={[styles.cancelButtonText, request?.cancellationRequested && styles.cancelButtonTextDisabled]}>
+                        {request?.cancellationRequested ? "Cancellation Pending Approval" : "Request Cancellation"}
+                    </Text>
+                </TouchableOpacity>
             </View>
         </View>
     );
@@ -584,5 +646,27 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.05,
         shadowRadius: 16,
         elevation: 4,
+    },
+    cancelButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#fee2e2',
+        paddingVertical: 14,
+        borderRadius: Radius.xl,
+        marginTop: Spacing.five,
+        gap: 8,
+    },
+    cancelButtonText: {
+        fontFamily: Fonts.headline,
+        fontSize: 15,
+        color: Colors.error,
+    },
+    cancelButtonDisabled: {
+        backgroundColor: Colors.surfaceContainerHighest,
+        opacity: 0.7,
+    },
+    cancelButtonTextDisabled: {
+        color: Colors.outline,
     }
 });

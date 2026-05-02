@@ -73,6 +73,9 @@ const getAllRequests = async (req, res) => {
         if (req.query.status) {
             filter.status = req.query.status;
         }
+        if (req.query.cancellations === 'true') {
+            filter.cancellationRequested = true;
+        }
 
         const requests = await RoomRequest.find(filter)
             .populate("studentId", "firstName lastName email username")
@@ -225,6 +228,78 @@ const verifyReceipt = async (req, res) => {
     }
 };
 
+// Student: Request Cancellation
+const requestCancellation = async (req, res) => {
+    try {
+        const request = await RoomRequest.findOne({ studentId: req.user.id })
+            .sort({ createdAt: -1 });
+
+        if (!request) return res.status(404).json({ success: false, message: "No active request found." });
+
+        if (request.status === "Cancelled" || request.status === "Rejected") {
+            return res.status(400).json({ success: false, message: "Cannot cancel a request that is already cancelled or rejected." });
+        }
+
+        request.cancellationRequested = true;
+        await request.save();
+
+        res.status(200).json({ success: true, message: "Cancellation requested successfully.", request });
+    } catch (error) {
+        console.error("requestCancellation error:", error);
+        res.status(500).json({ success: false, message: "Server error while requesting cancellation." });
+    }
+};
+
+// Manager: Approve Cancellation
+const approveCancellation = async (req, res) => {
+    try {
+        const request = await RoomRequest.findById(req.params.id).populate("roomId");
+        if (!request) return res.status(404).json({ success: false, message: "Request not found." });
+
+        if (!request.cancellationRequested) {
+            return res.status(400).json({ success: false, message: "No cancellation request pending." });
+        }
+
+        // If the request was approved, we must free up the room
+        if (request.status === "Approved") {
+            const room = request.roomId;
+            if (room && room.currentOccupancy > 0) {
+                room.currentOccupancy -= 1;
+                await room.save();
+            }
+        }
+
+        request.status = "Cancelled";
+        request.cancellationRequested = false;
+        await request.save();
+
+        res.status(200).json({ success: true, message: "Cancellation approved.", request });
+    } catch (error) {
+        console.error("approveCancellation error:", error);
+        res.status(500).json({ success: false, message: "Server error while approving cancellation." });
+    }
+};
+
+// Manager: Reject Cancellation
+const rejectCancellation = async (req, res) => {
+    try {
+        const request = await RoomRequest.findById(req.params.id);
+        if (!request) return res.status(404).json({ success: false, message: "Request not found." });
+
+        if (!request.cancellationRequested) {
+            return res.status(400).json({ success: false, message: "No cancellation request pending." });
+        }
+
+        request.cancellationRequested = false;
+        await request.save();
+
+        res.status(200).json({ success: true, message: "Cancellation rejected.", request });
+    } catch (error) {
+        console.error("rejectCancellation error:", error);
+        res.status(500).json({ success: false, message: "Server error while rejecting cancellation." });
+    }
+};
+
 module.exports = {
     createRoomRequest,
     getMyRequest,
@@ -233,5 +308,8 @@ module.exports = {
     updateRequestStatus,
     uploadAgreement,
     uploadReceipt,
-    verifyReceipt
+    verifyReceipt,
+    requestCancellation,
+    approveCancellation,
+    rejectCancellation
 };

@@ -16,7 +16,7 @@ export default function ManagerRequests() {
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('All');
 
-    const tabs = ['All', 'Pending', 'AgreementSent', 'ReceiptUploaded', 'Approved', 'Rejected'];
+    const tabs = ['All', 'Cancellations', 'Pending', 'AgreementSent', 'ReceiptUploaded', 'Approved', 'Rejected'];
 
     useEffect(() => {
         fetchRequests();
@@ -26,9 +26,12 @@ export default function ManagerRequests() {
         setIsLoading(true);
         try {
             const token = await getItem('userToken');
-            const url = activeTab === 'All' 
-                ? `${API_URL}/api/room-requests` 
-                : `${API_URL}/api/room-requests?status=${activeTab}`;
+            let url = `${API_URL}/api/room-requests`;
+            if (activeTab === 'Cancellations') {
+                url = `${API_URL}/api/room-requests?cancellations=true`;
+            } else if (activeTab !== 'All') {
+                url = `${API_URL}/api/room-requests?status=${activeTab}`;
+            }
                 
             const res = await fetch(url, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -66,9 +69,11 @@ export default function ManagerRequests() {
                     <MaterialIcons name="meeting-room" size={20} color={Colors.primary} />
                     <Text style={styles.roomText}>Room {item.roomId?.roomNumber || 'N/A'}</Text>
                 </View>
-                <View style={[styles.statusBadge, { backgroundColor: `${getStatusColor(item.status)}15` }]}>
-                    <View style={[styles.statusDot, { backgroundColor: getStatusColor(item.status) }]} />
-                    <Text style={[styles.statusText, { color: getStatusColor(item.status) }]}>{item.status}</Text>
+                <View style={[styles.statusBadge, { backgroundColor: item.cancellationRequested ? '#fee2e2' : `${getStatusColor(item.status)}15` }]}>
+                    <View style={[styles.statusDot, { backgroundColor: item.cancellationRequested ? '#ef4444' : getStatusColor(item.status) }]} />
+                    <Text style={[styles.statusText, { color: item.cancellationRequested ? '#ef4444' : getStatusColor(item.status) }]}>
+                        {item.cancellationRequested ? 'Cancellation Req.' : item.status}
+                    </Text>
                 </View>
             </View>
             

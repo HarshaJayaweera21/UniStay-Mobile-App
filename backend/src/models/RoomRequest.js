@@ -23,8 +23,12 @@ const roomRequestSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["Pending", "AgreementSent", "ReceiptUploaded", "Approved", "Rejected"],
+            enum: ["Pending", "AgreementSent", "ReceiptUploaded", "Approved", "Rejected", "Cancelled"],
             default: "Pending",
+        },
+        cancellationRequested: {
+            type: Boolean,
+            default: false,
         },
         managerAgreementUrl: {
             type: String,
