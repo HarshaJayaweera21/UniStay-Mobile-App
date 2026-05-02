@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Modal, Dimensions } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useRouter } from 'expo-router';
-import { getItem } from '@/utils/storage';
+import { getItem, deleteItem } from '@/utils/storage';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '@/constants/colors';
@@ -145,6 +145,12 @@ export default function GuardDashboard() {
         setCameraActive(true); // Auto restart camera
     };
 
+    const handleLogout = async () => {
+        await deleteItem('userToken');
+        await deleteItem('userData');
+        router.replace('/login');
+    };
+
     return (
         <View style={styles.container}>
             {/* Base Background Mesh Gradient Emulation */}
@@ -161,9 +167,14 @@ export default function GuardDashboard() {
 
             <View style={styles.contentWrap}>
                 {/* Header Block */}
-                <View style={styles.header}>
-                    <Text style={styles.title}>Scan QR Code</Text>
-                    <Text style={styles.subtitle}>{currentDateString}</Text>
+                <View style={[styles.header, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }]}>
+                    <View>
+                        <Text style={styles.title}>Scan QR Code</Text>
+                        <Text style={styles.subtitle}>{currentDateString}</Text>
+                    </View>
+                    <TouchableOpacity onPress={handleLogout} style={{ padding: 8, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: Radius.full }}>
+                        <MaterialIcons name="logout" size={24} color={Colors.onPrimary} />
+                    </TouchableOpacity>
                 </View>
 
                 {/* Center Scanner View Area */}
