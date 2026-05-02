@@ -18,7 +18,7 @@ const getBaseUrl = () => {
 
     // Fallbacks for production or environments where hostUri isn't available
     if (Platform.OS === 'android') {
-        return 'http://10.0.2.2:3000'; // Default for Android Emulator
+        return 'http://192.168.1.9:3000'; // Default for Android Emulator
     }
     return 'http://localhost:3000'; // Default for iOS/Web/Local
 };

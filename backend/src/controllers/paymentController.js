@@ -1,5 +1,6 @@
 const Payment = require("../models/Payment");
 const PaymentType = require("../models/PaymentType");
+const RoomRequest = require("../models/RoomRequest");
 const https = require("https");
 const http = require("http");
 const cloudinary = require("../config/cloudinary");
@@ -45,6 +46,22 @@ const createPayment = async (req, res) => {
                 success: false,
                 message: "Receipt file is required. Please upload a JPG, PNG, or PDF file.",
             });
+        }
+
+        // Business Logic: Students can only pay monthly deposits if they have an "Approved" room
+        // We only enforce this if the payment type is NOT "Key Money" (Key money is auto-created by the system)
+        if (typeExists.name.toLowerCase() !== "key money") {
+            const hasApprovedRoom = await RoomRequest.findOne({
+                studentId: req.user.id,
+                status: "Approved"
+            });
+
+            if (!hasApprovedRoom) {
+                return res.status(403).json({
+                    success: false,
+                    message: "You must have an approved room request before making monthly payments.",
+                });
+            }
         }
 
         // Create the payment — studentId from JWT, status forced to Pending
