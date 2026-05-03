@@ -23,9 +23,16 @@
         }
       ],
       "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow UniStay to access your photos to upload room images."
+        }
+      ],
       "expo-font",
       "expo-web-browser",
       "@react-native-community/datetimepicker"
-    ]
+    ],
+    "newArchEnabled": true
   }
 }

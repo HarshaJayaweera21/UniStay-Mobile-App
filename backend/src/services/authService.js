@@ -127,8 +127,13 @@ const loginUserService = async (data) => {
         token,
         user: {
             id: user._id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            dateOfBirth: user.dateOfBirth,
+            gender: user.gender,
             username: user.username,
             email: user.email,
+            profilePicture: user.profilePicture,
             role: user.role.name
         }
     }
