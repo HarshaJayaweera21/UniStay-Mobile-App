@@ -5,6 +5,7 @@ import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { API_URL } from '@/constants/api';
+import BottomNav from '@/components/BottomNav';
 
 export default function ViewAnnouncementsScreen() {
     const router = useRouter();
@@ -32,16 +33,13 @@ export default function ViewAnnouncementsScreen() {
     const handleOpenPDF = async (url) => {
         if (!url) return;
         
+        const finalUrl = url.includes('/upload/') ? url.replace('/upload/', '/upload/fl_attachment/') : url;
+        
         if (Platform.OS === 'web') {
             try {
-                // Add Cloudinary's native attachment flag
-                const finalUrl = url.includes('/upload/') ? url.replace('/upload/', '/upload/fl_attachment/') : url;
-                
-                // Fetch the file directly to guarantee it downloads to File Explorer instead of opening in a new tab
                 const response = await fetch(finalUrl);
                 const blob = await response.blob();
                 
-                // Create object URL and trigger download
                 const downloadUrl = window.URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = downloadUrl;
@@ -50,14 +48,13 @@ export default function ViewAnnouncementsScreen() {
                 link.click();
                 link.remove();
                 
-                // Cleanup
                 window.URL.revokeObjectURL(downloadUrl);
             } catch (error) {
                 console.error("Strict download failed, falling back to openURL", error);
-                Linking.openURL(url).catch(err => console.error("Couldn't open file", err));
+                Linking.openURL(finalUrl).catch(err => console.error("Couldn't open file", err));
             }
         } else {
-            Linking.openURL(url).catch(err => console.error("Couldn't open file", err));
+            Linking.openURL(finalUrl).catch(err => console.error("Couldn't open file", err));
         }
     };
 
@@ -121,6 +118,8 @@ export default function ViewAnnouncementsScreen() {
                     ))
                 )}
             </ScrollView>
+
+            <BottomNav activeTab="notifications" />
         </View>
     );
 }
@@ -130,7 +129,7 @@ const styles = StyleSheet.create({
     header: { flexDirection: 'row', alignItems: 'center', padding: Spacing.four, paddingTop: Spacing.six, backgroundColor: Colors.surface, elevation: 2 },
     backButton: { padding: Spacing.two, marginRight: Spacing.two },
     headerTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 20, color: Colors.onSurface },
-    content: { padding: Spacing.four },
+    content: { padding: Spacing.four, paddingBottom: 100 },
     description: { fontFamily: Fonts.bodyMedium, fontSize: 15, color: Colors.onSurfaceVariant, marginBottom: Spacing.six },
     
     loadingContainer: { alignItems: 'center', justifyContent: 'center', marginTop: Spacing.eight },

@@ -6,10 +6,11 @@ import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { API_URL } from '@/constants/api';
+import BottomNav from '@/components/BottomNav';
 
 export default function ManageAnnouncementsScreen() {
     const router = useRouter();
-    
+
     const [announcements, setAnnouncements] = useState([]);
     const [title, setTitle] = useState('');
     const [message, setMessage] = useState('');
@@ -75,7 +76,7 @@ export default function ManageAnnouncementsScreen() {
             const formData = new FormData();
             formData.append('title', title);
             formData.append('message', message);
-            
+
             // Append file carefully based on platform
             if (file) {
                 if (Platform.OS === 'web' && file.file) {
@@ -89,8 +90,8 @@ export default function ManageAnnouncementsScreen() {
                 }
             }
 
-            const endpoint = editingId 
-                ? `${API_URL}/api/announcements/${editingId}` 
+            const endpoint = editingId
+                ? `${API_URL}/api/announcements/${editingId}`
                 : `${API_URL}/api/announcements/create`;
             const method = editingId ? 'PUT' : 'POST';
 
@@ -146,8 +147,8 @@ export default function ManageAnnouncementsScreen() {
         } else {
             Alert.alert("Delete Announcement", "Are you sure you want to permanently delete this announcement?", [
                 { text: "Cancel", style: "cancel" },
-                { 
-                    text: "Delete", 
+                {
+                    text: "Delete",
                     style: "destructive",
                     onPress: () => executeDelete(id)
                 }
@@ -161,14 +162,14 @@ export default function ManageAnnouncementsScreen() {
                 <TouchableOpacity onPress={() => router.canGoBack() ? router.back() : router.replace('/')} style={styles.backButton}>
                     <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Announcements (Admin)</Text>
+                <Text style={styles.headerTitle}>Announcements</Text>
             </View>
 
             <ScrollView contentContainerStyle={styles.content}>
-                
+
                 <View style={styles.formCard}>
                     <Text style={styles.sectionTitle}>{editingId ? "Edit Announcement" : "Create New Announcement"}</Text>
-                    
+
                     <TextInput
                         style={styles.input}
                         placeholder="Announcement Title"
@@ -176,7 +177,7 @@ export default function ManageAnnouncementsScreen() {
                         value={title}
                         onChangeText={setTitle}
                     />
-                    
+
                     <TextInput
                         style={[styles.input, styles.textArea]}
                         placeholder="Write message here..."
@@ -200,8 +201,8 @@ export default function ManageAnnouncementsScreen() {
                         )}
                     </View>
 
-                    <TouchableOpacity 
-                        style={[styles.createButton, (!title || !message || (!file && !editingId) || isSubmitting) && styles.disabledButton]} 
+                    <TouchableOpacity
+                        style={[styles.createButton, (!title || !message || (!file && !editingId) || isSubmitting) && styles.disabledButton]}
                         onPress={handleSubmit}
                         disabled={!title || !message || (!file && !editingId) || isSubmitting}
                     >
@@ -214,15 +215,15 @@ export default function ManageAnnouncementsScreen() {
                     </TouchableOpacity>
 
                     {editingId && (
-                        <TouchableOpacity style={{marginTop: Spacing.four, alignItems: 'center'}} onPress={handleCancelEdit}>
-                            <Text style={{fontFamily: Fonts.bodyMedium, color: Colors.error}}>Cancel Edit</Text>
+                        <TouchableOpacity style={{ marginTop: Spacing.four, alignItems: 'center' }} onPress={handleCancelEdit}>
+                            <Text style={{ fontFamily: Fonts.bodyMedium, color: Colors.error }}>Cancel Edit</Text>
                         </TouchableOpacity>
                     )}
                 </View>
 
                 <View style={styles.listSection}>
                     <Text style={styles.sectionTitle}>Manage Existing</Text>
-                    
+
                     {isLoadingList ? (
                         <ActivityIndicator color={Colors.primary} style={{ marginTop: Spacing.four }} />
                     ) : announcements.length === 0 ? (
@@ -248,6 +249,8 @@ export default function ManageAnnouncementsScreen() {
                 </View>
 
             </ScrollView>
+
+            <BottomNav activeTab="notifications" />
         </View>
     );
 }
@@ -257,18 +260,18 @@ const styles = StyleSheet.create({
     header: { flexDirection: 'row', alignItems: 'center', padding: Spacing.four, paddingTop: Spacing.six, backgroundColor: Colors.surface, elevation: 2 },
     backButton: { padding: Spacing.two, marginRight: Spacing.two },
     headerTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 20, color: Colors.onSurface },
-    content: { padding: Spacing.four },
+    content: { padding: Spacing.four, paddingBottom: 100 },
     sectionTitle: { fontFamily: Fonts.headline, fontSize: 18, color: Colors.onSurface, marginBottom: Spacing.four },
-    
+
     formCard: { backgroundColor: Colors.surfaceContainerLowest, padding: Spacing.four, borderRadius: Radius.lg, marginBottom: Spacing.six, elevation: 3 },
     input: { backgroundColor: Colors.surfaceContainerHighest, borderRadius: Radius.md, padding: Spacing.three, fontFamily: Fonts.bodyMedium, color: Colors.onSurface, marginBottom: Spacing.three },
     textArea: { height: 100 },
-    
+
     fileRow: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.four, gap: Spacing.three },
     uploadButton: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: Colors.primary, paddingHorizontal: Spacing.three, paddingVertical: Spacing.two, borderRadius: Radius.md, gap: Spacing.one },
     uploadText: { fontFamily: Fonts.bodyMedium, color: Colors.primary },
     fileName: { flex: 1, fontFamily: Fonts.bodyMedium, fontSize: 12, color: Colors.onSurfaceVariant },
-    
+
     createButton: { backgroundColor: Colors.primary, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: Spacing.three, borderRadius: Radius.md, gap: Spacing.two },
     disabledButton: { opacity: 0.6 },
     createText: { fontFamily: Fonts.headline, color: Colors.onPrimary, fontSize: 16 },

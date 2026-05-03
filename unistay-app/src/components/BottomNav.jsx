@@ -36,6 +36,13 @@ export default function BottomNav({ activeTab = 'home', onTabPress }) {
             } else if (role === 'manager') {
                 router.push('/manager/complaints');
             }
+        } else if (id === 'notifications') {
+            const role = await getItem('userRole');
+            if (role === 'manager') {
+                router.push('/announcements/manage');
+            } else {
+                router.push('/announcements/view');
+            }
         } else if (id === 'home') {
             const role = await getItem('userRole');
             if (role) {

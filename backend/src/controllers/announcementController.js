@@ -1,6 +1,22 @@
 const cloudinary = require("../config/cloudinary");
 const Announcement = require("../models/Announcement");
 
+const uploadPDFToCloudinary = (buffer) => {
+    return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+            { resource_type: "raw", folder: "Announcement_PDF" },
+            (error, result) => {
+                if (error) {
+                    console.error("Cloudinary Upload Error:", error);
+                    return reject(error);
+                }
+                resolve(result);
+            }
+        );
+        stream.end(buffer);
+    });
+};
+
 const createAnnouncement = async (req, res) => {
   try {
     const { title, message } = req.body;
@@ -9,10 +25,7 @@ const createAnnouncement = async (req, res) => {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      resource_type: "raw",
-      folder: "Announcement_PDF",
-    });
+    const result = await uploadPDFToCloudinary(req.file.buffer);
 
     const announcement = new Announcement({
       title,
@@ -94,10 +107,7 @@ const updateAnnouncement = async (req, res) => {
       }
 
       // upload new
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        resource_type: "raw",
-        folder: "Announcement_PDF",
-      });
+      const result = await uploadPDFToCloudinary(req.file.buffer);
       pdfUrl = result.secure_url;
     }
 

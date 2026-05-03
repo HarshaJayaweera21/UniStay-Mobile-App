@@ -1,5 +1,5 @@
 const express = require("express");
-const upload = require("../utils/upload");
+const upload = require("../middleware/uploadMiddleware");
 const { createAnnouncement, getAllAnnouncements, deleteAnnouncement, updateAnnouncement } = require("../controllers/announcementController");
 
 const router = express.Router();
