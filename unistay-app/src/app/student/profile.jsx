@@ -73,7 +73,7 @@ const ProfileScreen = () => {
                             </View>
                             <View style={styles.infoTextContainer}>
                                 <Text style={styles.infoLabel}>Gender</Text>
-                                <Text style={styles.infoValue} style={[{textTransform: 'capitalize'}, styles.infoValue]}>{user.gender}</Text>
+                                <Text style={[styles.infoValue, {textTransform: 'capitalize'}]}>{user.gender}</Text>
                             </View>
                         </View>
                         <View style={styles.divider} />
