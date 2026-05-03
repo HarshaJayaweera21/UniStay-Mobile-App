@@ -186,7 +186,8 @@ export default function Header() {
 
     const isRootScreen = [
         '/student', '/student/room-index', '/student/payments',
-        '/manager', '/manager/requests', '/manager/payments',
+        '/manager', '/manager/room-index', '/manager/requests', '/manager/payments',
+        '/announcements/manage', '/announcements/view',
         '/admin', '/guard'
     ].includes(pathname);
 
@@ -218,9 +219,13 @@ export default function Header() {
                 </View>
 
                 <View style={styles.rightSection}>
-                    <View style={styles.avatarContainer}>
+                    <TouchableOpacity 
+                        activeOpacity={0.8}
+                        style={styles.avatarContainer}
+                        onPress={openDrawer}
+                    >
                         <Text style={styles.avatarText}>{getInitials()}</Text>
-                    </View>
+                    </TouchableOpacity>
                 </View>
             </View>
 
@@ -350,24 +355,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     avatarContainer: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: Colors.secondaryContainer,
+        width: 42,
+        height: 42,
+        borderRadius: 21,
+        backgroundColor: '#dbe1ff', // Matching the image's light blue
         justifyContent: 'center',
         alignItems: 'center',
-        borderWidth: 2,
-        borderColor: Colors.surfaceContainerLowest,
-        shadowColor: '#191b23',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 2,
+        borderWidth: 1,
+        borderColor: '#004ac620',
     },
     avatarText: {
-        fontFamily: Fonts.headlineExtraBold,
-        fontSize: 16,
-        color: Colors.primary,
+        fontFamily: Fonts.headlineBold,
+        fontSize: 15,
+        color: '#004ac6', // Matching the image's dark blue
     },
 
     // Modal & Backdrop Styles

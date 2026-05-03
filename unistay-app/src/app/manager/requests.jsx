@@ -196,12 +196,12 @@ export default function ManagerRequests() {
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.surface, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
+    safeArea: { flex: 1, backgroundColor: Colors.surface },
     topAppBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.four, height: 60, backgroundColor: Colors.surface },
     appBarBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-start' },
     topAppTitle: { fontFamily: Fonts.bodySemiBold, fontSize: 16, color: Colors.onSurface },
     
-    tabsContainer: { borderBottomWidth: 1, borderBottomColor: Colors.surfaceContainer, paddingVertical: Spacing.two },
+    tabsContainer: { borderBottomWidth: 1, borderBottomColor: Colors.surfaceContainer, paddingVertical: Spacing.two, paddingTop: Spacing.two },
     tabsList: { paddingHorizontal: Spacing.four, gap: Spacing.two },
     tab: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: Radius.full, backgroundColor: Colors.surfaceContainerLowest, borderWidth: 1, borderColor: Colors.surfaceContainerHighest },
     activeTab: { backgroundColor: Colors.primary, borderColor: Colors.primary },

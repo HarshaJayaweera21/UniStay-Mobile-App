@@ -131,16 +131,7 @@ export default function ManagerComplaintList() {
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <Pressable 
-                    onPress={() => router.back()} 
-                    style={styles.backButton}
-                >
-                    <Ionicons name="arrow-back" size={24} color={Colors.onSurface} />
-                </Pressable>
-                <Text style={styles.headerTitle}>All Complaints</Text>
-                <View style={styles.placeholder} />
-            </View>
+
 
             <View style={styles.filterContainer}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
@@ -183,14 +174,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: Colors.surface,
     },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: Spacing.four,
-        paddingTop: Spacing.six,
-        paddingBottom: Spacing.two,
-    },
+
     backButton: {
         width: 40,
         height: 40,

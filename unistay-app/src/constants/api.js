@@ -8,7 +8,7 @@ const getBaseUrl = () => {
         return 'http://localhost:3000';
     }
     // Your laptop's LAN IP (from Expo's Metro output)
-    return 'http://10.222.242.28:3000';
+    return 'http://192.168.1.9:3000';
 };
 
 export const API_URL = getBaseUrl();

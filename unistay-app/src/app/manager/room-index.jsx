@@ -90,11 +90,7 @@ export default function ManagerRoomList() {
         }
     };
 
-    const handleLogout = async () => {
-        await deleteItem('userToken');
-        await deleteItem('userRole');
-        router.replace('/login');
-    };
+
 
     const renderRoomCard = ({ item }) => (
         <TouchableOpacity
@@ -186,31 +182,9 @@ export default function ManagerRoomList() {
 
     return (
         <View style={styles.container}>
-            <LinearGradient
-                colors={[Colors.primaryFixed, Colors.background]}
-                style={styles.headerGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-            />
 
-            {/* Header */}
-            <View style={styles.header}>
-                <View>
-                    <Text style={styles.greeting}>Manager Panel</Text>
-                    <Text style={styles.title}>Room Management</Text>
-                </View>
-                <View style={styles.headerActions}>
-                    <TouchableOpacity onPress={() => router.push('/manager/requests')} style={styles.iconButton}>
-                        <MaterialIcons name="assignment" size={22} color={Colors.primary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => router.push('/manager/payments')} style={styles.iconButton}>
-                        <MaterialIcons name="receipt-long" size={22} color={Colors.primary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={handleLogout} style={styles.iconButton}>
-                        <MaterialIcons name="logout" size={22} color={Colors.onSurfaceVariant} />
-                    </TouchableOpacity>
-                </View>
-            </View>
+
+
 
             {/* Stats Bar */}
             <View style={styles.statsBar}>

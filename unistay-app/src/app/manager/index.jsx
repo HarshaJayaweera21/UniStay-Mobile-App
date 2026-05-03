@@ -83,13 +83,7 @@ export default function ManagerDashboard() {
     return (
         <View style={{ flex: 1, backgroundColor: Colors.surfaceContainerLow }}>
             <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-                <View style={styles.header}>
-                    <Text style={styles.overlineHeader}>MANAGER PORTAL</Text>
-                    <Text style={styles.headerTitle}>Welcome back{userName ? `, ${userName}` : ''}.</Text>
-                    <Text style={styles.headerSubtitle}>
-                        Manage hostel bookings, approve student payments, and oversee daily operations from your dashboard.
-                    </Text>
-                </View>
+
 
                 <View style={styles.viewContainer}>
                     <View style={styles.card}>

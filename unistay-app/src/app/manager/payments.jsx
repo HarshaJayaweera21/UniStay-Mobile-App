@@ -392,6 +392,7 @@ const styles = StyleSheet.create({
     
     headerSection: {
         paddingHorizontal: Spacing.four,
+        paddingTop: Spacing.two,
         paddingBottom: Spacing.four,
     },
     topAppBar: {
