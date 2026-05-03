@@ -129,6 +129,7 @@ export default function Header() {
             case 'manager':
                 return [
                     { label: 'Dashboard', icon: 'dashboard', path: '/manager' },
+                    { label: 'Room Management', icon: 'meeting-room', path: '/manager/room-index' },
                     { label: 'Room Requests', icon: 'list-alt', path: '/manager/requests' },
                     { label: 'Payments', icon: 'receipt-long', path: '/manager/payments' },
                     { label: 'My QR', icon: 'qr-code-2', path: '/manager/qr' },
@@ -230,7 +231,7 @@ export default function Header() {
                                 <TouchableOpacity 
                                     style={styles.profileDetailButton}
                                     activeOpacity={0.7}
-                                    onPress={() => navigateTo('/profile')}
+                                    onPress={() => navigateTo('/student/profile')}
                                 >
                                     <MaterialIcons name="chevron-right" size={24} color={Colors.primary} />
                                 </TouchableOpacity>
@@ -275,7 +276,7 @@ export default function Header() {
                                 onPress={handleLogout}
                             >
                                 <MaterialIcons name="logout" size={24} color={Colors.onError} />
-                                <Text style={styles.logoutButtonText}>Log Out</Text>
+                                <Text style={styles.logoutButtonText}>LOG OUT</Text>
                             </TouchableOpacity>
                         </View>
 
@@ -295,9 +296,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: Spacing.four,
         paddingTop: Platform.OS === 'ios' ? 60 : 40,
         paddingBottom: Spacing.four,
-        backgroundColor: `${Colors.background}F2`, // Transparent background
+        backgroundColor: Colors.background,
         borderBottomWidth: 0,
-        zIndex: 50,
+        zIndex: 1000,
+        elevation: 10,
     },
     leftSection: {
         flexDirection: 'row',
@@ -343,6 +345,8 @@ const styles = StyleSheet.create({
     modalOverlayContainer: {
         flex: 1,
         flexDirection: 'row',
+        backgroundColor: 'transparent',
+        zIndex: 9999,
     },
     backdrop: {
         ...StyleSheet.absoluteFillObject,
@@ -454,25 +458,26 @@ const styles = StyleSheet.create({
     },
     drawerFooterSection: {
         padding: Spacing.six,
-        paddingBottom: Platform.OS === 'ios' ? 60 : Spacing.six,
+        paddingBottom: Platform.OS === 'ios' ? 80 : 60,
     },
     logoutButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: Colors.error,
-        paddingVertical: 16,
+        paddingVertical: 18,
         borderRadius: Radius.xl,
         gap: Spacing.three,
         shadowColor: Colors.error,
         shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.2,
-        shadowRadius: 12,
-        elevation: 6,
+        shadowOpacity: 0.25,
+        shadowRadius: 16,
+        elevation: 8,
     },
     logoutButtonText: {
         fontFamily: Fonts.headlineExtraBold,
-        fontSize: 16,
+        fontSize: 15,
         color: Colors.onError,
+        letterSpacing: 1.2,
     }
 });

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, TouchableOpacity,
     ActivityIndicator, ScrollView, Platform, SafeAreaView,
-    StatusBar, Linking, Dimensions
+    StatusBar, Linking, Dimensions, Alert
 } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
@@ -50,6 +50,53 @@ export default function MyRoomRequest() {
         }
     };
 
+    const handleCancelRequest = async () => {
+        Alert.alert(
+            "Request Cancellation",
+            "Are you sure you want to request cancellation for this room? This requires manager approval.",
+            [
+                { text: "No", style: "cancel" },
+                {
+                    text: "Yes, Cancel",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            const token = await getItem('userToken');
+                            const response = await fetch(`${API_URL}/api/room-requests/my-request/cancel`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`,
+                                    'Content-Type': 'application/json'
+                                }
+                            });
+                            const data = await response.json();
+                            if (response.ok && data.success) {
+                                Alert.alert("Success", "Cancellation requested successfully.");
+                                fetchMyRequest();
+                            } else {
+                                Alert.alert("Error", data.message || "Failed to request cancellation.");
+                            }
+                        } catch (error) {
+                            Alert.alert("Error", "Network error occurred.");
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
+    const getStatusInfo = (status) => {
+        switch (status) {
+            case 'Pending': return { label: 'Pending Manager Review', color: '#eab308', icon: 'hourglass-empty' };
+            case 'AgreementSent': return { label: 'Action Required', color: Colors.primary, icon: 'assignment' };
+            case 'ReceiptUploaded': return { label: 'Verifying Receipt', color: '#3b82f6', icon: 'cloud-done' };
+            case 'Approved': return { label: 'Room Confirmed', color: '#22c55e', icon: 'check-circle' };
+            case 'Rejected': return { label: 'Request Rejected', color: '#ef4444', icon: 'cancel' };
+            case 'Cancelled': return { label: 'Request Cancelled', color: Colors.outline, icon: 'block' };
+            default: return { label: 'Unknown Status', color: Colors.outline, icon: 'help-outline' };
+        }
+    };
+
     const handleUpload = async () => {
         if (!file) {
             if (Platform.OS === 'web') window.alert('Please select a file first.');
@@ -81,17 +128,6 @@ export default function MyRoomRequest() {
             if (Platform.OS === 'web') window.alert('Failed to upload file.');
         } finally {
             setIsUploading(false);
-        }
-    };
-
-    const getStatusInfo = (status) => {
-        switch (status) {
-            case 'Pending': return { label: 'Pending Manager Review', color: '#eab308', icon: 'hourglass-empty' };
-            case 'AgreementSent': return { label: 'Action Required', color: Colors.primary, icon: 'assignment' };
-            case 'ReceiptUploaded': return { label: 'Verifying Receipt', color: '#3b82f6', icon: 'cloud-done' };
-            case 'Approved': return { label: 'Room Confirmed', color: '#22c55e', icon: 'check-circle' };
-            case 'Rejected': return { label: 'Request Rejected', color: '#ef4444', icon: 'cancel' };
-            default: return { label: 'Unknown Status', color: Colors.outline, icon: 'help-outline' };
         }
     };
 
@@ -282,6 +318,19 @@ export default function MyRoomRequest() {
                         </View>
                     )}
 
+                    {/* Cancellation Section */}
+                    {['Pending', 'AgreementSent', 'ReceiptUploaded', 'Approved'].includes(request.status) && (
+                        <TouchableOpacity 
+                            style={[styles.cancelRequestBtn, request.cancellationRequested && styles.cancelRequestBtnDisabled]} 
+                            onPress={handleCancelRequest}
+                            disabled={request.cancellationRequested}
+                        >
+                            <MaterialIcons name="cancel" size={20} color={request.cancellationRequested ? Colors.outline : Colors.error} />
+                            <Text style={[styles.cancelRequestBtnText, request.cancellationRequested && styles.cancelRequestBtnTextDisabled]}>
+                                {request.cancellationRequested ? "Cancellation Pending Approval" : "Request Cancellation"}
+                            </Text>
+                        </TouchableOpacity>
+                    )}
                 </ScrollView>
             </View>
         </SafeAreaView>
@@ -332,5 +381,29 @@ const styles = StyleSheet.create({
 
     photosSection: { marginBottom: Spacing.four },
     photosList: { gap: 12 },
-    roomPhoto: { width: 200, height: 130, borderRadius: Radius.lg, backgroundColor: Colors.surfaceContainerHigh }
+    roomPhoto: { width: 200, height: 130, borderRadius: Radius.lg, backgroundColor: Colors.surfaceContainerHigh },
+    cancelRequestBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        marginTop: Spacing.six,
+        paddingVertical: 12,
+        borderWidth: 1,
+        borderColor: '#fee2e2',
+        backgroundColor: '#fff5f5',
+        borderRadius: Radius.lg,
+    },
+    cancelRequestBtnText: {
+        fontFamily: Fonts.headline,
+        fontSize: 15,
+        color: Colors.error,
+    },
+    cancelRequestBtnDisabled: {
+        backgroundColor: Colors.surfaceContainerLowest,
+        borderColor: Colors.surfaceContainer,
+    },
+    cancelRequestBtnTextDisabled: {
+        color: Colors.outline,
+    }
 });

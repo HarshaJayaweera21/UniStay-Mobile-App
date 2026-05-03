@@ -303,14 +303,14 @@ export default function StudentRoomDetails() {
 
                     {/* Request Button */}
                     <View style={styles.actionContainer}>
-                        {activeRequest ? (
+                        {activeRequest && !['Rejected', 'Cancelled'].includes(activeRequest.status) ? (
                             <View style={styles.activeRequestCard}>
                                 <Text style={styles.activeRequestText}>
-                                    You already have an active room request.
+                                    You already have an active room request ({activeRequest.status}).
                                 </Text>
                                 <TouchableOpacity 
                                     style={styles.viewRequestBtn}
-                                    onPress={() => router.push('/student/my-room')}
+                                    onPress={() => router.push('/student/index')}
                                 >
                                     <Text style={styles.viewRequestBtnText}>View My Request</Text>
                                 </TouchableOpacity>
