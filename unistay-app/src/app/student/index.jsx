@@ -16,8 +16,8 @@ import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { API_URL } from '@/constants/api';
-import ProfileHeader from '@/components/common/ProfileHeader';
 import useAuth from '@/hooks/useAuth';
+import BottomNav from '@/components/BottomNav';
 
 const DASHBOARD_STATES = {
     LOADING: 'LOADING',
@@ -287,14 +287,14 @@ export default function StudentDashboard() {
     };
 
     return (
-        <ScrollView 
-            style={styles.container} 
-            contentContainerStyle={styles.contentContainer}
-            refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />
-            }
-        >
-            <ProfileHeader />
+        <View style={{ flex: 1, backgroundColor: Colors.surfaceContainerLow }}>
+            <ScrollView 
+                style={styles.container} 
+                contentContainerStyle={styles.contentContainer}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />
+                }
+            >
             <View style={styles.header}>
                 {dashboardState !== DASHBOARD_STATES.LOADING && (
                     <>
@@ -340,6 +340,8 @@ export default function StudentDashboard() {
                 </TouchableOpacity>
             </View>
         </ScrollView>
+        <BottomNav activeTab="home" />
+    </View>
     );
 }
 
@@ -351,7 +353,7 @@ const styles = StyleSheet.create({
     contentContainer: {
         padding: Spacing.four,
         paddingTop: Platform.OS === 'ios' ? Spacing.six : Spacing.four,
-        paddingBottom: Spacing.six,
+        paddingBottom: 100,
     },
     loadingContainer: {
         height: 300,

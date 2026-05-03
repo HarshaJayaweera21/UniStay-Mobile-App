@@ -71,7 +71,7 @@ export default function RegisterScreen() {
     // Keep only numbers
     const cleaned = text.replace(/\D/g, '').slice(0, 8);
     let formatted = cleaned;
-    
+
     if (cleaned.length >= 5) {
       formatted = `${cleaned.slice(0, 4)}-${cleaned.slice(4, 6)}`;
       if (cleaned.length >= 7) {
@@ -179,13 +179,13 @@ export default function RegisterScreen() {
         </View>
       </View>
 
-      <KeyboardAvoidingView 
-        style={styles.contentWrap} 
+      <KeyboardAvoidingView
+        style={styles.contentWrap}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView contentContainerStyle={styles.scrollContent}>
-            
+
             <View style={styles.card}>
               <View style={styles.cardHeader}>
                 <Text style={styles.stepIndicator}>
@@ -212,7 +212,7 @@ export default function RegisterScreen() {
                         placeholder="e.g. John"
                         placeholderTextColor={Colors.outline}
                         value={formData.firstName}
-                        onChangeText={(t) => { setFormData({...formData, firstName: t}); setGlobalError(''); }}
+                        onChangeText={(t) => { setFormData({ ...formData, firstName: t }); setGlobalError(''); }}
                       />
                     </View>
                   </View>
@@ -225,7 +225,7 @@ export default function RegisterScreen() {
                         placeholder="e.g. Doe"
                         placeholderTextColor={Colors.outline}
                         value={formData.lastName}
-                        onChangeText={(t) => { setFormData({...formData, lastName: t}); setGlobalError(''); }}
+                        onChangeText={(t) => { setFormData({ ...formData, lastName: t }); setGlobalError(''); }}
                       />
                     </View>
                   </View>
@@ -248,9 +248,9 @@ export default function RegisterScreen() {
 
                   <View style={styles.inputGroup}>
                     <Text style={styles.label}>GENDER</Text>
-                    <TouchableOpacity 
-                        style={[styles.inputContainer, styles.dropdownContainer]}
-                        onPress={() => setShowGenderModal(true)}
+                    <TouchableOpacity
+                      style={[styles.inputContainer, styles.dropdownContainer]}
+                      onPress={() => setShowGenderModal(true)}
                     >
                       <Text style={[styles.input, { color: formData.gender ? Colors.onSurface : Colors.outline }]}>
                         {formData.gender ? formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1) : "Select Gender"}
@@ -275,10 +275,10 @@ export default function RegisterScreen() {
                         keyboardType="default"
                         autoCapitalize="none"
                         value={formData.email}
-                        onChangeText={(t) => { setFormData({...formData, email: t}); setGlobalError(''); }}
+                        onChangeText={(t) => { setFormData({ ...formData, email: t }); setGlobalError(''); }}
                       />
                       <View style={styles.staticDomainBadge}>
-                         <Text style={styles.staticDomainText}>@my.sliit.lk</Text>
+                        <Text style={styles.staticDomainText}>@my.sliit.lk</Text>
                       </View>
                     </View>
                   </View>
@@ -292,7 +292,7 @@ export default function RegisterScreen() {
                         placeholderTextColor={Colors.outline}
                         autoCapitalize="none"
                         value={formData.username}
-                        onChangeText={(t) => { setFormData({...formData, username: t}); setGlobalError(''); }}
+                        onChangeText={(t) => { setFormData({ ...formData, username: t }); setGlobalError(''); }}
                       />
                       <MaterialIcons name="person-outline" size={20} color={Colors.outline} />
                     </View>
@@ -314,36 +314,36 @@ export default function RegisterScreen() {
                         placeholderTextColor={Colors.outline}
                         secureTextEntry={!showPassword}
                         value={formData.password}
-                        onChangeText={(t) => { setFormData({...formData, password: t}); setGlobalError(''); }}
+                        onChangeText={(t) => { setFormData({ ...formData, password: t }); setGlobalError(''); }}
                       />
                       <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.visibilityIcon}>
                         <MaterialIcons name={showPassword ? "visibility-off" : "visibility"} size={20} color={Colors.outline} />
                       </TouchableOpacity>
                     </View>
                   </View>
-                  
+
                   {/* REALTIME PASSWORD REQUIREMENTS UI */}
                   {formData.password.length > 0 && (
                     <View style={styles.validationBox}>
-                       <ValidationCheck title="Minimum 8 characters" isValid={isLongEnough} />
-                       <ValidationCheck title="1 Uppercase letter (A-Z)" isValid={hasUpperCase} />
-                       <ValidationCheck title="1 Lowercase letter (a-z)" isValid={hasLowerCase} />
-                       <ValidationCheck title="1 Number (0-9)" isValid={hasNumber} />
-                       <ValidationCheck title="1 Special character (@$!%*?&...)" isValid={hasSpecial} />
+                      <ValidationCheck title="Minimum 8 characters" isValid={isLongEnough} />
+                      <ValidationCheck title="1 Uppercase letter (A-Z)" isValid={hasUpperCase} />
+                      <ValidationCheck title="1 Lowercase letter (a-z)" isValid={hasLowerCase} />
+                      <ValidationCheck title="1 Number (0-9)" isValid={hasNumber} />
+                      <ValidationCheck title="1 Special character (@$!%*?&...)" isValid={hasSpecial} />
                     </View>
                   )}
 
                   <View style={styles.inputGroup}>
                     <Text style={styles.label}>CONFIRM PASSWORD</Text>
                     <View style={styles.inputContainer}>
-                       <MaterialIcons name="lock-outline" size={20} color={Colors.outline} style={styles.inputIcon} />
+                      <MaterialIcons name="lock-outline" size={20} color={Colors.outline} style={styles.inputIcon} />
                       <TextInput
                         style={styles.input}
                         placeholder="••••••••"
                         placeholderTextColor={Colors.outline}
                         secureTextEntry={!showConfirmPassword}
                         value={formData.confirmPassword}
-                        onChangeText={(t) => { setFormData({...formData, confirmPassword: t}); setGlobalError(''); }}
+                        onChangeText={(t) => { setFormData({ ...formData, confirmPassword: t }); setGlobalError(''); }}
                       />
                       <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={styles.visibilityIcon}>
                         <MaterialIcons name={showConfirmPassword ? "visibility-off" : "visibility"} size={20} color={Colors.outline} />
@@ -376,7 +376,7 @@ export default function RegisterScreen() {
                     ) : (
                       <>
                         <Text style={styles.primaryButtonText}>Complete Registration</Text>
-                        <MaterialIcons name="check" size={20} color={Colors.onPrimary} />
+
                       </>
                     )}
                   </TouchableOpacity>
@@ -384,15 +384,15 @@ export default function RegisterScreen() {
 
                 {/* Back Button (Only on Steps 2 and 3) */}
                 {step > 1 && (
-                     <TouchableOpacity activeOpacity={0.7} onPress={prevStep} style={styles.backButtonRow}>
-                        <MaterialIcons name="chevron-left" size={24} color={Colors.primary} />
-                        <Text style={styles.backButtonText}>Back to {step === 2 ? "Personal Details" : "Identity"}</Text>
-                     </TouchableOpacity>
+                  <TouchableOpacity activeOpacity={0.7} onPress={prevStep} style={styles.backButtonRow}>
+                    <MaterialIcons name="chevron-left" size={24} color={Colors.primary} />
+                    <Text style={styles.backButtonText}>Back to {step === 2 ? "Personal Details" : "Identity"}</Text>
+                  </TouchableOpacity>
                 )}
                 {step === 1 && (
-                     <TouchableOpacity activeOpacity={0.7} onPress={() => router.back()} style={[styles.backButtonRow, { marginTop: Spacing.four }]}>
-                        <Text style={[styles.backButtonText, { color: Colors.outline }]}>Cancel</Text>
-                     </TouchableOpacity>
+                  <TouchableOpacity activeOpacity={0.7} onPress={() => router.back()} style={[styles.backButtonRow, { marginTop: Spacing.four }]}>
+                    <Text style={[styles.backButtonText, { color: Colors.outline }]}>Cancel</Text>
+                  </TouchableOpacity>
                 )}
               </View>
             </View>
@@ -416,28 +416,28 @@ export default function RegisterScreen() {
       {/* Gender Dropdown Modal */}
       <Modal visible={showGenderModal} transparent={true} animationType="fade">
         <View style={styles.modalBackdrop}>
-           <View style={styles.modalContent}>
-               <Text style={styles.modalTitle}>Select Gender</Text>
-               {['male', 'female', 'other'].map(g => (
-                   <TouchableOpacity 
-                       key={g} 
-                       style={styles.modalOption}
-                       onPress={() => {
-                           setFormData({...formData, gender: g});
-                           setShowGenderModal(false);
-                           setGlobalError('');
-                       }}
-                   >
-                     <Text style={[styles.modalOptionText, formData.gender === g && styles.modalOptionTextActive]}>
-                         {g.charAt(0).toUpperCase() + g.slice(1)}
-                     </Text>
-                     {formData.gender === g && <MaterialIcons name="check" size={20} color={Colors.primary} />}
-                   </TouchableOpacity>
-               ))}
-               <TouchableOpacity style={styles.modalCancel} onPress={() => setShowGenderModal(false)}>
-                   <Text style={{ fontFamily: Fonts.bodyBold, color: Colors.error }}>Cancel</Text>
-               </TouchableOpacity>
-           </View>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Select Gender</Text>
+            {['male', 'female', 'other'].map(g => (
+              <TouchableOpacity
+                key={g}
+                style={styles.modalOption}
+                onPress={() => {
+                  setFormData({ ...formData, gender: g });
+                  setShowGenderModal(false);
+                  setGlobalError('');
+                }}
+              >
+                <Text style={[styles.modalOptionText, formData.gender === g && styles.modalOptionTextActive]}>
+                  {g.charAt(0).toUpperCase() + g.slice(1)}
+                </Text>
+                {formData.gender === g && <MaterialIcons name="check" size={20} color={Colors.primary} />}
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity style={styles.modalCancel} onPress={() => setShowGenderModal(false)}>
+              <Text style={{ fontFamily: Fonts.bodyBold, color: Colors.error }}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </Modal>
 
@@ -501,16 +501,18 @@ const styles = StyleSheet.create({
   trustRow: { flexDirection: 'row', marginTop: Spacing.six, gap: Spacing.five, opacity: 0.5, justifyContent: 'center' },
   trustItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   trustText: { fontFamily: Fonts.bodyBold, fontSize: 11, color: Colors.outline, letterSpacing: 0.5 },
-  
+
   // Modal Elements
   modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: Spacing.four },
   modalContent: { width: '100%', backgroundColor: Colors.surfaceBright, borderRadius: Radius.xl, padding: Spacing.four },
   modalTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 20, color: Colors.onSurface, marginBottom: Spacing.four },
-  modalOption: { flexDirection: 'row', // inline alignment
-                 justifyContent: 'space-between',
-                 paddingVertical: Spacing.three, 
-                 borderBottomWidth: 1, 
-                 borderBottomColor: Colors.surfaceVariant },
+  modalOption: {
+    flexDirection: 'row', // inline alignment
+    justifyContent: 'space-between',
+    paddingVertical: Spacing.three,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.surfaceVariant
+  },
   modalOptionText: { fontFamily: Fonts.bodyMedium, fontSize: 16, color: Colors.onSurfaceVariant },
   modalOptionTextActive: { fontFamily: Fonts.bodyBold, color: Colors.primary },
   modalCancel: { marginTop: Spacing.four, alignItems: 'center', padding: Spacing.two }

@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-    View, 
-    Text, 
-    TouchableOpacity, 
-    StyleSheet, 
-    Platform, 
-    Modal, 
-    Animated, 
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    StyleSheet,
+    Platform,
+    Modal,
+    Animated,
     TouchableWithoutFeedback,
     Dimensions
 } from 'react-native';
@@ -29,6 +29,7 @@ export default function Header() {
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
     const [userRole, setUserRole] = useState(null);
+    const [hasActiveRequest, setHasActiveRequest] = useState(false);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -36,17 +37,17 @@ export default function Header() {
                 const token = await getItem('userToken');
                 const role = await getItem('userRole');
                 if (role) setUserRole(role);
-                
+
                 if (token) {
                     const response = await fetch(`${API_URL}/api/auth/me`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
-                    
+
                     if (response.status === 401) {
                         await handleLogout();
                         return;
                     }
-                    
+
                     const data = await response.json();
                     if (data.success) {
                         setUserData(data.user);
@@ -60,6 +61,30 @@ export default function Header() {
 
         fetchUserData();
     }, []);
+
+    // Check if student has an active room request
+    useEffect(() => {
+        const checkRoomRequest = async () => {
+            if (userRole !== 'student') return;
+            try {
+                const token = await getItem('userToken');
+                if (!token) return;
+                const res = await fetch(`${API_URL}/api/room-requests/my-request`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success && data.request) {
+                    const activeStatuses = ['Pending', 'AgreementSent', 'ReceiptUploaded', 'Approved'];
+                    setHasActiveRequest(activeStatuses.includes(data.request.status));
+                } else {
+                    setHasActiveRequest(false);
+                }
+            } catch (err) {
+                console.error('Error checking room request:', err);
+            }
+        };
+        checkRoomRequest();
+    }, [userRole]);
 
     const getInitials = () => {
         if (!userData) return 'U';
@@ -132,7 +157,6 @@ export default function Header() {
                     { label: 'Room Management', icon: 'meeting-room', path: '/manager/room-index' },
                     { label: 'Room Requests', icon: 'list-alt', path: '/manager/requests' },
                     { label: 'Payments', icon: 'receipt-long', path: '/manager/payments' },
-                    { label: 'My QR', icon: 'qr-code-2', path: '/manager/qr' },
                 ];
             case 'admin':
                 return [
@@ -141,23 +165,28 @@ export default function Header() {
             case 'guard':
                 return [
                     { label: 'Dashboard', icon: 'dashboard', path: '/guard' },
+                    { label: 'Scan QR pass', icon: 'qr-code-scanner', path: '/guard/qrscan' },
+                    { label: 'Announcements', icon: 'notifications', path: '/announcements/view' },
                 ];
             case 'student':
-            default:
-                return [
+            default: {
+                const items = [
                     { label: 'Dashboard', icon: 'dashboard', path: '/student' },
-                    { label: 'My Bookings', icon: 'bed', path: '/student/room-index' },
                     { label: 'Payments', icon: 'receipt-long', path: '/student/payments' },
-                    { label: 'My QR', icon: 'qr-code-2', path: '/student/qr' },
                 ];
+                if (!hasActiveRequest) {
+                    items.splice(1, 0, { label: 'View Rooms', icon: 'bed', path: '/student/room-index' });
+                }
+                return items;
+            }
         }
     };
-    
+
     const navItems = getNavItems();
 
     const isRootScreen = [
-        '/student', '/student/room-index', '/student/payments', '/student/qr',
-        '/manager', '/manager/requests', '/manager/payments', '/manager/qr',
+        '/student', '/student/room-index', '/student/payments',
+        '/manager', '/manager/requests', '/manager/payments',
         '/admin', '/guard'
     ].includes(pathname);
 
@@ -169,16 +198,16 @@ export default function Header() {
             <View style={styles.container}>
                 <View style={styles.leftSection}>
                     {showBackButton ? (
-                        <TouchableOpacity 
-                            style={styles.menuButton} 
+                        <TouchableOpacity
+                            style={styles.menuButton}
                             activeOpacity={0.7}
                             onPress={() => router.back()}
                         >
                             <MaterialIcons name="arrow-back" size={28} color={Colors.primary} />
                         </TouchableOpacity>
                     ) : (
-                        <TouchableOpacity 
-                            style={styles.menuButton} 
+                        <TouchableOpacity
+                            style={styles.menuButton}
                             activeOpacity={0.7}
                             onPress={openDrawer}
                         >
@@ -206,17 +235,17 @@ export default function Header() {
                     {/* Dark Backdrop */}
                     <TouchableWithoutFeedback onPress={closeDrawer}>
                         <Animated.View style={[
-                            styles.backdrop, 
+                            styles.backdrop,
                             { opacity: fadeAnim }
                         ]} />
                     </TouchableWithoutFeedback>
 
                     {/* Sliding Drawer */}
                     <Animated.View style={[
-                        styles.drawerPanel, 
+                        styles.drawerPanel,
                         { transform: [{ translateX: slideAnim }] }
                     ]}>
-                        
+
                         {/* Profile Section */}
                         <View style={styles.drawerProfileSection}>
                             <View style={styles.drawerAvatar}>
@@ -228,7 +257,7 @@ export default function Header() {
                                     <Text style={styles.drawerEmailText}>{userData ? userData.email : 'Loading...'}</Text>
                                     <Text style={styles.drawerIdText}>USERNAME: {userData ? userData.username : '...'}</Text>
                                 </View>
-                                <TouchableOpacity 
+                                <TouchableOpacity
                                     style={styles.profileDetailButton}
                                     activeOpacity={0.7}
                                     onPress={() => navigateTo('/student/profile')}
@@ -243,19 +272,19 @@ export default function Header() {
                             {navItems.map((item, index) => {
                                 const isActive = pathname === item.path || (pathname === '/' && item.path === '/student');
                                 return (
-                                    <TouchableOpacity 
+                                    <TouchableOpacity
                                         key={index}
                                         style={[
-                                            styles.navItem, 
+                                            styles.navItem,
                                             isActive && styles.navItemActive
                                         ]}
                                         activeOpacity={0.7}
                                         onPress={() => navigateTo(item.path)}
                                     >
-                                        <MaterialIcons 
-                                            name={item.icon} 
-                                            size={24} 
-                                            color={isActive ? Colors.onPrimary : Colors.onSecondaryContainer} 
+                                        <MaterialIcons
+                                            name={item.icon}
+                                            size={24}
+                                            color={isActive ? Colors.onPrimary : Colors.onSecondaryContainer}
                                         />
                                         <Text style={[
                                             styles.navItemText,
@@ -270,7 +299,7 @@ export default function Header() {
 
                         {/* Logout Section */}
                         <View style={styles.drawerFooterSection}>
-                            <TouchableOpacity 
+                            <TouchableOpacity
                                 style={styles.logoutButton}
                                 activeOpacity={0.8}
                                 onPress={handleLogout}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, FlatList, TouchableOpacity,
-    ActivityIndicator, SafeAreaView, StatusBar, Platform
+    ActivityIndicator, SafeAreaView, StatusBar, Platform, Alert
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { getItem } from '@/utils/storage';
@@ -9,6 +9,7 @@ import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { API_URL } from '@/constants/api';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import BottomNav from '@/components/BottomNav';
 
 export default function ManagerRequests() {
     const router = useRouter();
@@ -47,6 +48,39 @@ export default function ManagerRequests() {
         }
     };
 
+    const handleDeleteRequest = async (id) => {
+        Alert.alert(
+            "Delete Request",
+            "Are you sure you want to delete this request permanently? This action cannot be undone.",
+            [
+                { text: "Cancel", style: "cancel" },
+                { 
+                    text: "Delete", 
+                    style: "destructive", 
+                    onPress: async () => {
+                        try {
+                            const token = await getItem('userToken');
+                            const res = await fetch(`${API_URL}/api/room-requests/${id}`, {
+                                method: 'DELETE',
+                                headers: { 'Authorization': `Bearer ${token}` }
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                                Alert.alert("Success", "Request deleted successfully.");
+                                fetchRequests(); // Refresh list
+                            } else {
+                                Alert.alert("Error", data.message);
+                            }
+                        } catch (err) {
+                            console.error('Error deleting request:', err);
+                            Alert.alert("Error", "Failed to delete request.");
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
     const getStatusColor = (status) => {
         switch (status) {
             case 'Pending': return '#eab308';
@@ -69,11 +103,21 @@ export default function ManagerRequests() {
                     <MaterialIcons name="meeting-room" size={20} color={Colors.primary} />
                     <Text style={styles.roomText}>Room {item.roomId?.roomNumber || 'N/A'}</Text>
                 </View>
-                <View style={[styles.statusBadge, { backgroundColor: item.cancellationRequested ? '#fee2e2' : `${getStatusColor(item.status)}15` }]}>
-                    <View style={[styles.statusDot, { backgroundColor: item.cancellationRequested ? '#ef4444' : getStatusColor(item.status) }]} />
-                    <Text style={[styles.statusText, { color: item.cancellationRequested ? '#ef4444' : getStatusColor(item.status) }]}>
-                        {item.cancellationRequested ? 'Cancellation Req.' : item.status}
-                    </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <View style={[styles.statusBadge, { backgroundColor: item.cancellationRequested ? '#fee2e2' : `${getStatusColor(item.status)}15` }]}>
+                        <View style={[styles.statusDot, { backgroundColor: item.cancellationRequested ? '#ef4444' : getStatusColor(item.status) }]} />
+                        <Text style={[styles.statusText, { color: item.cancellationRequested ? '#ef4444' : getStatusColor(item.status) }]}>
+                            {item.cancellationRequested ? 'Cancellation Req.' : item.status}
+                        </Text>
+                    </View>
+                    {(item.status === 'Cancelled' || item.status === 'Rejected') && (
+                        <TouchableOpacity 
+                            onPress={() => handleDeleteRequest(item._id)}
+                            style={styles.deleteBtn}
+                        >
+                            <MaterialIcons name="delete-outline" size={20} color={Colors.error} />
+                        </TouchableOpacity>
+                    )}
                 </View>
             </View>
             
@@ -146,6 +190,7 @@ export default function ManagerRequests() {
                     showsVerticalScrollIndicator={false}
                 />
             )}
+            <BottomNav />
         </SafeAreaView>
     );
 }
@@ -165,7 +210,7 @@ const styles = StyleSheet.create({
 
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     emptyText: { fontFamily: Fonts.bodyMedium, fontSize: 15, color: Colors.outline, marginTop: 12 },
-    listContent: { padding: Spacing.four, gap: Spacing.three },
+    listContent: { padding: Spacing.four, gap: Spacing.three, paddingBottom: 100 },
 
     card: { backgroundColor: Colors.surfaceContainerLowest, borderRadius: Radius.xl, padding: Spacing.four, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
     cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.three, paddingBottom: Spacing.three, borderBottomWidth: 1, borderBottomColor: Colors.surfaceContainer },
@@ -174,6 +219,7 @@ const styles = StyleSheet.create({
     statusBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 4, borderRadius: Radius.full },
     statusDot: { width: 6, height: 6, borderRadius: 3 },
     statusText: { fontFamily: Fonts.bodySemiBold, fontSize: 12 },
+    deleteBtn: { padding: 6, borderRadius: 8, backgroundColor: `${Colors.error}10` },
 
     cardBody: { gap: Spacing.three },
     studentInfo: { flexDirection: 'row', alignItems: 'center', gap: 12 },

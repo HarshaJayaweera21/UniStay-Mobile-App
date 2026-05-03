@@ -9,11 +9,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#00174b"
-      },
-      "permissions": [
-        "android.permission.RECORD_AUDIO"
-      ],
-      "package": "com.anonymous.unistayapp"
+      }
     },
     "web": {
       "output": "static"

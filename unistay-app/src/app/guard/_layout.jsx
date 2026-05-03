@@ -13,6 +13,7 @@ export default function GuardLayout() {
             }}
         >
             <Stack.Screen name="index" />
+            <Stack.Screen name="qrscan" options={{ headerShown: false }} />
         </Stack>
     );
 }

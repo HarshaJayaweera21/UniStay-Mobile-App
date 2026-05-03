@@ -1,7 +1,9 @@
 const User = require("../models/User");
 const Role = require("../models/Role")
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const QRCode = require("../models/QRCode");
+const generateAndUploadQR = require("../utils/generateQR");
 
 const registerUserService = async (data) => {
     const {
@@ -70,9 +72,21 @@ const registerUserService = async (data) => {
 
     await newUser.save();
 
+    // Generate QR code and upload to Cloudinary
+    const { qrData, qrCodeUrl } = await generateAndUploadQR(newUser._id);
+
+    // Save QR details to DB
+    await QRCode.create({
+        student: newUser._id,
+        qrData,
+        qrCodeUrl,
+        isApproved: false
+    });
+
     return {
         success: true,
-        message : "User Registered Successfully"
+        message : "User Registered Successfully",
+        qrCodeUrl
     }
 
 }
@@ -125,4 +139,5 @@ const loginUserService = async (data) => {
     }
 }
 
-module.exports = {registerUserService, loginUserService};
+
+module.exports = {registerUserService, loginUserService};

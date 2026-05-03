@@ -90,10 +90,20 @@ export default function StudentRoomDetails() {
 
             const data = await response.json();
             if (data.success) {
-                if (Platform.OS === 'web') window.alert('Room requested successfully!');
-                else Alert.alert('Success', 'Room requested successfully!');
-                setShowModal(false);
-                fetchRoomAndRequest(); // Refresh to update active request state
+                if (Platform.OS === 'web') {
+                    window.alert('Room requested successfully!');
+                    setShowModal(false);
+                    router.push('/student');
+                } else {
+                    Alert.alert(
+                        'Success', 
+                        'Room requested successfully!',
+                        [{ text: "OK", onPress: () => {
+                            setShowModal(false);
+                            router.push('/student');
+                        }}]
+                    );
+                }
             } else {
                 if (Platform.OS === 'web') window.alert(data.message);
                 else Alert.alert('Error', data.message);

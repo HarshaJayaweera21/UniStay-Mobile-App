@@ -12,13 +12,19 @@ const paymentRoutes = require("./src/routes/paymentRoutes");
 const paymentTypeRoutes = require("./src/routes/paymentTypeRoutes");
 const roomRequestRoutes = require("./src/routes/roomRequestRoutes");
 const userRoutes = require("./src/routes/userRoutes");
+const qrRoutes = require("./src/routes/qrRoutes");
+const leavePassRoutes = require("./src/routes/leavePassRoutes");
+const attendanceRoutes = require("./src/routes/attendanceRoutes");
+const complaintRoutes = require("./src/routes/complaintRoutes");
+const announcementRoutes = require("./src/routes/announcementRoutes"); // ✅ ADDED
+
 const app = express();
 const PORT = process.env.PORT;
 
 // Middleware
 app.use(cors()); // handles cross origin requests
-app.use(express.json({ limit: '10mb' })); // parses request body
-app.use(express.urlencoded({ extended: true, limit: '10mb' })); // parses form data
+app.use(express.json()); // parses request body
+app.use(express.urlencoded({ extended: true }));
 
 // DB connection
 connectDB();
@@ -35,6 +41,12 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/payment-types", paymentTypeRoutes);
 app.use("/api/room-requests", roomRequestRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/qr", qrRoutes);
+app.use("/api/leavepass", leavePassRoutes);
+app.use("/api/attendance", attendanceRoutes);
+app.use("/api/complaints", complaintRoutes);
+app.use("/api/announcements", announcementRoutes);
+
 // Global Error Handler
 app.use((err, req, res, next) => {
   console.error("🔥 Global Error Handler:", err);
@@ -43,6 +55,7 @@ app.use((err, req, res, next) => {
   }
   res.status(err.status || 400).json({ success: false, message: err.message || "Internal Server Error" });
 });
+
 
 app.listen(PORT, () => {
   console.log(`Server running on port http://localhost:${PORT}`);
@@ -59,3 +72,5 @@ cloudinary.api
   .catch((error) => {
     console.error("❌ Cloudinary connection failed:", error);
 });
+
+

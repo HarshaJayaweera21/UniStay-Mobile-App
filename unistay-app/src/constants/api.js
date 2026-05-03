@@ -1,26 +1,14 @@
-import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
-/**
- * Dynamically determines the backend base URL.
- * In development (Expo Go), it uses the host IP of the Metro server.
- * This allows the app to work on both emulators and physical devices seamlessly.
- */
+// Use your laptop's local network IP so physical devices (Expo Go) can reach the backend.
+// For web, localhost works since the browser runs on the same machine.
+// IMPORTANT: Update this IP if your WiFi network changes.
 const getBaseUrl = () => {
-    // Check if we have a debugger host (e.g., '192.168.8.101:8081')
-    const debuggerHost = Constants.expoConfig?.hostUri;
-    
-    if (debuggerHost) {
-        // Extract the IP address and use port 3000 for the backend
-        const ip = debuggerHost.split(':')[0];
-        return `http://${ip}:3000`;
+    if (Platform.OS === 'web') {
+        return 'http://localhost:3000';
     }
-
-    // Fallbacks for production or environments where hostUri isn't available
-    if (Platform.OS === 'android') {
-        return `http://${IP_ADDRESS}`;
-    }
-    return `http://${IP_ADDRESS}`;
+    // Your laptop's LAN IP (from Expo's Metro output)
+    return 'http://10.222.242.28:3000';
 };
 
 export const API_URL = getBaseUrl();

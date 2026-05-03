@@ -11,6 +11,7 @@ import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { PAYMENTS_URL } from '@/constants/api';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { TextInput } from 'react-native';
+import BottomNav from '@/components/BottomNav';
 import DateTimePicker from '@react-native-community/datetimepicker';
 const STATUS_COLORS = {
     Pending: { bg: '#FEF3C7', text: '#B45309' }, // Amber/Yellow
@@ -112,7 +113,7 @@ export default function StudentPayments() {
         <View style={styles.headerSection}>
             <Text style={styles.pageTitle}>Payments</Text>
             <Text style={styles.pageSubtitle}>Track your transactions</Text>
-            
+
             <View style={styles.summaryContainer}>
                 {/* Total Paid Card */}
                 <View style={styles.summaryCard}>
@@ -169,11 +170,11 @@ export default function StudentPayments() {
                 </View>
 
                 <View style={{ flexDirection: 'row', gap: Spacing.two }}>
-                    <TouchableOpacity style={[styles.dropdownButton, {flex: 1}]} onPress={() => setTypeModalVisible(true)} activeOpacity={0.7}>
+                    <TouchableOpacity style={[styles.dropdownButton, { flex: 1 }]} onPress={() => setTypeModalVisible(true)} activeOpacity={0.7}>
                         <Text style={styles.dropdownButtonText}>{activeTypeFilter}</Text>
                         <MaterialIcons name="expand-more" size={24} color={Colors.outline} />
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.dropdownButton, {flex: 1}]} onPress={() => { setTempFromDate(fromDate); setTempToDate(toDate); setDateModalVisible(true); }} activeOpacity={0.7}>
+                    <TouchableOpacity style={[styles.dropdownButton, { flex: 1 }]} onPress={() => { setTempFromDate(fromDate); setTempToDate(toDate); setDateModalVisible(true); }} activeOpacity={0.7}>
                         <MaterialIcons name="date-range" size={18} color={Colors.primary} style={{ marginRight: 6 }} />
                         <Text style={styles.dropdownButtonText} numberOfLines={1}>
                             {fromDate || toDate ? `${fromDate?.slice(5) || '..'} to ${toDate?.slice(5) || '..'}` : 'All Dates'}
@@ -204,7 +205,7 @@ export default function StudentPayments() {
                         <Text style={styles.transactionDate}>{formatDate(item.createdAt)}{item.roomId ? ` • Room ${item.roomId.roomNumber}` : ''}</Text>
                     </View>
                 </View>
-                
+
                 <View style={styles.transactionRight}>
                     <View style={styles.amountContainer}>
                         <Text style={styles.transactionAmount}>LKR {parseFloat(item.amount).toLocaleString()}</Text>
@@ -226,7 +227,13 @@ export default function StudentPayments() {
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
                 {/* Top App Bar */}
-                
+                <View style={styles.topAppBar}>
+                    <TouchableOpacity style={styles.appBarBtn} onPress={() => router.back()} activeOpacity={0.7}>
+                        <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
+                    </TouchableOpacity>
+
+                    <View style={styles.appBarBtn} />
+                </View>
 
                 {error ? (
                     <View style={styles.center}>
@@ -242,8 +249,8 @@ export default function StudentPayments() {
                             if (!pagination) return <View style={{ height: 40 }} />;
                             if (pagination.total > payments.length && !isShowingAll) {
                                 return (
-                                    <TouchableOpacity 
-                                        style={styles.viewAllBtn} 
+                                    <TouchableOpacity
+                                        style={styles.viewAllBtn}
                                         activeOpacity={0.8}
                                         onPress={() => { setIsShowingAll(true); fetchPayments(true, true); }}
                                     >
@@ -259,11 +266,12 @@ export default function StudentPayments() {
                         showsVerticalScrollIndicator={false}
                     />
                 )}
-                
+
                 <TouchableOpacity style={styles.fab} activeOpacity={0.85} onPress={() => router.push('/student/upload-payment')}>
                     <MaterialIcons name="add" size={28} color={Colors.onPrimary} />
                 </TouchableOpacity>
             </View>
+            <BottomNav activeTab="payments" />
 
             <Modal visible={typeModalVisible} transparent animationType="slide">
                 <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setTypeModalVisible(false)}>
@@ -271,9 +279,9 @@ export default function StudentPayments() {
                         <View style={styles.modalDragIndicator} />
                         <Text style={styles.modalTitle}>Select Payment Type</Text>
                         {['All Types', ...new Set(payments.map(p => p.paymentType?.name || 'Standard'))].map(type => (
-                            <TouchableOpacity 
-                                key={type} 
-                                style={[styles.modalOption, activeTypeFilter === type && styles.modalOptionActive]} 
+                            <TouchableOpacity
+                                key={type}
+                                style={[styles.modalOption, activeTypeFilter === type && styles.modalOptionActive]}
                                 onPress={() => { setActiveTypeFilter(type); setTypeModalVisible(false); }}
                             >
                                 <Text style={[styles.modalOptionText, activeTypeFilter === type && styles.modalOptionTextActive]}>{type}</Text>
@@ -288,7 +296,7 @@ export default function StudentPayments() {
                     <TouchableOpacity activeOpacity={1} style={styles.modalContent}>
                         <View style={styles.modalDragIndicator} />
                         <Text style={styles.modalTitle}>Filter by Date</Text>
-                        
+
                         <View style={{ gap: Spacing.two, marginBottom: Spacing.four }}>
                             <View>
                                 <Text style={styles.dateInputLabel}>From Date</Text>
@@ -309,20 +317,20 @@ export default function StudentPayments() {
                                 </TouchableOpacity>
                             </View>
                         </View>
-                        
+
                         {showPickerFor && (
                             <DateTimePicker
                                 value={
-                                    showPickerFor === 'from' && tempFromDate ? new Date(tempFromDate) : 
-                                    showPickerFor === 'to' && tempToDate ? new Date(tempToDate) : 
-                                    new Date()
+                                    showPickerFor === 'from' && tempFromDate ? new Date(tempFromDate) :
+                                        showPickerFor === 'to' && tempToDate ? new Date(tempToDate) :
+                                            new Date()
                                 }
                                 mode="date"
                                 display="default"
                                 onChange={handleDateChange}
                             />
                         )}
-                        
+
                         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: Spacing.five }}>
                             <TouchableOpacity style={styles.presetChip} onPress={() => { setTempFromDate(firstDay); setTempToDate(lastDay); }}>
                                 <Text style={styles.presetChipText}>Current Month</Text>
@@ -352,7 +360,7 @@ const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: Colors.surface },
     center: { flex: 1, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center' },
     loadText: { fontFamily: Fonts.bodyMedium, fontSize: 16, color: Colors.onSurfaceVariant, marginTop: Spacing.three },
-    
+
     topAppBar: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -374,8 +382,8 @@ const styles = StyleSheet.create({
         color: Colors.primary,
     },
 
-    list: { padding: Spacing.four, paddingBottom: 100, flexGrow: 1 },
-    
+    list: { padding: Spacing.four, paddingBottom: 160, flexGrow: 1 },
+
     headerSection: {
         marginBottom: Spacing.four,
     },
@@ -549,7 +557,7 @@ const styles = StyleSheet.create({
     emptySub: { fontFamily: Fonts.bodyMedium, fontSize: 14, color: Colors.onSurfaceVariant, marginTop: Spacing.one, textAlign: 'center', paddingHorizontal: Spacing.four },
     errText: { fontFamily: Fonts.bodyMedium, fontSize: 14, color: Colors.error, textAlign: 'center', marginTop: Spacing.two },
     retry: { fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.primary, marginTop: Spacing.three },
-    fab: { position: 'absolute', right: Spacing.four, bottom: Spacing.six, width: 60, height: 60, borderRadius: 30, backgroundColor: Colors.primaryContainer, justifyContent: 'center', alignItems: 'center', shadowColor: Colors.primaryContainer, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.35, shadowRadius: 16, elevation: 8 },
+    fab: { position: 'absolute', right: Spacing.four, bottom: 90, width: 60, height: 60, borderRadius: 30, backgroundColor: Colors.primaryContainer, justifyContent: 'center', alignItems: 'center', shadowColor: Colors.primaryContainer, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.35, shadowRadius: 16, elevation: 8 },
     viewAllBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: Spacing.four, marginVertical: Spacing.two, gap: 4, backgroundColor: Colors.surfaceContainerLowest, borderRadius: Radius.xl, borderWidth: 1, borderColor: Colors.primaryContainer, borderStyle: 'dashed' },
     viewAllText: { fontFamily: Fonts.headlineSemiBold, fontSize: 14, color: Colors.primary }
 });

@@ -2,6 +2,7 @@ const RoomRequest = require("../models/RoomRequest");
 const Room = require("../models/Room");
 const Payment = require("../models/Payment");
 const PaymentType = require("../models/PaymentType");
+const QRCode = require("../models/QRCode");
 const cloudinary = require("../config/cloudinary");
 
 // Student: Request a room
@@ -204,7 +205,13 @@ const verifyReceipt = async (req, res) => {
         room.currentOccupancy += 1;
         await room.save();
 
-        // 3. Create Key Money Payment record for auditing
+        // 3. Activate the student's QR code
+        await QRCode.findOneAndUpdate(
+            { student: request.studentId },
+            { isApproved: true, approvedBy: req.user.id, approvedAt: new Date() }
+        );
+
+        // 4. Create Key Money Payment record for auditing
         let keyMoneyType = await PaymentType.findOne({ name: { $regex: /key money/i } });
         if (!keyMoneyType) {
             keyMoneyType = await PaymentType.create({ name: "Key Money", description: "Initial deposit" });
@@ -269,6 +276,12 @@ const approveCancellation = async (req, res) => {
             }
         }
 
+        // Deactivate the student's QR code
+        await QRCode.findOneAndUpdate(
+            { student: request.studentId },
+            { isApproved: false, approvedBy: null, approvedAt: null }
+        );
+
         request.status = "Cancelled";
         request.cancellationRequested = false;
         await request.save();
@@ -300,6 +313,33 @@ const rejectCancellation = async (req, res) => {
     }
 };
 
+// Manager: Delete Request (Only if Cancelled or Rejected)
+const deleteRoomRequest = async (req, res) => {
+    try {
+        const request = await RoomRequest.findById(req.params.id);
+        if (!request) return res.status(404).json({ success: false, message: "Request not found." });
+
+        if (request.status !== "Cancelled" && request.status !== "Rejected") {
+            return res.status(400).json({ success: false, message: "Only cancelled or rejected requests can be deleted." });
+        }
+
+        // Cleanup files from Cloudinary
+        if (request.managerAgreementCloudinaryId) {
+            try { await cloudinary.uploader.destroy(request.managerAgreementCloudinaryId); } catch(e) {}
+        }
+        if (request.studentReceiptCloudinaryId) {
+            try { await cloudinary.uploader.destroy(request.studentReceiptCloudinaryId); } catch(e) {}
+        }
+
+        await RoomRequest.findByIdAndDelete(req.params.id);
+
+        res.status(200).json({ success: true, message: "Request deleted successfully." });
+    } catch (error) {
+        console.error("deleteRoomRequest error:", error);
+        res.status(500).json({ success: false, message: "Server error while deleting request." });
+    }
+};
+
 module.exports = {
     createRoomRequest,
     getMyRequest,
@@ -311,5 +351,6 @@ module.exports = {
     verifyReceipt,
     requestCancellation,
     approveCancellation,
-    rejectCancellation
+    rejectCancellation,
+    deleteRoomRequest
 };
