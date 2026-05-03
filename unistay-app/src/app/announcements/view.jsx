@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { API_URL } from '@/constants/api';
 import BottomNav from '@/components/BottomNav';
 
@@ -60,11 +61,18 @@ export default function ViewAnnouncementsScreen() {
 
     return (
         <View style={styles.container}>
+            <LinearGradient
+                colors={['#dbe1ff', '#faf8ff']}
+                style={StyleSheet.absoluteFill}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+            />
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                    <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
+                <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
+                    <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Announcements</Text>
+                <View style={{ width: 40 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.content}>
@@ -125,10 +133,10 @@ export default function ViewAnnouncementsScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: Colors.background },
-    header: { flexDirection: 'row', alignItems: 'center', padding: Spacing.four, paddingTop: Spacing.six, backgroundColor: Colors.surface, elevation: 2 },
-    backButton: { padding: Spacing.two, marginRight: Spacing.two },
-    headerTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 20, color: Colors.onSurface },
+    container: { flex: 1, backgroundColor: Colors.surfaceContainerLow },
+    header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.four, paddingTop: 60, paddingBottom: Spacing.three, backgroundColor: 'rgba(250, 248, 255, 0.8)', zIndex: 50 },
+    backButton: { padding: 8, borderRadius: Radius.full, backgroundColor: '#f3f3fe' },
+    headerTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 18, color: Colors.onSurface, letterSpacing: -0.5 },
     content: { padding: Spacing.four, paddingBottom: 100 },
     description: { fontFamily: Fonts.bodyMedium, fontSize: 15, color: Colors.onSurfaceVariant, marginBottom: Spacing.six },
     

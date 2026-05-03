@@ -6,6 +6,7 @@ import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { API_URL } from '@/constants/api';
+import BottomNav from '@/components/BottomNav';
 
 export default function ManagerDashboard() {
     const router = useRouter();
@@ -80,81 +81,84 @@ export default function ManagerDashboard() {
     };
 
     return (
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-            <View style={styles.header}>
-                <Text style={styles.overlineHeader}>MANAGER PORTAL</Text>
-                <Text style={styles.headerTitle}>Welcome back{userName ? `, ${userName}` : ''}.</Text>
-                <Text style={styles.headerSubtitle}>
-                    Manage hostel bookings, approve student payments, and oversee daily operations from your dashboard.
-                </Text>
-            </View>
+        <View style={{ flex: 1, backgroundColor: Colors.surfaceContainerLow }}>
+            <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+                <View style={styles.header}>
+                    <Text style={styles.overlineHeader}>MANAGER PORTAL</Text>
+                    <Text style={styles.headerTitle}>Welcome back{userName ? `, ${userName}` : ''}.</Text>
+                    <Text style={styles.headerSubtitle}>
+                        Manage hostel bookings, approve student payments, and oversee daily operations from your dashboard.
+                    </Text>
+                </View>
 
-            <View style={styles.viewContainer}>
-                <View style={styles.card}>
-                    <View style={styles.cardHeader}>
-                        <View style={styles.badgePrimary}>
-                            <Text style={styles.badgePrimaryText}>OVERVIEW</Text>
+                <View style={styles.viewContainer}>
+                    <View style={styles.card}>
+                        <View style={styles.cardHeader}>
+                            <View style={styles.badgePrimary}>
+                                <Text style={styles.badgePrimaryText}>OVERVIEW</Text>
+                            </View>
+                            <View style={styles.roomIconContainerAssigned}>
+                                <MaterialIcons name="analytics" size={36} color={Colors.primary} />
+                            </View>
                         </View>
-                        <View style={styles.roomIconContainerAssigned}>
-                            <MaterialIcons name="analytics" size={36} color={Colors.primary} />
-                        </View>
-                    </View>
 
-                    <View style={styles.metricsContainer}>
-                        {isLoadingMetrics ? (
-                            <ActivityIndicator size="small" color={Colors.primary} />
-                        ) : (
-                            <>
-                                <View style={styles.metricBox}>
-                                    <Text style={styles.metricValue}>{pendingRequests}</Text>
-                                    <Text style={styles.metricLabel}>Pending{'\n'}Requests</Text>
-                                </View>
-                                <View style={styles.metricDivider} />
-                                <View style={styles.metricBox}>
-                                    <Text style={styles.metricValue}>{pendingPayments}</Text>
-                                    <Text style={styles.metricLabel}>Pending{'\n'}Payments</Text>
-                                </View>
-                            </>
-                        )}
+                        <View style={styles.metricsContainer}>
+                            {isLoadingMetrics ? (
+                                <ActivityIndicator size="small" color={Colors.primary} />
+                            ) : (
+                                <>
+                                    <View style={styles.metricBox}>
+                                        <Text style={styles.metricValue}>{pendingRequests}</Text>
+                                        <Text style={styles.metricLabel}>Pending{'\n'}Requests</Text>
+                                    </View>
+                                    <View style={styles.metricDivider} />
+                                    <View style={styles.metricBox}>
+                                        <Text style={styles.metricValue}>{pendingPayments}</Text>
+                                        <Text style={styles.metricLabel}>Pending{'\n'}Payments</Text>
+                                    </View>
+                                </>
+                            )}
+                        </View>
                     </View>
                 </View>
-            </View>
 
-            <View style={styles.quickActionsContainer}>
-                <Text style={styles.sectionTitle}>Quick Actions</Text>
-                
-                <TouchableOpacity
-                    style={styles.actionButton}
-                    onPress={() => router.push('/manager/room-index')}
-                    activeOpacity={0.8}
-                >
-                    <View style={styles.actionIconContainer}>
-                        <MaterialIcons name="meeting-room" size={24} color={Colors.primary} />
-                    </View>
-                    <Text style={styles.actionButtonText}>Approve Bookings</Text>
-                    <MaterialIcons name="arrow-forward" size={20} color={Colors.onSurfaceVariant} />
-                </TouchableOpacity>
+                <View style={styles.quickActionsContainer}>
+                    <Text style={styles.sectionTitle}>Quick Actions</Text>
 
-                <TouchableOpacity
-                    style={styles.actionButton}
-                    onPress={() => router.push('/manager/payments')}
-                    activeOpacity={0.8}
-                >
-                    <View style={styles.actionIconContainer}>
-                        <MaterialIcons name="receipt-long" size={24} color={Colors.primary} />
-                    </View>
-                    <Text style={styles.actionButtonText}>Review Payments</Text>
-                    <MaterialIcons name="arrow-forward" size={20} color={Colors.onSurfaceVariant} />
-                </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => router.push('/manager/room-index')}
+                        activeOpacity={0.8}
+                    >
+                        <View style={styles.actionIconContainer}>
+                            <MaterialIcons name="meeting-room" size={24} color={Colors.primary} />
+                        </View>
+                        <Text style={styles.actionButtonText}>Manage Rooms</Text>
+                        <MaterialIcons name="arrow-forward" size={20} color={Colors.onSurfaceVariant} />
+                    </TouchableOpacity>
 
-                <TouchableOpacity onPress={handleLogout} style={styles.logoutButton} activeOpacity={0.7}>
-                    <View style={[styles.actionIconContainer, { backgroundColor: `${Colors.error}15` }]}>
-                        <MaterialIcons name="logout" size={24} color={Colors.error} />
-                    </View>
-                    <Text style={[styles.actionButtonText, { color: Colors.error }]}>Log Out</Text>
-                </TouchableOpacity>
-            </View>
-        </ScrollView>
+                    <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => router.push('/manager/payments')}
+                        activeOpacity={0.8}
+                    >
+                        <View style={styles.actionIconContainer}>
+                            <MaterialIcons name="receipt-long" size={24} color={Colors.primary} />
+                        </View>
+                        <Text style={styles.actionButtonText}>Review Payments</Text>
+                        <MaterialIcons name="arrow-forward" size={20} color={Colors.onSurfaceVariant} />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={handleLogout} style={styles.logoutButton} activeOpacity={0.7}>
+                        <View style={[styles.actionIconContainer, { backgroundColor: `${Colors.error}15` }]}>
+                            <MaterialIcons name="logout" size={24} color={Colors.error} />
+                        </View>
+                        <Text style={[styles.actionButtonText, { color: Colors.error }]}>Log Out</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
+            <BottomNav activeTab="home" />
+        </View>
     );
 }
 
@@ -166,7 +170,7 @@ const styles = StyleSheet.create({
     contentContainer: {
         padding: Spacing.four,
         paddingTop: Platform.OS === 'ios' ? Spacing.six : Spacing.four,
-        paddingBottom: Spacing.six,
+        paddingBottom: 100,
     },
     header: {
         marginTop: Spacing.four,

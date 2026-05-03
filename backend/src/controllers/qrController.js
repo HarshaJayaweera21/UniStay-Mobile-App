@@ -3,7 +3,7 @@ const QRCode = require("../models/QRCode");
 // GET own QR code — Student
 const getMyQR = async (req, res) => {
     try {
-        const qr = await QRCode.findOne({ student: req.user.id }).populate("student", "firstName lastName");
+        const qr = await QRCode.findOne({ student: req.user.id }).populate("student", "firstName lastName email");
 
         if (!qr) {
             return res.status(404).json({

@@ -125,27 +125,19 @@ export default function StudentQR() {
                 
                 {/* Profile Section */}
                 <View style={styles.profileSection}>
-                    <View style={styles.avatarContainer}>
-                        <Image 
-                            source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB35KlvVvULrY6jbLRav9nGy1Pzs8hZhOLFMT-RFeJdhifh1yGmsj205grdkwNYqMTCyYGvePJ9XngMRhpHIasyyJWFV11NcPW3G_p5SCNZppuNRavmxyZ5UxhVlYrU5qSN64r52PPFcPkZ5b2M3v9xteE4BSSwsAL2YggegBg_E5tn2ah_ZRC1vyY-Yk6O1G8m-i2A26r20naaA0h-REsmnba3AW1DbCYR4VBaHRrolHznObFR_9xeNoV8hQ88q4u3bippefA3Uwle' }}
-                            style={styles.avatar}
-                        />
-                        {/* Status Badge */}
-                        <View style={styles.badgeAnchor}>
-                            <View style={[styles.statusBadge, { backgroundColor: qrData.isApproved ? 'rgba(0, 74, 198, 0.1)' : 'rgba(186, 26, 26, 0.1)' }]}>
-                                <Animated.View style={[styles.statusDot, { 
-                                    backgroundColor: qrData.isApproved ? Colors.primary : Colors.error,
-                                    opacity: qrData.isApproved ? pulseAnim : 1 
-                                }]} />
-                                <Text style={[styles.statusText, { color: qrData.isApproved ? Colors.primary : Colors.error }]}>
-                                    {qrData.isApproved ? 'ACTIVE' : 'INACTIVE'}
-                                </Text>
-                            </View>
-                        </View>
-                    </View>
-                    
                     <Text style={styles.profileName}>{studentName}</Text>
-                    <Text style={styles.studentId}>STUDENT ID: #8829-XJ</Text>
+                    <Text style={styles.studentId}>{qrData?.student?.email || 'No email'}</Text>
+
+                    {/* Status Badge */}
+                    <View style={[styles.statusBadge, { backgroundColor: qrData.isApproved ? 'rgba(0, 74, 198, 0.1)' : 'rgba(186, 26, 26, 0.1)' }]}>
+                        <Animated.View style={[styles.statusDot, { 
+                            backgroundColor: qrData.isApproved ? Colors.primary : Colors.error,
+                            opacity: qrData.isApproved ? pulseAnim : 1 
+                        }]} />
+                        <Text style={[styles.statusText, { color: qrData.isApproved ? Colors.primary : Colors.error }]}>
+                            {qrData.isApproved ? 'ACTIVE' : 'INACTIVE'}
+                        </Text>
+                    </View>
                 </View>
 
                 {/* QR Code Card */}
@@ -213,8 +205,8 @@ const styles = StyleSheet.create({
     },
     backButton: { padding: 8, borderRadius: Radius.full, backgroundColor: '#f3f3fe' },
     headerTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 18, color: Colors.onSurface, letterSpacing: -0.5 },
-    content: { flexGrow: 1, alignItems: 'center', paddingTop: Spacing.six, paddingHorizontal: Spacing.five, paddingBottom: 110 },
-    profileSection: { alignItems: 'center', marginBottom: Spacing.six, width: '100%' },
+    content: { flexGrow: 1, alignItems: 'center', paddingTop: Spacing.five, paddingHorizontal: Spacing.five, paddingBottom: 110 },
+    profileSection: { alignItems: 'center', marginBottom: Spacing.four, width: '100%' },
     avatarContainer: {
         position: 'relative',
         marginBottom: Spacing.four,
@@ -250,7 +242,7 @@ const styles = StyleSheet.create({
     statusDot: { width: 8, height: 8, borderRadius: 4, marginRight: 6 },
     statusText: { fontFamily: Fonts.bodyBold, fontSize: 10, textTransform: 'uppercase', letterSpacing: 1.5 },
     profileName: { fontFamily: Fonts.headlineExtraBold, fontSize: 26, color: Colors.onSurface, marginBottom: 4, letterSpacing: -0.5 },
-    studentId: { fontFamily: Fonts.bodyBold, fontSize: 13, color: Colors.onSurfaceVariant, textTransform: 'uppercase', letterSpacing: 1.5 },
+    studentId: { fontFamily: Fonts.bodyBold, fontSize: 13, color: Colors.onSurfaceVariant, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: Spacing.three },
     qrContainerWrapper: {
         position: 'relative',
         width: '100%',
@@ -258,7 +250,7 @@ const styles = StyleSheet.create({
         aspectRatio: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: Spacing.six
+        marginBottom: Spacing.four
     },
     glowOverlay: {
         position: 'absolute',
@@ -298,7 +290,7 @@ const styles = StyleSheet.create({
     qrImage: { width: '100%', height: '100%', opacity: 0.95 },
     securedRow: { flexDirection: 'row', alignItems: 'center', marginTop: Spacing.five, opacity: 0.4 },
     securedText: { fontFamily: Fonts.bodyBold, fontSize: 10, textTransform: 'uppercase', letterSpacing: 2, marginLeft: Spacing.one },
-    helperText: { fontFamily: Fonts.bodyMedium, fontSize: 15, color: Colors.onSurfaceVariant, textAlign: 'center', lineHeight: 24, marginBottom: Spacing.six },
+    helperText: { fontFamily: Fonts.bodyMedium, fontSize: 15, color: Colors.onSurfaceVariant, textAlign: 'center', lineHeight: 24, marginBottom: Spacing.four },
     historyButton: {
         flexDirection: 'row',
         alignItems: 'center',

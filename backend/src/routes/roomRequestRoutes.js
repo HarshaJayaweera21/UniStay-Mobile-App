@@ -13,7 +13,8 @@ const {
     verifyReceipt,
     requestCancellation,
     approveCancellation,
-    rejectCancellation
+    rejectCancellation,
+    deleteRoomRequest
 } = require("../controllers/roomRequestController");
 
 // POST /api/room-requests (Student)
@@ -62,5 +63,8 @@ router.put("/:id/approve-cancellation", protect, authorizeRoles("manager"), appr
 
 // PUT /api/room-requests/:id/reject-cancellation (Manager: Reject cancellation)
 router.put("/:id/reject-cancellation", protect, authorizeRoles("manager"), rejectCancellation);
+
+// DELETE /api/room-requests/:id (Manager: Delete cancelled or rejected request)
+router.delete("/:id", protect, authorizeRoles("manager"), deleteRoomRequest);
 
 module.exports = router;

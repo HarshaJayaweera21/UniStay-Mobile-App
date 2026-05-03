@@ -117,10 +117,11 @@ export default function LeaveRequest() {
 
             {/* Top Navigation */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                    <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
+                <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
+                    <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Request a Pass</Text>
+                <View style={{ width: 40 }} />
             </View>
 
             {/* Scrollable Form Bound */}
@@ -270,22 +271,23 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between',
         paddingHorizontal: Spacing.four,
         paddingTop: 60,
-        paddingBottom: Spacing.four,
-        backgroundColor: Colors.surface,
+        paddingBottom: Spacing.three,
+        backgroundColor: 'rgba(250, 248, 255, 0.8)',
+        zIndex: 50,
     },
     backButton: {
         padding: 8,
-        marginLeft: -8,
         borderRadius: Radius.full,
+        backgroundColor: '#f3f3fe',
     },
     headerTitle: {
         fontFamily: Fonts.headlineExtraBold,
-        fontSize: 20,
+        fontSize: 18,
         color: Colors.onSurface,
-        marginLeft: Spacing.two,
-        letterSpacing: -0.5
+        letterSpacing: -0.5,
     },
     scrollContent: {
         padding: Spacing.五, // I will use explicit spacing numbers

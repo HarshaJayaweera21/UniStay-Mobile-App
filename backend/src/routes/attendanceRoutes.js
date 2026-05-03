@@ -5,9 +5,13 @@ const {
     scanQR,
     getAllLogs,
     getStudentLogs,
-    getMyLogs
+    getMyLogs,
+    getTodayScanCount
 } = require("../controllers/attendanceController");
 const { protect, authorizeRoles } = require("../middleware/authMiddleware");
+
+// Get today's scan count — Guard
+router.get("/scan-count", protect, authorizeRoles("guard"), getTodayScanCount);
 
 // Guard verifies QR (check rules, don't save)
 router.post("/verify-scan", protect, authorizeRoles("guard"), verifyScan);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Colors } from '@/constants/colors';
@@ -9,7 +9,17 @@ import { getItem } from '@/utils/storage';
 
 export default function BottomNav({ activeTab = 'home', onTabPress }) {
     const router = useRouter();
-    const tabs = [
+    const [userRole, setUserRole] = useState(null);
+
+    useEffect(() => {
+        const fetchRole = async () => {
+            const role = await getItem('userRole');
+            setUserRole(role);
+        };
+        fetchRole();
+    }, []);
+
+    let tabs = [
         { id: 'home', icon: 'home' },
         { id: 'scanner', icon: 'qr-code-scanner' },
         { id: 'messages', icon: 'chat-bubble' },
@@ -17,42 +27,54 @@ export default function BottomNav({ activeTab = 'home', onTabPress }) {
         { id: 'events', icon: 'event-note' }
     ];
 
+    if (userRole === 'guard') {
+        tabs = [
+            { id: 'home', icon: 'home' },
+            { id: 'scanner', icon: 'qr-code-scanner' },
+            { id: 'notifications', icon: 'notifications' }
+        ];
+    } else if (userRole === 'manager') {
+        tabs = tabs.filter(tab => tab.id !== 'scanner');
+    }
+
     const handlePress = async (id) => {
         if(onTabPress) onTabPress(id);
         
+        const currentRole = userRole || await getItem('userRole');
+
         if (id === 'scanner') {
-            router.push('/student/qr');
+            if (currentRole === 'guard') {
+                router.push('/guard/qrscan');
+            } else {
+                router.push('/student/qr');
+            }
         } else if (id === 'events') {
-            const role = await getItem('userRole');
-            if (role === 'manager') {
+            if (currentRole === 'manager') {
                 router.push('/manager/leave-requests');
             } else {
                 router.push('/student/leave-passes');
             }
         } else if (id === 'messages') {
-            const role = await getItem('userRole');
-            if (role === 'student') {
+            if (currentRole === 'student') {
                 router.push('/student/complaints');
-            } else if (role === 'manager') {
+            } else if (currentRole === 'manager') {
                 router.push('/manager/complaints');
             }
         } else if (id === 'notifications') {
-            const role = await getItem('userRole');
-            if (role === 'manager') {
+            if (currentRole === 'manager') {
                 router.push('/announcements/manage');
             } else {
                 router.push('/announcements/view');
             }
         } else if (id === 'home') {
-            const role = await getItem('userRole');
-            if (role) {
-                router.push(`/${role}`);
+            if (currentRole) {
+                router.push(`/${currentRole}`);
             }
         }
     };
 
     return (
-        <View style={styles.navContainer}>
+        <View style={[styles.navContainer, tabs.length <= 3 && { justifyContent: 'space-evenly' }]}>
             {tabs.map((tab) => {
                 const isActive = activeTab === tab.id;
                 return (
@@ -83,19 +105,20 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         alignItems: 'center',
         paddingHorizontal: Spacing.four,
-        paddingTop: 16,
-        paddingBottom: Platform.OS === 'ios' ? 32 : 16,
-        backgroundColor: Colors.surfaceContainerLowest, // Solid to prevent android shadow bleed
+        paddingTop: 10,
+        paddingBottom: Platform.OS === 'ios' ? 24 : 18,
+        backgroundColor: Colors.surfaceContainerLowest,
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
         shadowColor: '#191b23',
         shadowOffset: { width: 0, height: -8 },
         shadowOpacity: 0.08,
         shadowRadius: 24,
-        elevation: 16, // So it sits above other content on Android
+        elevation: 16,
+        zIndex: 20,
     },
     navItem: {
-        padding: 12,
+        padding: 8,
         borderRadius: 999,
         justifyContent: 'center',
         alignItems: 'center',

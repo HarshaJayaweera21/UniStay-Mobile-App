@@ -255,8 +255,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(250, 248, 255, 0.8)',
         zIndex: 50
     },
-    backButton: { padding: 8, borderRadius: Radius.full, backgroundColor: 'transparent' },
-    headerTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 18, color: Colors.primary, letterSpacing: -0.5 },
+    backButton: { padding: 8, borderRadius: Radius.full, backgroundColor: '#f3f3fe' },
+    headerTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 18, color: Colors.onSurface, letterSpacing: -0.5 },
     content: { flexGrow: 1, paddingHorizontal: Spacing.five, paddingTop: Spacing.four, paddingBottom: 110 },
     
     // Filters
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
     filterButton: { flex: 1, height: 48, borderRadius: Radius.md, justifyContent: 'center', alignItems: 'center' },
     filterButtonActive: { backgroundColor: Colors.primaryContainer },
     filterButtonInactive: { backgroundColor: Colors.surfaceContainerHigh },
-    filterText: { fontFamily: Fonts.headlineBold, fontSize: 14 },
+    filterText: { fontFamily: Fonts.headlineSemiBold, fontSize: 14 },
     filterTextActive: { color: Colors.onPrimary },
     filterTextInactive: { color: Colors.onSurfaceVariant },
 
@@ -291,12 +291,12 @@ const styles = StyleSheet.create({
     emptyStateTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 20, color: Colors.onSurface, marginBottom: Spacing.two, textAlign: 'center' },
     emptyStateDesc: { fontFamily: Fonts.bodyMedium, fontSize: 14, color: Colors.onSurfaceVariant, textAlign: 'center', maxWidth: 280, marginBottom: Spacing.six, lineHeight: 22 },
     refreshButton: { backgroundColor: Colors.secondaryContainer, height: 48, paddingHorizontal: 32, borderRadius: Radius.md, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, elevation: 1 },
-    refreshButtonText: { fontFamily: Fonts.headlineBold, fontSize: 14, color: Colors.onSecondaryContainer, textTransform: 'uppercase', letterSpacing: 0.5 },
+    refreshButtonText: { fontFamily: Fonts.headlineSemiBold, fontSize: 14, color: Colors.onSecondaryContainer, textTransform: 'uppercase', letterSpacing: 0.5 },
 
     // List & Cards
     listContainer: { paddingBottom: Spacing.four },
     dateGroupHeader: { paddingVertical: Spacing.three, marginTop: Spacing.two },
-    dateGroupText: { fontFamily: Fonts.labelBold, fontSize: 10, textTransform: 'uppercase', letterSpacing: 1.5, color: Colors.outline },
+    dateGroupText: { fontFamily: Fonts.bodyBold, fontSize: 10, textTransform: 'uppercase', letterSpacing: 1.5, color: Colors.outline },
     
     recordCard: {
         backgroundColor: Colors.surfaceContainerLowest,
@@ -313,15 +313,15 @@ const styles = StyleSheet.create({
     },
     iconBox: { width: 44, height: 44, borderRadius: Radius.md, justifyContent: 'center', alignItems: 'center', marginRight: Spacing.four },
     cardContent: { flex: 1, justifyContent: 'center' },
-    cardTitle: { fontFamily: Fonts.displayBold, fontSize: 16, marginBottom: 2 },
+    cardTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 16, marginBottom: 2 },
     cardDate: { fontFamily: Fonts.bodyMedium, fontSize: 14, color: Colors.onSurfaceVariant, marginBottom: 2 },
-    cardTime: { fontFamily: Fonts.labelMedium, fontSize: 11, color: Colors.outline },
+    cardTime: { fontFamily: Fonts.bodySemiBold, fontSize: 11, color: Colors.outline },
     badge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: Radius.full },
-    badgeText: { fontFamily: Fonts.labelBold, fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 },
+    badgeText: { fontFamily: Fonts.bodyBold, fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 },
 
     // Pagination
     pagination: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: Colors.surfaceContainerLow, padding: Spacing.four, borderRadius: Radius.md, marginTop: Spacing.six },
-    pageButtonText: { fontFamily: Fonts.headlineBold, fontSize: 14, color: Colors.primary, paddingHorizontal: Spacing.two },
+    pageButtonText: { fontFamily: Fonts.headlineSemiBold, fontSize: 14, color: Colors.primary, paddingHorizontal: Spacing.two },
     pageText: { fontFamily: Fonts.bodyMedium, fontSize: 14, color: Colors.onSurfaceVariant },
 
     // Error

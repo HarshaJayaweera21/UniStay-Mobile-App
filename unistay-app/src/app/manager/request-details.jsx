@@ -126,6 +126,42 @@ export default function ManagerRequestDetails() {
         }
     };
 
+    const handleDelete = async () => {
+        Alert.alert(
+            "Delete Request",
+            "Are you sure you want to delete this request record permanently? This action cannot be undone.",
+            [
+                { text: "Cancel", style: "cancel" },
+                { 
+                    text: "Delete", 
+                    style: "destructive", 
+                    onPress: async () => {
+                        setIsActionLoading(true);
+                        try {
+                            const token = await getItem('userToken');
+                            const res = await fetch(`${API_URL}/api/room-requests/${id}`, {
+                                method: 'DELETE',
+                                headers: { 'Authorization': `Bearer ${token}` }
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                                Alert.alert("Success", "Request deleted successfully.");
+                                router.replace('/manager/requests');
+                            } else {
+                                Alert.alert("Error", data.message);
+                            }
+                        } catch (err) {
+                            console.error('Delete error:', err);
+                            Alert.alert("Error", "Failed to delete request.");
+                        } finally {
+                            setIsActionLoading(false);
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
     if (isLoading || !request) {
         return (
             <View style={styles.loadingContainer}>
@@ -287,6 +323,24 @@ export default function ManagerRequestDetails() {
                         <Text style={styles.globalRejectText}>Reject Request</Text>
                     </TouchableOpacity>
                 )}
+                
+                {/* Delete Button (Only for Cancelled or Rejected) */}
+                {(request.status === 'Cancelled' || request.status === 'Rejected') && (
+                    <TouchableOpacity 
+                        style={styles.deleteCardBtn}
+                        onPress={handleDelete}
+                        disabled={isActionLoading}
+                    >
+                        {isActionLoading ? (
+                            <ActivityIndicator color={Colors.error} />
+                        ) : (
+                            <>
+                                <MaterialIcons name="delete-forever" size={20} color={Colors.error} />
+                                <Text style={styles.deleteCardBtnText}>Delete Request Record</Text>
+                            </>
+                        )}
+                    </TouchableOpacity>
+                )}
 
             </ScrollView>
         </SafeAreaView>
@@ -334,4 +388,7 @@ const styles = StyleSheet.create({
 
     globalRejectBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, padding: Spacing.three, marginTop: Spacing.two },
     globalRejectText: { fontFamily: Fonts.bodySemiBold, fontSize: 15, color: Colors.error },
+    
+    deleteCardBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, padding: Spacing.four, backgroundColor: `${Colors.error}10`, borderRadius: Radius.xl, marginTop: Spacing.four, borderWidth: 1, borderColor: `${Colors.error}20` },
+    deleteCardBtnText: { fontFamily: Fonts.headline, fontSize: 16, color: Colors.error },
 });

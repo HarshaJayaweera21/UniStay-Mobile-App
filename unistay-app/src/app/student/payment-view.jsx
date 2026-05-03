@@ -301,7 +301,13 @@ export default function PaymentView() {
     return (
         <SafeAreaView style={styles.safeArea}>
             {/* Top App Bar */}
-            
+            <View style={styles.topAppBar}>
+                <TouchableOpacity style={styles.appBarBtn} onPress={() => router.back()} activeOpacity={0.7}>
+                    <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
+                </TouchableOpacity>
+                <Text style={styles.appBarTitle}>Payment Details</Text>
+                <View style={styles.appBarBtn} />
+            </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {/* Header */}

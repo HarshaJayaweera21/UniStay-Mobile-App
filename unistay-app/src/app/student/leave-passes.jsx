@@ -257,7 +257,15 @@ export default function LeavePasses() {
 
     return (
         <View style={styles.container}>
-            {/* Top Emulated Background Blue Mesh */}
+            {/* Base background gradient — matches qr.jsx */}
+            <LinearGradient
+                colors={['#dbe1ff', '#faf8ff']}
+                style={StyleSheet.absoluteFill}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+            />
+
+            {/* Top dark blue header section */}
             <View style={styles.blueBackgroundAnchor}>
                 <LinearGradient
                     colors={['#003ea8', '#004ac6']}
@@ -265,6 +273,13 @@ export default function LeavePasses() {
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                 />
+            </View>
+
+            {/* Fixed Back Button */}
+            <View style={styles.topNav}>
+                <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
+                    <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
+                </TouchableOpacity>
             </View>
 
             <View style={styles.contentWrapper}>
@@ -485,7 +500,7 @@ export default function LeavePasses() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: Colors.surface,
+        backgroundColor: Colors.surfaceContainerLow,
     },
     blueBackgroundAnchor: {
         position: 'absolute',
@@ -493,12 +508,23 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         height: 350,
-        backgroundColor: Colors.primary
+        backgroundColor: Colors.primary,
+    },
+    topNav: {
+        position: 'absolute',
+        top: 60,
+        left: Spacing.four,
+        zIndex: 50,
+    },
+    backButton: {
+        padding: 8,
+        borderRadius: Radius.full,
+        backgroundColor: '#f3f3fe',
     },
     contentWrapper: {
         flex: 1,
-        paddingTop: 80, // Allow SafeArea overhead
-        paddingHorizontal: Spacing.four, // Reduced to increase width
+        paddingTop: 120, // Increased to clear the new back button
+        paddingHorizontal: Spacing.four,
     },
     headerRow: {
         flexDirection: 'row',
@@ -509,7 +535,7 @@ const styles = StyleSheet.create({
     headerLabel: {
         fontFamily: Fonts.bodyBold,
         fontSize: 10,
-        color: 'rgba(238, 239, 255, 0.7)', // on-primary/70
+        color: 'rgba(238, 239, 255, 0.7)',
         textTransform: 'uppercase',
         letterSpacing: 2,
         marginBottom: Spacing.one

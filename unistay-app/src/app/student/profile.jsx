@@ -6,7 +6,6 @@ import { Ionicons } from '@expo/vector-icons';
 import useAuth from '../../hooks/useAuth';
 import { Colors } from '../../constants/colors';
 import { Fonts, Radius, Spacing } from '../../constants/theme';
-import ProfileHeader from '../../components/common/ProfileHeader';
 
 const ProfileScreen = () => {
     const { user, logout } = useAuth();

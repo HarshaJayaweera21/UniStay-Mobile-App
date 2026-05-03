@@ -170,10 +170,28 @@ const getMyLogsService = async (studentId) => {
     return { success: true, data: logs };
 };
 
+// Get today's scan count for a guard
+const getTodayScanCountService = async (guardId) => {
+    try {
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+
+        const count = await AttendanceLog.countDocuments({
+            scannedBy: guardId,
+            timestamp: { $gte: startOfToday }
+        });
+
+        return { success: true, count };
+    } catch (error) {
+        throw new Error("Error counting today's scans: " + error.message);
+    }
+};
+
 module.exports = {
     verifyQRService,
     scanQRService,
     getAllLogsService,
     getStudentLogsService,
-    getMyLogsService
+    getMyLogsService,
+    getTodayScanCountService
 };

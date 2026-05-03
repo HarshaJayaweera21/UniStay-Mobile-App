@@ -2,9 +2,10 @@ const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("../config/cloudinary");
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
-const storage = new CloudinaryStorage({
+const memoryStorage = multer.memoryStorage();
+const upload = multer({ storage: memoryStorage });
+
+const cloudStorage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: "unistay/profiles",
@@ -14,8 +15,8 @@ const storage = new CloudinaryStorage({
 });
 
 const uploadMiddleware = multer({
-    storage: storage,
+    storage: cloudStorage,
     limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
 });
 
-module.exports = {uploadMiddleware, upload};
+module.exports = { uploadMiddleware, upload };

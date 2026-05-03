@@ -3,7 +3,8 @@ const {
     scanQRService,
     getAllLogsService,
     getStudentLogsService,
-    getMyLogsService
+    getMyLogsService,
+    getTodayScanCountService
 } = require("../services/attendanceService");
 
 // Guard verifies QR before logging
@@ -79,4 +80,17 @@ const getMyLogs = async (req, res) => {
     }
 };
 
-module.exports = { verifyScan, scanQR, getAllLogs, getStudentLogs, getMyLogs };
+// Get today's scan count — Guard
+const getTodayScanCount = async (req, res) => {
+    try {
+        const result = await getTodayScanCountService(req.user.id);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+module.exports = { verifyScan, scanQR, getAllLogs, getStudentLogs, getMyLogs, getTodayScanCount };

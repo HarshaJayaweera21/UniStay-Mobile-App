@@ -5,15 +5,18 @@ import {
     StyleSheet,
     FlatList,
     Pressable,
+    TouchableOpacity,
     ActivityIndicator,
     RefreshControl,
     Image,
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { getMyComplaints } from '@/services/complaintService';
+import { LinearGradient } from 'expo-linear-gradient';
 import BottomNav from '@/components/BottomNav';
 
 const StatusBadge = ({ status }) => {
@@ -115,15 +118,21 @@ export default function ComplaintsList() {
 
     return (
         <View style={styles.container}>
+            <LinearGradient
+                colors={['#dbe1ff', '#faf8ff']}
+                style={StyleSheet.absoluteFill}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+            />
             <View style={styles.header}>
-                <Pressable onPress={() => router.back()} style={({ pressed }) => [styles.backButton, pressed && { opacity: 0.7 }]}>
-                    <Ionicons name="arrow-back" size={24} color={Colors.onSurface} />
-                </Pressable>
-                <View>
-                    <Text style={styles.headerTitle}>Your Complaints</Text>
-                    <Text style={styles.headerSubtitle}>Track and manage your hostel issues</Text>
-                </View>
+                <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
+                    <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>My Complaints</Text>
+                <View style={{ width: 40 }} />
             </View>
+
+            <Text style={styles.headerSubtitle}>Track and manage your hostel issues</Text>
 
             {error ? (
                 <View style={styles.errorContainer}>
@@ -171,33 +180,36 @@ export default function ComplaintsList() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: Colors.surface,
+        backgroundColor: Colors.surfaceContainerLow,
     },
     header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
         paddingHorizontal: Spacing.four,
-        paddingTop: Spacing.six,
+        paddingTop: 60,
         paddingBottom: Spacing.three,
+        backgroundColor: 'rgba(250, 248, 255, 0.8)',
+        zIndex: 50,
     },
     backButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: Colors.surfaceContainerHigh,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: Spacing.four,
+        padding: 8,
+        borderRadius: Radius.full,
+        backgroundColor: '#f3f3fe',
     },
     headerTitle: {
         fontFamily: Fonts.headlineExtraBold,
-        fontSize: 32,
+        fontSize: 18,
         color: Colors.onSurface,
-        letterSpacing: -1,
+        letterSpacing: -0.5,
     },
     headerSubtitle: {
         fontFamily: Fonts.bodyMedium,
-        fontSize: 16,
+        fontSize: 14,
         color: Colors.onSurfaceVariant,
-        marginTop: Spacing.half,
+        paddingHorizontal: Spacing.four,
+        marginTop: Spacing.three,
+        marginBottom: Spacing.three,
     },
     listContent: {
         padding: Spacing.four,

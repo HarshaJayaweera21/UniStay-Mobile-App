@@ -180,15 +180,13 @@ export default function StudentRoomList() {
 
             {/* Header */}
             <View style={styles.header}>
-                <View>
-                    <Text style={styles.greeting}>Welcome</Text>
-                    <Text style={styles.title}>Find Your Room</Text>
-                </View>
-                <View style={styles.headerActions}>
-                    <TouchableOpacity onPress={() => router.push('/student/my-room')} style={styles.iconButton}>
-                        <MaterialIcons name="bookmark" size={22} color={Colors.primary} />
-                    </TouchableOpacity>
-                </View>
+                <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
+                    <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
+                </TouchableOpacity>
+                <Text style={styles.title}>Find Your Room</Text>
+                <TouchableOpacity onPress={() => router.push('/student/my-room')} style={styles.iconButton}>
+                    <MaterialIcons name="bookmark" size={22} color={Colors.primary} />
+                </TouchableOpacity>
             </View>
 
             {/* Stats */}
@@ -269,11 +267,10 @@ const styles = StyleSheet.create({
     headerGradient: { position: 'absolute', top: 0, left: 0, right: 0, height: 200 },
     header: {
         flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-        paddingHorizontal: Spacing.four, paddingTop: 56, paddingBottom: Spacing.three,
+        paddingHorizontal: Spacing.four, paddingTop: 60, paddingBottom: Spacing.three,
     },
-    greeting: { fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.onSurfaceVariant, marginBottom: 2 },
-    title: { fontFamily: Fonts.headlineExtraBold, fontSize: 26, color: Colors.onSurface, letterSpacing: -0.5 },
-    headerActions: { flexDirection: 'row', gap: 8 },
+    backButton: { padding: 8, borderRadius: Radius.full, backgroundColor: '#f3f3fe' },
+    title: { fontFamily: Fonts.headlineExtraBold, fontSize: 18, color: Colors.onSurface, letterSpacing: -0.5 },
     iconButton: {
         width: 44, height: 44, borderRadius: 22, backgroundColor: Colors.surfaceContainerLowest,
         justifyContent: 'center', alignItems: 'center',
