@@ -109,14 +109,58 @@ export default function UploadPayment() {
         setShowFilePickerModal(true);
     };
 
+    const MAX_FILE_SIZE_MB = 5;
+    const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+
     const handleSubmit = async () => {
-        if (!selectedType || !amount || !file) {
-            showAlert('Missing Information', 'Please fill in all fields and attach a receipt.', 'info');
+        // 1. All fields required
+        if (!selectedType) {
+            showAlert('Missing Category', 'Please select a payment category before submitting.', 'info');
             return;
         }
+        if (!amount || amount.trim() === '') {
+            showAlert('Missing Amount', 'Please enter the total amount you paid.', 'info');
+            return;
+        }
+        if (!file) {
+            showAlert('Missing Receipt', 'Please attach a receipt image or PDF before submitting.', 'info');
+            return;
+        }
+
+        // 2. Amount must be a valid number
         const parsed = parseFloat(amount);
-        if (isNaN(parsed) || parsed <= 0) {
-            showAlert('Invalid Amount', 'Amount must be a number greater than 0.', 'error');
+        if (isNaN(parsed)) {
+            showAlert('Invalid Amount', 'Please enter a valid number for the amount.', 'error');
+            return;
+        }
+
+        // 3. Amount must be positive
+        if (parsed <= 0) {
+            showAlert('Invalid Amount', 'Amount must be greater than 0.', 'error');
+            return;
+        }
+
+        // 4. Amount must not exceed 80,000
+        if (parsed > 80000) {
+            showAlert('Amount Too High', 'The amount cannot exceed LKR 80,000. Please verify the amount and try again.', 'error');
+            return;
+        }
+
+        // 5. Max 2 decimal places
+        if (!/^\d+(\.\d{1,2})?$/.test(amount.trim())) {
+            showAlert('Invalid Amount', 'Amount can have at most 2 decimal places (e.g. 1500 or 1500.50).', 'error');
+            return;
+        }
+
+        // 6. File type validation
+        if (file.type && !ALLOWED_FILE_TYPES.includes(file.type.toLowerCase())) {
+            showAlert('Unsupported File Type', 'Only JPG, PNG, or PDF files are accepted as receipts.', 'error');
+            return;
+        }
+
+        // 7. File size validation (5 MB max)
+        if (file.size && file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+            showAlert('File Too Large', `Your receipt file exceeds the ${MAX_FILE_SIZE_MB}MB limit. Please upload a smaller file.`, 'error');
             return;
         }
 
