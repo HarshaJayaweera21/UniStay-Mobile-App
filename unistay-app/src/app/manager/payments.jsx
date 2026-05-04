@@ -243,7 +243,7 @@ export default function ManagerPayments() {
                 </View>
 
                 <View style={styles.cardBottom}>
-                    <Text style={styles.amountText}>LKR {parseFloat(item.amount).toLocaleString()}</Text>
+                    <Text style={styles.amountText} numberOfLines={1}>LKR {parseFloat(item.amount).toLocaleString()}</Text>
                     <View style={[styles.statusPill, { backgroundColor: uiConfig.bg }]}>
                         <View style={[styles.statusDot, { backgroundColor: uiConfig.dot }]} />
                         <Text style={[styles.statusText, { color: uiConfig.text }]}>{item.status.toUpperCase()}</Text>
@@ -474,9 +474,9 @@ const styles = StyleSheet.create({
     detailLabel: { fontFamily: Fonts.bodyBold, fontSize: 10, textTransform: 'uppercase', color: Colors.outline, marginBottom: 4, letterSpacing: 0.5 },
     detailText: { fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.onSurface },
 
-    cardBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    amountText: { fontFamily: Fonts.headlineExtraBold, fontSize: 18, color: Colors.primary },
-    statusPill: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.full, gap: 6 },
+    cardBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: Spacing.two },
+    amountText: { fontFamily: Fonts.headlineExtraBold, fontSize: 18, color: Colors.primary, flex: 1, minWidth: 0 },
+    statusPill: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.full, gap: 6, flexShrink: 0 },
     statusDot: { width: 6, height: 6, borderRadius: 3 },
     statusText: { fontFamily: Fonts.bodyBold, fontSize: 11, letterSpacing: 0.5 },
 
