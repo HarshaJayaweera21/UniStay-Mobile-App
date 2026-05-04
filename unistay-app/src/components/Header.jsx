@@ -187,7 +187,7 @@ export default function Header({ showBackButton: forceShowBackButton }) {
 
     const isRootScreen = [
         '/student', '/student/room-index', '/student/payments',
-        '/manager', '/manager/room-index', '/manager/requests', '/manager/payments',
+        '/manager',
         '/announcements/manage', '/announcements/view',
         '/admin', '/guard'
     ].includes(pathname);
