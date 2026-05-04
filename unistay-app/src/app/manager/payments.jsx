@@ -403,6 +403,7 @@ const styles = StyleSheet.create({
     
     headerSection: {
         paddingHorizontal: Spacing.four,
+        paddingTop: Spacing.two,
         paddingBottom: Spacing.four,
     },
     adminAvatar: { width: 44, height: 44, backgroundColor: Colors.primaryFixed, borderRadius: Radius.full, justifyContent: 'center', alignItems: 'center' },
