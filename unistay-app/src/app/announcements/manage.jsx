@@ -257,7 +257,7 @@ export default function ManageAnnouncementsScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: Colors.background },
-    header: { flexDirection: 'row', alignItems: 'center', padding: Spacing.four, paddingTop: Spacing.six, backgroundColor: Colors.surface, elevation: 2 },
+    header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.four, paddingTop: Spacing.two, paddingBottom: Spacing.one, justifyContent: 'center' },
     backButton: { padding: Spacing.two, marginRight: Spacing.two },
     headerTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 20, color: Colors.onSurface },
     content: { padding: Spacing.four, paddingBottom: 100 },

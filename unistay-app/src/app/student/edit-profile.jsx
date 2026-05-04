@@ -19,6 +19,7 @@ const EditProfileScreen = () => {
     const [email, setEmail] = useState(user?.email || '');
     const [gender, setGender] = useState(user?.gender || '');
     const [imageUri, setImageUri] = useState(null);
+    const [removePic, setRemovePic] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     if (!user) return null;
@@ -33,7 +34,13 @@ const EditProfileScreen = () => {
 
         if (!result.canceled) {
             setImageUri(result.assets[0].uri);
+            setRemovePic(false);
         }
+    };
+
+    const handleRemovePic = () => {
+        setImageUri(null);
+        setRemovePic(true);
     };
 
     const handleSave = async () => {
@@ -62,6 +69,8 @@ const EditProfileScreen = () => {
                     name: filename,
                     type,
                 });
+            } else if (removePic) {
+                formData.append('profilePicture', 'removed');
             }
 
             const response = await fetch(`${API_URL}/api/users/profile`, {
@@ -108,16 +117,23 @@ const EditProfileScreen = () => {
                 <ScrollView contentContainerStyle={styles.container}>
                     <View style={styles.avatarContainer}>
                         <View style={styles.avatarWrapper}>
-                            {imageUri || user.profilePicture ? (
+                            {imageUri || (user.profilePicture && user.profilePicture !== 'removed' && !removePic) ? (
                                 <Image source={{ uri: imageUri || user.profilePicture }} style={styles.largeAvatar} />
                             ) : (
                                 <View style={[styles.largeAvatar, styles.placeholderAvatar]}>
-                                    <Text style={styles.largeAvatarText}>{user.firstName?.charAt(0).toUpperCase()}</Text>
+                                    <Text style={styles.largeAvatarText}>{user.firstName?.charAt(0).toUpperCase()}{user.lastName?.charAt(0).toUpperCase()}</Text>
                                 </View>
                             )}
-                            <TouchableOpacity style={styles.editAvatarButton} onPress={pickImage}>
-                                <Ionicons name="camera" size={20} color={Colors.onPrimary} />
-                            </TouchableOpacity>
+                            <View style={styles.avatarActionContainer}>
+                                {((user.profilePicture && user.profilePicture !== 'removed' && !removePic) || imageUri) ? (
+                                    <TouchableOpacity style={styles.removeAvatarButton} onPress={handleRemovePic}>
+                                        <Ionicons name="trash" size={20} color={Colors.onError} />
+                                    </TouchableOpacity>
+                                ) : null}
+                                <TouchableOpacity style={styles.editAvatarButton} onPress={pickImage}>
+                                    <Ionicons name="camera" size={20} color={Colors.onPrimary} />
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
 
@@ -241,10 +257,24 @@ const styles = StyleSheet.create({
         fontSize: 48,
         color: Colors.onPrimaryContainer,
     },
-    editAvatarButton: {
+    avatarActionContainer: {
         position: 'absolute',
-        bottom: 0,
-        right: 0,
+        bottom: -5,
+        right: -15,
+        flexDirection: 'row',
+        gap: 8,
+    },
+    removeAvatarButton: {
+        backgroundColor: Colors.error,
+        width: 36,
+        height: 36,
+        borderRadius: Radius.full,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 3,
+        borderColor: Colors.surfaceContainerLowest,
+    },
+    editAvatarButton: {
         backgroundColor: Colors.primary,
         width: 36,
         height: 36,

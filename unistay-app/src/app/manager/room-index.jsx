@@ -90,11 +90,7 @@ export default function ManagerRoomList() {
         }
     };
 
-    const handleLogout = async () => {
-        await deleteItem('userToken');
-        await deleteItem('userRole');
-        router.replace('/login');
-    };
+
 
     const renderRoomCard = ({ item }) => (
         <TouchableOpacity

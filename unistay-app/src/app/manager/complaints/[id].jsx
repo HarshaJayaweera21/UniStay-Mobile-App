@@ -165,6 +165,9 @@ export default function ManagerComplaintDetail() {
                         <Text style={styles.dateInfo}>
                            {new Date(complaint.createdAt).toLocaleDateString()}
                         </Text>
+                        <Pressable onPress={handleDelete} style={{ marginLeft: 'auto', padding: 10 }}>
+                            <Ionicons name="trash-outline" size={24} color={Colors.error} />
+                        </Pressable>
                     </View>
                 </View>
 

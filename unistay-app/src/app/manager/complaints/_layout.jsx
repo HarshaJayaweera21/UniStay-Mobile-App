@@ -2,7 +2,7 @@ import React from 'react';
 import { Stack } from 'expo-router';
 import Header from '@/components/Header';
 
-export default function ManagerLayout() {
+export default function ComplaintsLayout() {
     return (
         <Stack
             screenOptions={{
@@ -13,14 +13,7 @@ export default function ManagerLayout() {
             }}
         >
             <Stack.Screen name="index" />
-            <Stack.Screen name="room-index" />
-            <Stack.Screen name="requests" />
-            <Stack.Screen name="payments" />
-            <Stack.Screen name="add-room" />
-            <Stack.Screen name="edit-room" />
-            <Stack.Screen name="room-details" />
-            <Stack.Screen name="leave-requests" />
-            <Stack.Screen name="leave-history" />
+            <Stack.Screen name="[id]" />
         </Stack>
     );
 }
