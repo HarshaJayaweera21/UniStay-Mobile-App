@@ -170,7 +170,12 @@ export default function StudentPayments() {
                 </View>
 
                 <View style={{ flexDirection: 'row', gap: Spacing.two }}>
-                    <TouchableOpacity style={[styles.dropdownButton, { flex: 1 }]} onPress={() => setTypeModalVisible(true)} activeOpacity={0.7}>
+                    <TouchableOpacity 
+                        style={[styles.dropdownButton, { flex: 1, opacity: payments.length === 0 ? 0.5 : 1 }]} 
+                        onPress={() => setTypeModalVisible(true)} 
+                        activeOpacity={0.7}
+                        disabled={payments.length === 0}
+                    >
                         <Text style={styles.dropdownButtonText}>{activeTypeFilter}</Text>
                         <MaterialIcons name="expand-more" size={24} color={Colors.outline} />
                     </TouchableOpacity>
