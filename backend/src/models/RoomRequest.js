@@ -15,8 +15,7 @@ const roomRequestSchema = new mongoose.Schema(
         durationInMonths: {
             type: Number,
             required: true,
-            min: [1, "Duration must be at least 1 month"],
-            max: [12, "Duration cannot exceed 12 months"],
+            min: 1,
         },
         keyMoneyAmount: {
             type: Number,

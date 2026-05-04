@@ -15,14 +15,12 @@ const roomSchema = new mongoose.Schema({
     pricePerMonth: {
         type: Number,
         required: true,
-        min: [10000, "Price must be at least Rs. 10,000"],
-        max: [100000, "Price cannot exceed Rs. 100,000"]
+        min: 0
     },
     capacity: {
         type: Number,
         required: true,
-        min: [1, "Capacity must be at least 1"],
-        max: [3, "Capacity cannot exceed 3"]
+        min: 1
     },
     currentOccupancy: {
         type: Number,
@@ -31,8 +29,7 @@ const roomSchema = new mongoose.Schema({
     },
     description: {
         type: String,
-        trim: true,
-        maxlength: [200, "Description cannot exceed 200 characters"]
+        trim: true
     },
     image: {
         type: String,
