@@ -171,12 +171,14 @@ export default function ManagerLeaveHistory() {
                                             </View>
                                         </View>
 
-                                        {isExpired ? (
+                                        {(item.status === 'rejected' || isExpired) && (
                                             <View style={styles.cardFooterDivider}>
                                                 <View style={styles.expiredFooterFlex}>
-                                                    <View style={styles.expiredPillConstraint}>
-                                                        <Text style={styles.expiredPillTypography}>Expired</Text>
-                                                    </View>
+                                                    {isExpired && (
+                                                        <View style={styles.expiredPillConstraint}>
+                                                            <Text style={styles.expiredPillTypography}>Expired</Text>
+                                                        </View>
+                                                    )}
                                                     <TouchableOpacity 
                                                         style={styles.deleteConstraintWrap}
                                                         activeOpacity={0.6}
@@ -187,7 +189,7 @@ export default function ManagerLeaveHistory() {
                                                     </TouchableOpacity>
                                                 </View>
                                             </View>
-                                        ) : null}
+                                        )}
                                     </View>
                                 );
                             })}
@@ -228,10 +230,10 @@ export default function ManagerLeaveHistory() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: Colors.surface },
-    contentWrap: { flex: 1, paddingTop: 60, paddingHorizontal: Spacing.four },
+    contentWrap: { flex: 1, paddingTop: 16, paddingHorizontal: Spacing.four },
     
     // Top Nav Construct matched to History View
-    topNavRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.eight },
+    topNavRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.four },
     backButton: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginLeft: -8 },
     mainTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 18, color: Colors.primary, letterSpacing: -0.5 },
     

@@ -123,12 +123,12 @@ export default function StudentQR() {
                     <Text style={styles.studentId}>{qrData?.student?.email || 'No email'}</Text>
 
                     {/* Status Badge */}
-                    <View style={[styles.statusBadge, { backgroundColor: qrData.isApproved ? 'rgba(0, 74, 198, 0.1)' : 'rgba(186, 26, 26, 0.1)' }]}>
+                    <View style={[styles.statusBadge, { backgroundColor: qrData.isApproved ? 'rgba(22, 163, 74, 0.1)' : 'rgba(186, 26, 26, 0.1)' }]}>
                         <Animated.View style={[styles.statusDot, {
-                            backgroundColor: qrData.isApproved ? Colors.primary : Colors.error,
+                            backgroundColor: qrData.isApproved ? '#16a34a' : Colors.error,
                             opacity: qrData.isApproved ? pulseAnim : 1
                         }]} />
-                        <Text style={[styles.statusText, { color: qrData.isApproved ? Colors.primary : Colors.error }]}>
+                        <Text style={[styles.statusText, { color: qrData.isApproved ? '#16a34a' : Colors.error }]}>
                             {qrData.isApproved ? 'ACTIVE' : 'INACTIVE'}
                         </Text>
                     </View>

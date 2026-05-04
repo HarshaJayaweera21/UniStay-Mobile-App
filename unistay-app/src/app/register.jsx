@@ -14,6 +14,7 @@ import {
   ScrollView,
   Alert
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -31,12 +32,14 @@ export default function RegisterScreen() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [globalError, setGlobalError] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [date, setDate] = useState(new Date(new Date().setFullYear(new Date().getFullYear() - 18)));
 
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     dateOfBirth: '',
-    gender: '', // male, female, other
+    gender: '', // male, female
     username: '',
     email: '', // Note: we'll append @my.sliit.lk on submission or render
     password: '',
@@ -50,10 +53,21 @@ export default function RegisterScreen() {
         setGlobalError('Please fill in all personal details.');
         return;
       }
+
+      const numericRegex = /\d/;
+      if (numericRegex.test(formData.firstName) || numericRegex.test(formData.lastName)) {
+        setGlobalError('First and Last name should not contain numeric values.');
+        return;
+      }
       setStep(2);
     } else if (step === 2) {
       if (!formData.username || !formData.email) {
         setGlobalError('Username and SLIIT Email prefix are required.');
+        return;
+      }
+
+      if (/^\d+$/.test(formData.username)) {
+        setGlobalError('Username cannot be only numeric values.');
         return;
       }
       setStep(3);
@@ -67,21 +81,14 @@ export default function RegisterScreen() {
     }
   };
 
-  const handleDOBChange = (text) => {
-    // Keep only numbers
-    const cleaned = text.replace(/\D/g, '').slice(0, 8);
-    let formatted = cleaned;
-
-    if (cleaned.length >= 5) {
-      formatted = `${cleaned.slice(0, 4)}-${cleaned.slice(4, 6)}`;
-      if (cleaned.length >= 7) {
-        formatted += `-${cleaned.slice(6, 8)}`;
-      }
-    } else if (cleaned.length >= 5) {
-      formatted = `${cleaned.slice(0, 4)}-${cleaned.slice(4)}`;
+  const onDateChange = (event, selectedDate) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setDate(selectedDate);
+      const formattedDate = selectedDate.toISOString().split('T')[0];
+      setFormData({ ...formData, dateOfBirth: formattedDate });
+      setGlobalError('');
     }
-
-    setFormData({ ...formData, dateOfBirth: formatted });
   };
 
   const submitRegistration = async () => {
@@ -181,7 +188,7 @@ export default function RegisterScreen() {
 
       <KeyboardAvoidingView
         style={styles.contentWrap}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -232,18 +239,24 @@ export default function RegisterScreen() {
 
                   <View style={styles.inputGroup}>
                     <Text style={styles.label}>DATE OF BIRTH</Text>
-                    <View style={styles.inputContainer}>
-                      <TextInput
-                        style={styles.input}
-                        placeholder="YYYY-MM-DD"
-                        placeholderTextColor={Colors.outline}
-                        keyboardType="numeric"
-                        maxLength={10}
-                        value={formData.dateOfBirth}
-                        onChangeText={(t) => { handleDOBChange(t); setGlobalError(''); }}
-                      />
+                    <TouchableOpacity
+                      style={styles.inputContainer}
+                      onPress={() => setShowDatePicker(true)}
+                    >
+                      <Text style={[styles.input, { color: formData.dateOfBirth ? Colors.onSurface : Colors.outline }]}>
+                        {formData.dateOfBirth || "Select Date of Birth"}
+                      </Text>
                       <MaterialIcons name="calendar-today" size={20} color={Colors.outline} />
-                    </View>
+                    </TouchableOpacity>
+                    {showDatePicker && (
+                      <DateTimePicker
+                        value={date}
+                        mode="date"
+                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                        onChange={onDateChange}
+                        maximumDate={new Date(new Date().setFullYear(new Date().getFullYear() - 16))}
+                      />
+                    )}
                   </View>
 
                   <View style={styles.inputGroup}>
@@ -418,7 +431,7 @@ export default function RegisterScreen() {
         <View style={styles.modalBackdrop}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Select Gender</Text>
-            {['male', 'female', 'other'].map(g => (
+            {['male', 'female'].map(g => (
               <TouchableOpacity
                 key={g}
                 style={styles.modalOption}

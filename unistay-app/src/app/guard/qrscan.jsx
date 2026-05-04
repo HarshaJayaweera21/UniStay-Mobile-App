@@ -84,7 +84,8 @@ export default function GuardDashboard() {
                 setScanResult({ ...result.data, rawQrData: data });
                 
                 if (result.accessGranted) {
-                    setSelectedType('entry'); // Reset to default
+                    const nextType = result.data.lastScanType === 'entry' ? 'exit' : 'entry';
+                    setSelectedType(nextType);
                     setIsDropdownOpen(false);
                     setShowGranted(true);
                 } else {
@@ -250,42 +251,15 @@ export default function GuardDashboard() {
                         <Text style={styles.studentName}>{scanResult?.studentName}</Text>
                         <Text style={styles.studentId}>RESIDENT ID: {String(scanResult?.studentId).substring(0, 7).toUpperCase()}</Text>
 
-                        {/* Custom Dropdown / Toggle for Entry/Exit */}
+                        {/* Auto-detected Action Pill */}
                         <View style={styles.dropdownContainer}>
-                            <TouchableOpacity 
-                                style={styles.dropdownButton} 
-                                activeOpacity={0.8}
-                                onPress={() => setIsDropdownOpen(!isDropdownOpen)}
-                            >
+                            <View style={[styles.dropdownButton, { backgroundColor: Colors.surfaceContainerHighest }]}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                                     <MaterialIcons name={selectedType === 'entry' ? "login" : "logout"} size={22} color={Colors.primary} />
-                                    <Text style={styles.dropdownText}>{selectedType === 'entry' ? "Entry" : "Exit"}</Text>
+                                    <Text style={styles.dropdownText}>{selectedType === 'entry' ? "Entry (Auto-Detected)" : "Exit (Auto-Detected)"}</Text>
                                 </View>
-                                <MaterialIcons 
-                                    name="expand-more" 
-                                    size={24} 
-                                    color={Colors.outline} 
-                                    style={{ transform: [{ rotate: isDropdownOpen ? '180deg' : '0deg' }] }}
-                                />
-                            </TouchableOpacity>
-
-                            {isDropdownOpen && (
-                                <View style={styles.dropdownMenu}>
-                                    <TouchableOpacity 
-                                        style={[styles.dropdownMenuItem, selectedType === 'entry' && styles.dropdownMenuItemActive]}
-                                        onPress={() => { setSelectedType('entry'); setIsDropdownOpen(false); }}
-                                    >
-                                        <Text style={[styles.dropdownMenuText, selectedType === 'entry' && { color: Colors.primary }]}>Entry</Text>
-                                    </TouchableOpacity>
-                                    <View style={{ height: 1, backgroundColor: 'rgba(0,0,0,0.05)' }} />
-                                    <TouchableOpacity 
-                                        style={[styles.dropdownMenuItem, selectedType === 'exit' && styles.dropdownMenuItemActive]}
-                                        onPress={() => { setSelectedType('exit'); setIsDropdownOpen(false); }}
-                                    >
-                                        <Text style={[styles.dropdownMenuText, selectedType === 'exit' && { color: Colors.primary }]}>Exit</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            )}
+                                <MaterialIcons name="lock" size={18} color={Colors.outline} />
+                            </View>
                         </View>
 
                         {/* Metadata Block */}
