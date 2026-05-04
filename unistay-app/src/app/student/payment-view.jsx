@@ -337,7 +337,7 @@ export default function PaymentView() {
                 {/* Status + Amount Card */}
                 <View style={styles.card}>
                     <View style={styles.amountHeader}>
-                        <View>
+                        <View style={{ flex: 1, marginRight: Spacing.three }}>
                             <Text style={styles.amountLabel}>TOTAL AMOUNT</Text>
                             {isEditing ? (
                                 <View style={styles.editAmountRow}>
@@ -660,7 +660,7 @@ const styles = StyleSheet.create({
     amountHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: Spacing.four },
     amountLabel: { fontFamily: Fonts.bodyBold, fontSize: 11, color: Colors.outline, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 },
     amountValue: { fontFamily: Fonts.headlineExtraBold, fontSize: 32, color: Colors.primary },
-    statusPill: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 4, borderRadius: Radius.md },
+    statusPill: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 4, borderRadius: Radius.md, flexShrink: 0, alignSelf: 'flex-start' },
     statusText: { fontFamily: Fonts.bodyBold, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 },
 
     editAmountRow: { flexDirection: 'row', alignItems: 'baseline', gap: 4 },

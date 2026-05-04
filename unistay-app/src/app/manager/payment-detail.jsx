@@ -10,11 +10,11 @@ import {
     TextInput,
     Alert,
     Linking,
-    SafeAreaView,
     Modal,
     Platform,
     StatusBar,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { getItem } from '@/utils/storage';
 import { Colors } from '@/constants/colors';
@@ -22,6 +22,7 @@ import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { PAYMENTS_URL, API_URL } from '@/constants/api';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { WebView } from 'react-native-webview';
+import Header from '@/components/Header';
 
 const STATUS_UI = {
     Pending: { bg: '#FFF3E0', text: '#E65100', dot: '#FFB74D' },
@@ -239,17 +240,29 @@ export default function PaymentDetail() {
 
     if (isLoading) {
         return (
-            <SafeAreaView style={styles.safeArea}>
+            <View style={styles.container}>
+                <LinearGradient
+                    colors={['#dbe1ff', '#faf8ff']}
+                    style={StyleSheet.absoluteFill}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                />
                 <View style={styles.centerContainer}>
                     <ActivityIndicator size="large" color={Colors.primary} />
                 </View>
-            </SafeAreaView>
+            </View>
         );
     }
 
     if (error || !payment) {
         return (
-            <SafeAreaView style={styles.safeArea}>
+            <View style={styles.container}>
+                <LinearGradient
+                    colors={['#dbe1ff', '#faf8ff']}
+                    style={StyleSheet.absoluteFill}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                />
                 <View style={styles.centerContainer}>
                     <MaterialIcons name="error-outline" size={48} color={Colors.error} />
                     <Text style={[styles.errorText, {marginTop: Spacing.two}]}>{error || 'Not Found'}</Text>
@@ -257,7 +270,7 @@ export default function PaymentDetail() {
                         <Text style={{ fontFamily: Fonts.bodySemiBold, color: Colors.primary }}>Tap to retry</Text>
                     </TouchableOpacity>
                 </View>
-            </SafeAreaView>
+            </View>
         );
     }
 
@@ -266,9 +279,15 @@ export default function PaymentDetail() {
     const studentUsername = payment.studentId?.username || 'N/A';
 
     return (
-        <SafeAreaView style={styles.safeArea}>
-            {/* Top App Bar */}
-            
+        <View style={styles.container}>
+            <LinearGradient
+                colors={['#dbe1ff', '#faf8ff']}
+                style={StyleSheet.absoluteFill}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+            />
+            {/* Top Navigation Anchor */}
+            <Header />
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 
@@ -514,27 +533,15 @@ export default function PaymentDetail() {
                 </SafeAreaView>
             </Modal>
 
-        </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.surface },
-    centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    container: { flex: 1, backgroundColor: Colors.surfaceContainerLow },
+    centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' },
     errorText: { fontFamily: Fonts.bodyMedium, fontSize: 16, color: Colors.onSurfaceVariant },
     
-    topAppBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: Spacing.four,
-        paddingVertical: Spacing.four,
-        zIndex: 10,
-        backgroundColor: Colors.surface,
-    },
-    appBarBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-start' },
-    appBarTitle: { fontFamily: Fonts.headlineSemiBold, fontSize: 18, color: Colors.onSurface },
-
     scrollContent: { paddingHorizontal: Spacing.four, paddingBottom: 140 },
 
     headerSection: { marginBottom: Spacing.five },

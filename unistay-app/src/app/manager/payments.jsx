@@ -1,9 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import {
     View, Text, StyleSheet, FlatList, TouchableOpacity,
-    ActivityIndicator, RefreshControl, SafeAreaView, ScrollView, Modal,
+    ActivityIndicator, RefreshControl, ScrollView, Modal,
     Platform, StatusBar
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { getItem } from '@/utils/storage';
 import { Colors } from '@/constants/colors';
@@ -12,6 +13,7 @@ import { PAYMENTS_URL } from '@/constants/api';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { TextInput } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import Header from '@/components/Header';
 const FILTERS = ['All', 'Pending', 'Approved', 'Rejected'];
 
 const STATUS_UI = {
@@ -241,7 +243,7 @@ export default function ManagerPayments() {
                 </View>
 
                 <View style={styles.cardBottom}>
-                    <Text style={styles.amountText}>LKR {parseFloat(item.amount).toLocaleString()}</Text>
+                    <Text style={styles.amountText} numberOfLines={1}>LKR {parseFloat(item.amount).toLocaleString()}</Text>
                     <View style={[styles.statusPill, { backgroundColor: uiConfig.bg }]}>
                         <View style={[styles.statusDot, { backgroundColor: uiConfig.dot }]} />
                         <Text style={[styles.statusText, { color: uiConfig.text }]}>{item.status.toUpperCase()}</Text>
@@ -260,7 +262,16 @@ export default function ManagerPayments() {
     }
 
     return (
-        <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+            <LinearGradient
+                colors={['#dbe1ff', '#faf8ff']}
+                style={StyleSheet.absoluteFill}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+            />
+            {/* Top Navigation Anchor */}
+            <Header />
+
             {error ? (
                 <View style={styles.centerContainer}>
                     <MaterialIcons name="error-outline" size={48} color={Colors.error} />
@@ -381,13 +392,13 @@ export default function ManagerPayments() {
                     </TouchableOpacity>
                 </TouchableOpacity>
             </Modal>
-        </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.surface },
-    centerContainer: { flex: 1, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center' },
+    container: { flex: 1, backgroundColor: Colors.surfaceContainerLow },
+    centerContainer: { flex: 1, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center' },
     listContent: { paddingBottom: 100 },
     
     headerSection: {
@@ -395,15 +406,6 @@ const styles = StyleSheet.create({
         paddingTop: Spacing.two,
         paddingBottom: Spacing.four,
     },
-    topAppBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: Spacing.four,
-        marginBottom: Spacing.two,
-    },
-    backBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.surfaceContainerLowest, borderRadius: Radius.full, shadowColor: Colors.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, elevation: 2 },
-    headerTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 24, color: Colors.primary },
-    headerSubtitle: { fontFamily: Fonts.bodyMedium, fontSize: 13, color: Colors.onSurfaceVariant },
     adminAvatar: { width: 44, height: 44, backgroundColor: Colors.primaryFixed, borderRadius: Radius.full, justifyContent: 'center', alignItems: 'center' },
 
     bentoGrid: { gap: Spacing.three, marginBottom: Spacing.four },
@@ -473,9 +475,9 @@ const styles = StyleSheet.create({
     detailLabel: { fontFamily: Fonts.bodyBold, fontSize: 10, textTransform: 'uppercase', color: Colors.outline, marginBottom: 4, letterSpacing: 0.5 },
     detailText: { fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.onSurface },
 
-    cardBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    amountText: { fontFamily: Fonts.headlineExtraBold, fontSize: 18, color: Colors.primary },
-    statusPill: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.full, gap: 6 },
+    cardBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: Spacing.two },
+    amountText: { fontFamily: Fonts.headlineExtraBold, fontSize: 18, color: Colors.primary, flex: 1, minWidth: 0 },
+    statusPill: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.full, gap: 6, flexShrink: 0 },
     statusDot: { width: 6, height: 6, borderRadius: 3 },
     statusText: { fontFamily: Fonts.bodyBold, fontSize: 11, letterSpacing: 0.5 },
 

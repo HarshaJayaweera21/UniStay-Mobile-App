@@ -1,9 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import {
     View, Text, StyleSheet, FlatList, TouchableOpacity,
-    ActivityIndicator, RefreshControl, SafeAreaView, ScrollView, Modal,
+    ActivityIndicator, RefreshControl, ScrollView, Modal,
     Platform, StatusBar
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { getItem } from '@/utils/storage';
 import { Colors } from '@/constants/colors';
@@ -12,6 +13,7 @@ import { PAYMENTS_URL } from '@/constants/api';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { TextInput } from 'react-native';
 import BottomNav from '@/components/BottomNav';
+import Header from '@/components/Header';
 import DateTimePicker from '@react-native-community/datetimepicker';
 const STATUS_COLORS = {
     Pending: { bg: '#FEF3C7', text: '#B45309' }, // Amber/Yellow
@@ -170,7 +172,12 @@ export default function StudentPayments() {
                 </View>
 
                 <View style={{ flexDirection: 'row', gap: Spacing.two }}>
-                    <TouchableOpacity style={[styles.dropdownButton, { flex: 1 }]} onPress={() => setTypeModalVisible(true)} activeOpacity={0.7}>
+                    <TouchableOpacity 
+                        style={[styles.dropdownButton, { flex: 1, opacity: payments.length === 0 ? 0.5 : 1 }]} 
+                        onPress={() => setTypeModalVisible(true)} 
+                        activeOpacity={0.7}
+                        disabled={payments.length === 0}
+                    >
                         <Text style={styles.dropdownButtonText}>{activeTypeFilter}</Text>
                         <MaterialIcons name="expand-more" size={24} color={Colors.outline} />
                     </TouchableOpacity>
@@ -201,14 +208,14 @@ export default function StudentPayments() {
                         <MaterialIcons name={getIconForType(item.paymentType?.name)} size={26} color={Colors.primary} />
                     </View>
                     <View style={styles.transactionTexts}>
-                        <Text style={styles.transactionTitle}>{item.paymentType?.name || 'Unknown'}</Text>
-                        <Text style={styles.transactionDate}>{formatDate(item.createdAt)}{item.roomId ? ` • Room ${item.roomId.roomNumber}` : ''}</Text>
+                        <Text style={styles.transactionTitle} numberOfLines={1}>{item.paymentType?.name || 'Unknown'}</Text>
+                        <Text style={styles.transactionDate} numberOfLines={1}>{formatDate(item.createdAt)}{item.roomId ? ` • Room ${item.roomId.roomNumber}` : ''}</Text>
                     </View>
                 </View>
 
                 <View style={styles.transactionRight}>
                     <View style={styles.amountContainer}>
-                        <Text style={styles.transactionAmount}>LKR {parseFloat(item.amount).toLocaleString()}</Text>
+                        <Text style={styles.transactionAmount} numberOfLines={1}>LKR {parseFloat(item.amount).toLocaleString()}</Text>
                         <View style={[styles.statusPill, { backgroundColor: sc.bg }]}>
                             <Text style={[styles.statusText, { color: sc.text }]}>{item.status}</Text>
                         </View>
@@ -224,16 +231,15 @@ export default function StudentPayments() {
     );
 
     return (
-        <SafeAreaView style={styles.safeArea}>
-            <View style={styles.container}>
-                {/* Top App Bar */}
-                <View style={styles.topAppBar}>
-                    <TouchableOpacity style={styles.appBarBtn} onPress={() => router.back()} activeOpacity={0.7}>
-                        <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
-                    </TouchableOpacity>
-
-                    <View style={styles.appBarBtn} />
-                </View>
+        <View style={styles.container}>
+            <LinearGradient
+                colors={['#dbe1ff', '#faf8ff']}
+                style={StyleSheet.absoluteFill}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+            />
+            {/* Top Navigation Anchor */}
+            <Header />
 
                 {error ? (
                     <View style={styles.center}>
@@ -270,7 +276,7 @@ export default function StudentPayments() {
                 <TouchableOpacity style={styles.fab} activeOpacity={0.85} onPress={() => router.push('/student/upload-payment')}>
                     <MaterialIcons name="add" size={28} color={Colors.onPrimary} />
                 </TouchableOpacity>
-            </View>
+
             <BottomNav activeTab="payments" />
 
             <Modal visible={typeModalVisible} transparent animationType="slide">
@@ -351,36 +357,14 @@ export default function StudentPayments() {
                     </TouchableOpacity>
                 </TouchableOpacity>
             </Modal>
-        </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.surface },
-    container: { flex: 1, backgroundColor: Colors.surface },
+    container: { flex: 1, backgroundColor: Colors.surfaceContainerLow },
     center: { flex: 1, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center' },
     loadText: { fontFamily: Fonts.bodyMedium, fontSize: 16, color: Colors.onSurfaceVariant, marginTop: Spacing.three },
-
-    topAppBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: Spacing.four,
-        height: 60,
-        backgroundColor: Colors.surface,
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(0,0,0,0.03)',
-    },
-    appBarBtn: {
-        width: 40, height: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    topAppTitle: {
-        fontFamily: Fonts.headlineExtraBold,
-        fontSize: 18,
-        color: Colors.primary,
-    },
 
     list: { padding: Spacing.four, paddingBottom: 160, flexGrow: 1 },
 
@@ -505,6 +489,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flex: 1,
         gap: Spacing.three,
+        minWidth: 0,
     },
     iconBox: {
         width: 48,
@@ -532,9 +517,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: Spacing.three,
+        flexShrink: 0,
+        marginLeft: Spacing.two,
     },
     amountContainer: {
         alignItems: 'flex-end',
+        maxWidth: 130,
     },
     transactionAmount: {
         fontFamily: Fonts.headlineExtraBold,

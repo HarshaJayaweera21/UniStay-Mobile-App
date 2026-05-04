@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, TouchableOpacity, TextInput,
-    ActivityIndicator, Image, ScrollView, Platform, SafeAreaView, Modal,
+    ActivityIndicator, Image, ScrollView, Platform, Modal,
     StatusBar
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { getItem } from '@/utils/storage';
 import { Colors } from '@/constants/colors';
@@ -12,6 +13,7 @@ import { PAYMENTS_URL, PAYMENT_TYPES_URL, API_URL } from '@/constants/api';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
+import Header from '@/components/Header';
 
 export default function UploadPayment() {
     const router = useRouter();
@@ -107,14 +109,58 @@ export default function UploadPayment() {
         setShowFilePickerModal(true);
     };
 
+    const MAX_FILE_SIZE_MB = 5;
+    const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+
     const handleSubmit = async () => {
-        if (!selectedType || !amount || !file) {
-            showAlert('Missing Information', 'Please fill in all fields and attach a receipt.', 'info');
+        // 1. All fields required
+        if (!selectedType) {
+            showAlert('Missing Category', 'Please select a payment category before submitting.', 'info');
             return;
         }
+        if (!amount || amount.trim() === '') {
+            showAlert('Missing Amount', 'Please enter the total amount you paid.', 'info');
+            return;
+        }
+        if (!file) {
+            showAlert('Missing Receipt', 'Please attach a receipt image or PDF before submitting.', 'info');
+            return;
+        }
+
+        // 2. Amount must be a valid number
         const parsed = parseFloat(amount);
-        if (isNaN(parsed) || parsed <= 0) {
-            showAlert('Invalid Amount', 'Amount must be a number greater than 0.', 'error');
+        if (isNaN(parsed)) {
+            showAlert('Invalid Amount', 'Please enter a valid number for the amount.', 'error');
+            return;
+        }
+
+        // 3. Amount must be positive
+        if (parsed <= 0) {
+            showAlert('Invalid Amount', 'Amount must be greater than 0.', 'error');
+            return;
+        }
+
+        // 4. Amount must not exceed 80,000
+        if (parsed > 80000) {
+            showAlert('Amount Too High', 'The amount cannot exceed LKR 80,000. Please verify the amount and try again.', 'error');
+            return;
+        }
+
+        // 5. Max 2 decimal places
+        if (!/^\d+(\.\d{1,2})?$/.test(amount.trim())) {
+            showAlert('Invalid Amount', 'Amount can have at most 2 decimal places (e.g. 1500 or 1500.50).', 'error');
+            return;
+        }
+
+        // 6. File type validation
+        if (file.type && !ALLOWED_FILE_TYPES.includes(file.type.toLowerCase())) {
+            showAlert('Unsupported File Type', 'Only JPG, PNG, or PDF files are accepted as receipts.', 'error');
+            return;
+        }
+
+        // 7. File size validation (5 MB max)
+        if (file.size && file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+            showAlert('File Too Large', `Your receipt file exceeds the ${MAX_FILE_SIZE_MB}MB limit. Please upload a smaller file.`, 'error');
             return;
         }
 
@@ -140,10 +186,15 @@ export default function UploadPayment() {
     };
 
     return (
-        <SafeAreaView style={styles.safeArea}>
-            <View style={styles.container}>
-                {/* Top App Bar */}
-                
+        <View style={styles.container}>
+            <LinearGradient
+                colors={['#dbe1ff', '#faf8ff']}
+                style={StyleSheet.absoluteFill}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+            />
+            {/* Top Navigation Anchor */}
+            <Header />
 
                 <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} bounces={false}>
                     {/* Header Section */}
@@ -284,7 +335,6 @@ export default function UploadPayment() {
                         )}
                     </TouchableOpacity>
                 </View>
-            </View>
 
             {/* Custom Alert Modal */}
             <Modal transparent visible={alertConfig.visible} animationType="fade">
@@ -343,33 +393,13 @@ export default function UploadPayment() {
                     </View>
                 </View>
             </Modal>
-        </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.surface },
-    container: { flex: 1, backgroundColor: Colors.surface },
+    container: { flex: 1, backgroundColor: Colors.surfaceContainerLow },
     
-    topAppBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: Spacing.four,
-        height: 60,
-        backgroundColor: Colors.surface,
-    },
-    appBarBtn: {
-        width: 40, height: 40,
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-    },
-    topAppTitle: {
-        fontFamily: Fonts.bodySemiBold,
-        fontSize: 16,
-        color: Colors.onSurface,
-    },
-
     content: { padding: Spacing.four, paddingBottom: 120, flexGrow: 1 },
     
     headerSection: {
