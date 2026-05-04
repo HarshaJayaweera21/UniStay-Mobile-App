@@ -269,8 +269,6 @@ export default function ManagerPayments() {
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
             />
-            {/* Top Navigation Anchor */}
-            <Header />
 
             {error ? (
                 <View style={styles.centerContainer}>
