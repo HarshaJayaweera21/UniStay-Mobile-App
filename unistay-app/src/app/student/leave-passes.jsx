@@ -7,6 +7,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import BottomNav from '@/components/BottomNav';
+import Header from '@/components/Header';
 import { getItem } from '@/utils/storage';
 import { API_URL } from '@/constants/api';
 
@@ -275,18 +276,12 @@ export default function LeavePasses() {
                 />
             </View>
 
-            {/* Fixed Back Button */}
-            <View style={styles.topNav}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
-                    <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
-                </TouchableOpacity>
-            </View>
+            <Header />
 
             <View style={styles.contentWrapper}>
                 {/* Header Layer */}
                 <View style={styles.headerRow}>
                     <View>
-                        <Text style={styles.headerLabel}>UNISTAY MANAGEMENT</Text>
                         <Text style={styles.headerTitle}>Leave{'\n'}Passes</Text>
                     </View>
                     <TouchableOpacity style={styles.requestButton} activeOpacity={0.8} onPress={() => router.push('/student/leave-request')}>
@@ -523,7 +518,7 @@ const styles = StyleSheet.create({
     },
     contentWrapper: {
         flex: 1,
-        paddingTop: 120, // Increased to clear the new back button
+        paddingTop: 16,
         paddingHorizontal: Spacing.four,
     },
     headerRow: {
@@ -531,14 +526,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'flex-end',
         marginBottom: 40,
-    },
-    headerLabel: {
-        fontFamily: Fonts.bodyBold,
-        fontSize: 10,
-        color: 'rgba(238, 239, 255, 0.7)',
-        textTransform: 'uppercase',
-        letterSpacing: 2,
-        marginBottom: Spacing.one
     },
     headerTitle: {
         fontFamily: Fonts.headlineExtraBold,

@@ -7,6 +7,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { API_URL } from '@/constants/api';
 import BottomNav from '@/components/BottomNav';
+import Header from '@/components/Header';
 
 export default function ViewAnnouncementsScreen() {
     const router = useRouter();
@@ -33,14 +34,14 @@ export default function ViewAnnouncementsScreen() {
 
     const handleOpenPDF = async (url) => {
         if (!url) return;
-        
+
         const finalUrl = url.includes('/upload/') ? url.replace('/upload/', '/upload/fl_attachment/') : url;
-        
+
         if (Platform.OS === 'web') {
             try {
                 const response = await fetch(finalUrl);
                 const blob = await response.blob();
-                
+
                 const downloadUrl = window.URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = downloadUrl;
@@ -48,7 +49,7 @@ export default function ViewAnnouncementsScreen() {
                 document.body.appendChild(link);
                 link.click();
                 link.remove();
-                
+
                 window.URL.revokeObjectURL(downloadUrl);
             } catch (error) {
                 console.error("Strict download failed, falling back to openURL", error);
@@ -67,18 +68,15 @@ export default function ViewAnnouncementsScreen() {
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
             />
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
-                    <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Announcements</Text>
-                <View style={{ width: 40 }} />
+            <Header />
+            <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
+                <Text style={styles.headerTitle}>ANNOUNCEMENTS</Text>
+                <Text style={[styles.description, { marginTop: 4 }]}>
+                    Stay updated with the latest news and notices.
+                </Text>
             </View>
 
             <ScrollView contentContainerStyle={styles.content}>
-                <Text style={styles.description}>
-                    Stay updated with the latest news and notices.
-                </Text>
 
                 {isLoading ? (
                     <View style={styles.loadingContainer}>
@@ -100,10 +98,10 @@ export default function ViewAnnouncementsScreen() {
                             <Text style={styles.cardBody}>
                                 {item.message}
                             </Text>
-                            
+
                             {item.pdfUrl && (
-                                <TouchableOpacity 
-                                    style={styles.pdfButton} 
+                                <TouchableOpacity
+                                    style={styles.pdfButton}
                                     onPress={() => handleOpenPDF(item.pdfUrl)}
                                 >
                                     <MaterialIcons name="picture-as-pdf" size={20} color={Colors.primary} />
@@ -115,10 +113,10 @@ export default function ViewAnnouncementsScreen() {
                             <View style={styles.cardFooter}>
                                 <MaterialIcons name="event" size={16} color={Colors.outline} />
                                 <Text style={styles.dateText}>
-                                    {new Date(item.createdAt).toLocaleDateString(undefined, { 
-                                        year: 'numeric', 
-                                        month: 'long', 
-                                        day: 'numeric' 
+                                    {new Date(item.createdAt).toLocaleDateString(undefined, {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
                                     })}
                                 </Text>
                             </View>
@@ -136,13 +134,13 @@ const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: Colors.surfaceContainerLow },
     header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.four, paddingTop: 60, paddingBottom: Spacing.three, backgroundColor: 'rgba(250, 248, 255, 0.8)', zIndex: 50 },
     backButton: { padding: 8, borderRadius: Radius.full, backgroundColor: '#f3f3fe' },
-    headerTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 18, color: Colors.onSurface, letterSpacing: -0.5 },
+    headerTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 25, color: Colors.onSurface, letterSpacing: -0.5 },
     content: { padding: Spacing.four, paddingBottom: 100 },
-    description: { fontFamily: Fonts.bodyMedium, fontSize: 15, color: Colors.onSurfaceVariant, marginBottom: Spacing.six },
-    
+    description: { fontFamily: Fonts.bodyMedium, fontSize: 15, color: Colors.onSurfaceVariant, marginBottom: Spacing.two },
+
     loadingContainer: { alignItems: 'center', justifyContent: 'center', marginTop: Spacing.eight },
     loadingText: { fontFamily: Fonts.bodyMedium, color: Colors.onSurfaceVariant, marginTop: Spacing.four },
-    
+
     emptyContainer: { alignItems: 'center', justifyContent: 'center', marginTop: Spacing.eight },
     emptyText: { fontFamily: Fonts.bodyMedium, fontSize: 16, color: Colors.outline, marginTop: Spacing.four, textAlign: 'center' },
 
@@ -150,7 +148,7 @@ const styles = StyleSheet.create({
     cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.two, gap: Spacing.two },
     cardTitle: { fontFamily: Fonts.headline, fontSize: 18, color: Colors.onSurface, flex: 1 },
     cardBody: { fontFamily: Fonts.bodyMedium, fontSize: 15, color: Colors.onSurfaceVariant, marginBottom: Spacing.four, lineHeight: 22 },
-    
+
     pdfButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.primaryContainer, padding: Spacing.three, borderRadius: Radius.md, marginBottom: Spacing.four, gap: Spacing.two },
     pdfButtonText: { fontFamily: Fonts.bodyMedium, color: Colors.onPrimaryContainer },
 

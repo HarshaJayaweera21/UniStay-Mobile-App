@@ -168,17 +168,16 @@ export default function GuardDashboard() {
             <View style={[styles.glowOrb, { bottom: '-10%', left: '-10%', backgroundColor: 'rgba(172, 191, 255, 0.1)' }]} />
 
             <View style={styles.contentWrap}>
-                {/* Back Button */}
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
-                    <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
-                </TouchableOpacity>
-
                 {/* Header Block */}
                 <View style={styles.header}>
-                    <View>
-                        <Text style={styles.title}>Scan QR Code</Text>
-                        <Text style={styles.subtitle}>{currentDateString}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 16 }}>
+                        {/* Back Button */}
+                        <TouchableOpacity onPress={() => router.back()} style={[styles.backButton, { marginBottom: 0 }]} activeOpacity={0.7}>
+                            <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
+                        </TouchableOpacity>
+                        <Text style={[styles.title, { marginBottom: 0 }]}>Scan QR Code</Text>
                     </View>
+                    <Text style={styles.subtitle}>{currentDateString}</Text>
                 </View>
 
                 {/* Center Scanner View Area */}
@@ -358,7 +357,7 @@ export default function GuardDashboard() {
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#004ac6' },
     contentWrap: { flex: 1, paddingHorizontal: 32, paddingTop: 80, paddingBottom: 100, zIndex: 10 },
-    backButton: { padding: 8, borderRadius: Radius.full, backgroundColor: '#f3f3fe', alignSelf: 'flex-start', marginBottom: Spacing.three },
+    backButton: { padding: 8, borderRadius: Radius.full, backgroundColor: '#f3f3fe', marginBottom: Spacing.three },
     
     // Fallback native glow emulations instead of CSS filters
     glowOrb: { position: 'absolute', width: '60%', height: '60%', borderRadius: 999, opacity: 0.6 },

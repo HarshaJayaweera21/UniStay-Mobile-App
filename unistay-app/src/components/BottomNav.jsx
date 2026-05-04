@@ -38,8 +38,8 @@ export default function BottomNav({ activeTab = 'home', onTabPress }) {
     }
 
     const handlePress = async (id) => {
-        if(onTabPress) onTabPress(id);
-        
+        if (onTabPress) onTabPress(id);
+
         const currentRole = userRole || await getItem('userRole');
 
         if (id === 'scanner') {
@@ -74,20 +74,20 @@ export default function BottomNav({ activeTab = 'home', onTabPress }) {
     };
 
     return (
-        <View style={[styles.navContainer, tabs.length <= 3 && { justifyContent: 'space-evenly' }]}>
+        <View style={styles.navContainer}>
             {tabs.map((tab) => {
                 const isActive = activeTab === tab.id;
                 return (
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         key={tab.id}
                         style={[styles.navItem, isActive && styles.navItemActive]}
                         onPress={() => handlePress(tab.id)}
                         activeOpacity={0.7}
                     >
-                        <MaterialIcons 
-                            name={tab.icon} 
-                            size={28} 
-                            color={isActive ? Colors.primary : 'rgba(25, 27, 35, 0.4)'} 
+                        <MaterialIcons
+                            name={tab.icon}
+                            size={28}
+                            color={isActive ? Colors.primary : 'rgba(25, 27, 35, 0.4)'}
                         />
                     </TouchableOpacity>
                 );
@@ -101,6 +101,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 0,
         width: '100%',
+        height: Platform.OS === 'ios' ? 86 : 72,
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
