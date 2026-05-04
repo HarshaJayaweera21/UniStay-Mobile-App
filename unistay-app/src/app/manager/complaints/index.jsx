@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     },
     listContent: {
         padding: Spacing.four,
-        paddingBottom: Spacing.eight,
+        paddingBottom: 120,
     },
     complaintCard: {
         backgroundColor: Colors.surfaceContainerLowest,

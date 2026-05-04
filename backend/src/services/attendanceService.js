@@ -20,6 +20,9 @@ const verifyQRService = async (qrData) => {
     const student = qr.student;
     const now = new Date();
 
+    const lastLog = await AttendanceLog.findOne({ student: student._id }).sort({ timestamp: -1 });
+    const lastScanType = lastLog ? lastLog.type : null;
+
     const hours = now.getHours();
     const isAllowedTime = hours >= 6 && hours < 18;
 
@@ -55,7 +58,8 @@ const verifyQRService = async (qrData) => {
             studentName: `${student.firstName} ${student.lastName}`,
             timestamp: now,
             isAllowedTime,
-            accessGranted
+            accessGranted,
+            lastScanType
         }
     };
 };
@@ -85,6 +89,11 @@ const scanQRService = async (data) => {
 
     const student = qr.student;
     const now = new Date();
+
+    const lastLog = await AttendanceLog.findOne({ student: student._id }).sort({ timestamp: -1 });
+    if (lastLog && lastLog.type === type) {
+        throw new Error(`Student cannot ${type} consecutively. Last record was also an ${lastLog.type}.`);
+    }
 
     // Check if current time is within allowed hours (6AM - 6PM)
     const hours = now.getHours();

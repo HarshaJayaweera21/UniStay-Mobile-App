@@ -404,11 +404,11 @@ const styles = StyleSheet.create({
 
     // Overlay Modal Wrapper Objects
     modalBackdrop: { flex: 1, backgroundColor: 'rgba(25, 27, 35, 0.6)', justifyContent: 'center', alignItems: 'center', padding: Spacing.four },
-    modalContent: { width: '100%', maxWidth: 500, backgroundColor: Colors.surfaceContainerLowest, borderRadius: 28, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1, shadowRadius: 30, elevation: 10 },
+    modalContent: { width: '100%', maxWidth: 500, maxHeight: '85%', backgroundColor: Colors.surfaceContainerLowest, borderRadius: 28, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1, shadowRadius: 30, elevation: 10 },
     modalHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: Spacing.five, paddingTop: Spacing.five, paddingBottom: Spacing.two },
     modalHeaderLabel: { fontFamily: Fonts.label, fontSize: 10, color: Colors.onSurfaceVariant, fontWeight: 'bold', letterSpacing: 2, textTransform: 'uppercase' },
     closeBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: Colors.surfaceContainerHigh, alignItems: 'center', justifyContent: 'center' },
-    modalScrollFlow: { paddingHorizontal: Spacing.five, paddingBottom: Spacing.five, maxHeight: 500 },
+    modalScrollFlow: { paddingHorizontal: Spacing.five, paddingBottom: Spacing.five },
     
     studentWrapInfo: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.five },
     studentBaseImgWrapper: { position: 'relative', marginRight: Spacing.three },
