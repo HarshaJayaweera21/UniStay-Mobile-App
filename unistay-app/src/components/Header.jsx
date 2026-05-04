@@ -156,9 +156,8 @@ export default function Header({ showBackButton: forceShowBackButton }) {
                     { label: 'Dashboard', icon: 'dashboard', path: '/manager' },
                     { label: 'Room Management', icon: 'meeting-room', path: '/manager/room-index' },
                     { label: 'Room Requests', icon: 'list-alt', path: '/manager/requests', badge: hasActiveRequest ? '1' : null },
-                    { label: 'Payments', icon: 'payment', path: '/manager/payments' },
-                    { label: 'Complaints', icon: 'report-problem', path: '/manager/complaints' },
-                    { label: 'Announcements', icon: 'campaign', path: '/announcements/manage' },
+                    { label: 'Payments', icon: 'payment', path: '/manager/payments' }
+                    
                 ];
             case 'admin':
                 return [
