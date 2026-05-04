@@ -21,6 +21,8 @@ export default function ManagerLayout() {
             <Stack.Screen name="room-details" />
             <Stack.Screen name="leave-requests" />
             <Stack.Screen name="leave-history" />
+            <Stack.Screen name="profile" options={{ headerShown: false }} />
+            <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
         </Stack>
     );
 }

@@ -22,7 +22,7 @@ import useAuth from '@/hooks/useAuth';
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const DRAWER_WIDTH = 320;
 
-export default function Header() {
+export default function Header({ showBackButton: forceShowBackButton }) {
     const router = useRouter();
     const pathname = usePathname();
     const { user, logout } = useAuth();
@@ -156,7 +156,6 @@ export default function Header() {
                     { label: 'Dashboard', icon: 'dashboard', path: '/manager' },
                     { label: 'Room Management', icon: 'meeting-room', path: '/manager/room-index' },
                     { label: 'Room Requests', icon: 'list-alt', path: '/manager/requests', badge: hasActiveRequest ? '1' : null },
-                    { label: 'Residents', icon: 'people', path: '/manager/residents' },
                     { label: 'Payments', icon: 'payment', path: '/manager/payments' },
                     { label: 'Complaints', icon: 'report-problem', path: '/manager/complaints' },
                     { label: 'Announcements', icon: 'campaign', path: '/announcements/manage' },
@@ -194,7 +193,7 @@ export default function Header() {
         '/admin', '/guard'
     ].includes(pathname);
 
-    const showBackButton = router.canGoBack() && !isRootScreen;
+    const showBackButton = forceShowBackButton !== undefined ? forceShowBackButton : (router.canGoBack() && !isRootScreen);
 
     return (
         <>

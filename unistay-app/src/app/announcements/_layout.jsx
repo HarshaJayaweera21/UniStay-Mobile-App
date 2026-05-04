@@ -6,7 +6,7 @@ export default function AnnouncementsLayout() {
     return (
         <Stack
             screenOptions={{
-                header: () => <Header />,
+                header: () => <Header showBackButton={true} />,
                 headerShown: true,
                 contentStyle: { backgroundColor: '#faf8ff' },
                 animation: 'slide_from_right',
