@@ -131,15 +131,8 @@ export default function ManagerComplaintList() {
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <Pressable 
-                    onPress={() => router.back()} 
-                    style={styles.backButton}
-                >
-                    <Ionicons name="arrow-back" size={24} color={Colors.onSurface} />
-                </Pressable>
+            <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
                 <Text style={styles.headerTitle}>All Complaints</Text>
-                <View style={styles.placeholder} />
             </View>
 
             <View style={styles.filterContainer}>
