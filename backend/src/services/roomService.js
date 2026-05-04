@@ -1,7 +1,7 @@
 const Room = require("../models/Room");
 const cloudinary = require("../config/cloudinary");
 
-// Helper function to stream upload to Cloudinary
+
 const streamUpload = (fileBuffer, options) => {
     return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(options, (error, result) => {

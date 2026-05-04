@@ -384,11 +384,11 @@ const styles = StyleSheet.create({
     rejectBtn: { flex: 1, paddingVertical: 14, borderRadius: Radius.xl, backgroundColor: Colors.surfaceContainerHigh, alignItems: 'center' },
     rejectBtnText: { fontFamily: Fonts.headline, fontSize: 15, color: Colors.onSurfaceVariant },
     verifyBtn: { flex: 1, paddingVertical: 14, borderRadius: Radius.xl, backgroundColor: '#16a34a', alignItems: 'center' },
-    verifyBtnText: { fontFamily: Fonts.headline, fontSize: 15, color: '#fff' },
+    verifyBtnText: { fontFamily: Fonts.headline, fontSize: 15, color: '#fff',textAlign:'center' },
 
     globalRejectBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, padding: Spacing.three, marginTop: Spacing.two },
     globalRejectText: { fontFamily: Fonts.bodySemiBold, fontSize: 15, color: Colors.error },
     
     deleteCardBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, padding: Spacing.four, backgroundColor: `${Colors.error}10`, borderRadius: Radius.xl, marginTop: Spacing.four, borderWidth: 1, borderColor: `${Colors.error}20` },
-    deleteCardBtnText: { fontFamily: Fonts.headline, fontSize: 16, color: Colors.error },
+    deleteCardBtnText: { fontFamily: Fonts.headline, fontSize: 16, color: Colors.error ,textAlign:'center'},
 });

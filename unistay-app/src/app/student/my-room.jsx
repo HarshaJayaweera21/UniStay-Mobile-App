@@ -142,7 +142,13 @@ export default function MyRoomRequest() {
     if (!request) {
         return (
             <SafeAreaView style={styles.safeArea}>
-                
+                <View style={styles.topAppBar}>
+                    <TouchableOpacity style={styles.appBarBtn} onPress={() => router.back()}>
+                        <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
+                    </TouchableOpacity>
+                    <Text style={styles.topAppTitle}>My Room Request</Text>
+                    <View style={styles.appBarBtn} />
+                </View>
                 <View style={styles.noRequestContainer}>
                     <MaterialIcons name="event-busy" size={64} color={Colors.outlineVariant} />
                     <Text style={styles.noRequestTitle}>No Active Request</Text>
@@ -167,7 +173,13 @@ export default function MyRoomRequest() {
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
-                
+                <View style={styles.topAppBar}>
+                    <TouchableOpacity style={styles.appBarBtn} onPress={() => router.back()}>
+                        <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
+                    </TouchableOpacity>
+                    <Text style={styles.topAppTitle}>My Room Request</Text>
+                    <View style={styles.appBarBtn} />
+                </View>
 
                 <ScrollView contentContainerStyle={styles.content}>
                     {/* Status Card */}
