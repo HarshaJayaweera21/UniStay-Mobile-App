@@ -96,9 +96,9 @@ export default function EditRoomScreen() {
 
     const validate = () => {
         const newErrors = {};
-        if (!formData.roomNumber.trim()) newErrors.roomNumber = 'Room number is required';
-        if (!formData.pricePerMonth || Number(formData.pricePerMonth) <= 0) newErrors.pricePerMonth = 'Enter a valid price';
-        if (!formData.capacity || Number(formData.capacity) <= 0) newErrors.capacity = 'Enter a valid capacity';
+        if (!formData.pricePerMonth || Number(formData.pricePerMonth) <= 0 || Number(formData.pricePerMonth) > 30000) newErrors.pricePerMonth = 'Price must be between 1 and 30,000';
+        if (!formData.capacity || Number(formData.capacity) <= 0 || Number(formData.capacity) > 3) newErrors.capacity = 'Capacity must be 1, 2, or 3';
+        if (formData.description && formData.description.length > 200) newErrors.description = 'Max 200 characters';
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -231,20 +231,18 @@ export default function EditRoomScreen() {
 
                     {/* Form */}
                     <View style={styles.formCard}>
-                        {/* Room Number */}
+                        {/* Room Number (Disabled) */}
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>ROOM NUMBER</Text>
-                            <View style={[styles.inputContainer, !!errors.roomNumber && styles.inputError]}>
+                            <View style={[styles.inputContainer, styles.disabledInput]}>
                                 <MaterialIcons name="meeting-room" size={20} color={Colors.outline} style={styles.inputIcon} />
                                 <TextInput
-                                    style={styles.input}
-                                    placeholder="e.g. A101"
-                                    placeholderTextColor={Colors.outline}
+                                    style={[styles.input, { color: Colors.outline }]}
                                     value={formData.roomNumber}
-                                    onChangeText={(v) => handleChange('roomNumber', v)}
+                                    editable={false}
                                 />
                             </View>
-                            {!!errors.roomNumber && <Text style={styles.errorText}>{errors.roomNumber}</Text>}
+                            <Text style={styles.hintText}>Room number cannot be changed</Text>
                         </View>
 
                         {/* Room Type */}
@@ -271,7 +269,7 @@ export default function EditRoomScreen() {
                             </View>
                         </View>
 
-                        {/* Room Gender */}
+                        {/* Room Gender (Disabled) */}
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>ASSIGNED GENDER</Text>
                             <View style={styles.typeSelector}>
@@ -281,9 +279,9 @@ export default function EditRoomScreen() {
                                         style={[
                                             styles.typeOption,
                                             formData.gender === g ? styles.typeOptionActive : null,
-                                            { flexDirection: 'row', gap: 6 }
+                                            { flexDirection: 'row', gap: 6, opacity: 0.6 }
                                         ]}
-                                        onPress={() => handleChange('gender', g)}
+                                        disabled={true}
                                     >
                                         <MaterialIcons 
                                             name={g === 'male' ? 'man' : 'woman'} 
@@ -300,6 +298,7 @@ export default function EditRoomScreen() {
                                     </TouchableOpacity>
                                 ))}
                             </View>
+                            <Text style={styles.hintText}>Assigned gender cannot be changed</Text>
                         </View>
 
                         {/* Price & Capacity Row */}
@@ -323,16 +322,20 @@ export default function EditRoomScreen() {
                             <View style={{ width: 12 }} />
 
                             <View style={[styles.inputGroup, { flex: 1 }]}>
-                                <Text style={styles.label}>CAPACITY</Text>
+                                <Text style={styles.label}>CAPACITY (Max 3)</Text>
                                 <View style={[styles.inputContainer, !!errors.capacity && styles.inputError]}>
                                     <MaterialIcons name="people" size={20} color={Colors.outline} style={styles.inputIcon} />
                                     <TextInput
                                         style={styles.input}
-                                        placeholder="2"
+                                        placeholder="1-3"
                                         placeholderTextColor={Colors.outline}
                                         keyboardType="numeric"
-                                        value={formData.capacity}
-                                        onChangeText={(v) => handleChange('capacity', v)}
+                                        value={formData.capacity ? String(formData.capacity) : ''}
+                                        onChangeText={(v) => {
+                                            const num = v.replace(/[^1-3]/g, '');
+                                            handleChange('capacity', num.slice(0, 1));
+                                        }}
+                                        maxLength={1}
                                     />
                                 </View>
                                 {!!errors.capacity && <Text style={styles.errorText}>{errors.capacity}</Text>}
@@ -342,7 +345,7 @@ export default function EditRoomScreen() {
                         {/* Description */}
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>DESCRIPTION</Text>
-                            <View style={styles.inputContainer}>
+                            <View style={[styles.inputContainer, (formData.description?.length || 0) > 200 && styles.inputError]}>
                                 <TextInput
                                     style={[styles.input, styles.textArea]}
                                     placeholder="Room description, amenities, etc."
@@ -352,8 +355,13 @@ export default function EditRoomScreen() {
                                     textAlignVertical="top"
                                     value={formData.description}
                                     onChangeText={(v) => handleChange('description', v)}
+                                    maxLength={200}
                                 />
                             </View>
+                            <Text style={[styles.charCounter, (formData.description?.length || 0) >= 180 && { color: Colors.error }]}>
+                                {formData.description?.length || 0}/200
+                            </Text>
+                            {!!errors.description && <Text style={styles.errorText}>{errors.description}</Text>}
                         </View>
                     </View>
 
@@ -576,5 +584,23 @@ const styles = StyleSheet.create({
         fontFamily: Fonts.headline,
         fontSize: 17,
         color: '#fff',
+    },
+    disabledInput: {
+        backgroundColor: Colors.surfaceVariant,
+        borderColor: Colors.outlineVariant,
+        opacity: 0.8,
+    },
+    hintText: {
+        fontFamily: Fonts.bodyMedium,
+        fontSize: 11,
+        color: Colors.outline,
+        marginTop: 4,
+    },
+    charCounter: {
+        fontFamily: Fonts.bodyMedium,
+        fontSize: 11,
+        color: Colors.outline,
+        textAlign: 'right',
+        marginTop: 4,
     },
 });

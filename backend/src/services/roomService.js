@@ -29,26 +29,46 @@ const createRoomService = async (data, file) => {
         throw new Error("Gender must be male or female");
     }
 
+    // Validate room number format: A/B + floor(1-7) + room(01-20)
+    const roomNumberRegex = /^[AB][1-7](0[1-9]|1[0-9]|20)$/;
+    if (!roomNumberRegex.test(roomNumber)) {
+        throw new Error("Room number must follow format: A/B + floor(1-7) + room(01-20). Example: A101, B315");
+    }
+
+    // Validate building-gender consistency: A = male, B = female
+    const building = roomNumber.charAt(0);
+    if (building === 'A' && gender !== 'male') {
+        throw new Error("Building A is for male rooms only");
+    }
+    if (building === 'B' && gender !== 'female') {
+        throw new Error("Building B is for female rooms only");
+    }
+
     // Validate roomType
     const allowedTypes = ["Single", "Double", "Triple"];
     if (!allowedTypes.includes(roomType)) {
         throw new Error("Room type must be Single, Double, or Triple");
     }
 
-    // Validate price
-    if (pricePerMonth <= 0) {
-        throw new Error("Price per month must be greater than 0");
+    // Validate price (max 30000)
+    if (pricePerMonth <= 0 || pricePerMonth > 30000) {
+        throw new Error("Price per month must be between 1 and 30,000");
     }
 
-    // Validate capacity
-    if (capacity <= 0) {
-        throw new Error("Capacity must be greater than 0");
+    // Validate capacity (max 3)
+    if (capacity <= 0 || capacity > 3) {
+        throw new Error("Capacity must be between 1 and 3");
     }
 
     // Check if room number already exists
     const existingRoom = await Room.findOne({ roomNumber });
     if (existingRoom) {
         throw new Error("Room number already exists");
+    }
+
+    // Validate description length
+    if (description && description.length > 200) {
+        throw new Error("Description cannot exceed 200 characters");
     }
 
     // Upload image to Cloudinary if provided
@@ -119,12 +139,12 @@ const updateRoomService = async (id, data, file) => {
         throw new Error("Room not found");
     }
 
-    // Check for duplicate room number if it's being changed
+    // Room number and gender cannot be changed after creation
     if (data.roomNumber && data.roomNumber !== room.roomNumber) {
-        const existingRoom = await Room.findOne({ roomNumber: data.roomNumber });
-        if (existingRoom) {
-            throw new Error("Room number already exists");
-        }
+        throw new Error("Room number cannot be changed after creation");
+    }
+    if (data.gender && data.gender !== room.gender) {
+        throw new Error("Assigned gender cannot be changed after creation");
     }
 
     // Validate roomType if provided
@@ -140,14 +160,19 @@ const updateRoomService = async (id, data, file) => {
         throw new Error("Gender must be male or female");
     }
 
-    // Validate price if provided
-    if (data.pricePerMonth !== undefined && data.pricePerMonth <= 0) {
-        throw new Error("Price per month must be greater than 0");
+    // Validate price if provided (max 30000)
+    if (data.pricePerMonth !== undefined && (data.pricePerMonth <= 0 || data.pricePerMonth > 30000)) {
+        throw new Error("Price per month must be between 1 and 30,000");
     }
 
-    // Validate capacity if provided
-    if (data.capacity !== undefined && data.capacity <= 0) {
-        throw new Error("Capacity must be greater than 0");
+    // Validate capacity if provided (max 3)
+    if (data.capacity !== undefined && (data.capacity <= 0 || data.capacity > 3)) {
+        throw new Error("Capacity must be between 1 and 3");
+    }
+
+    // Validate description length if provided
+    if (data.description !== undefined && data.description.length > 200) {
+        throw new Error("Description cannot exceed 200 characters");
     }
 
     // Upload new image to Cloudinary if provided

@@ -15,6 +15,10 @@ const createRoomRequest = async (req, res) => {
             return res.status(400).json({ success: false, message: "Room ID and duration are required." });
         }
 
+        if (durationInMonths < 1 || durationInMonths > 12) {
+            return res.status(400).json({ success: false, message: "Duration must be between 1 and 12 months." });
+        }
+
         // Check if student already has an active request
         const existingRequest = await RoomRequest.findOne({
             studentId,

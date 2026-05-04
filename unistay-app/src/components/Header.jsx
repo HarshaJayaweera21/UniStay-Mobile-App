@@ -13,6 +13,7 @@ import {
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { Image } from 'expo-image';
 import { useRouter, usePathname } from 'expo-router';
 import { deleteItem, getItem } from '@/utils/storage';
 import { API_URL } from '@/constants/api';
@@ -224,7 +225,15 @@ export default function Header() {
                         style={styles.avatarContainer}
                         onPress={openDrawer}
                     >
-                        <Text style={styles.avatarText}>{getInitials()}</Text>
+                        {userData?.profilePicture ? (
+                            <Image 
+                                source={{ uri: userData.profilePicture }} 
+                                style={{ width: '100%', height: '100%', borderRadius: 20 }} 
+                                contentFit="cover"
+                            />
+                        ) : (
+                            <Text style={styles.avatarText}>{getInitials()}</Text>
+                        )}
                     </TouchableOpacity>
                 </View>
             </View>
@@ -254,7 +263,15 @@ export default function Header() {
                         {/* Profile Section */}
                         <View style={styles.drawerProfileSection}>
                             <View style={styles.drawerAvatar}>
-                                <Text style={styles.drawerAvatarText}>{getInitials()}</Text>
+                                {userData?.profilePicture ? (
+                                    <Image 
+                                        source={{ uri: userData.profilePicture }} 
+                                        style={{ width: '100%', height: '100%', borderRadius: 16 }} 
+                                        contentFit="cover"
+                                    />
+                                ) : (
+                                    <Text style={styles.drawerAvatarText}>{getInitials()}</Text>
+                                )}
                             </View>
                             <View style={styles.drawerProfileRow}>
                                 <View style={styles.drawerProfileInfo}>
