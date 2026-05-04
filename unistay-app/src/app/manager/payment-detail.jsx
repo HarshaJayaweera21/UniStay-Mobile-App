@@ -22,6 +22,7 @@ import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { PAYMENTS_URL, API_URL } from '@/constants/api';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { WebView } from 'react-native-webview';
+import Header from '@/components/Header';
 
 const STATUS_UI = {
     Pending: { bg: '#FFF3E0', text: '#E65100', dot: '#FFB74D' },
@@ -267,8 +268,8 @@ export default function PaymentDetail() {
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            {/* Top App Bar */}
-            
+            {/* Top Navigation Anchor */}
+            <Header />
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 
@@ -523,18 +524,6 @@ const styles = StyleSheet.create({
     centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     errorText: { fontFamily: Fonts.bodyMedium, fontSize: 16, color: Colors.onSurfaceVariant },
     
-    topAppBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: Spacing.four,
-        paddingVertical: Spacing.four,
-        zIndex: 10,
-        backgroundColor: Colors.surface,
-    },
-    appBarBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-start' },
-    appBarTitle: { fontFamily: Fonts.headlineSemiBold, fontSize: 18, color: Colors.onSurface },
-
     scrollContent: { paddingHorizontal: Spacing.four, paddingBottom: 140 },
 
     headerSection: { marginBottom: Spacing.five },

@@ -12,6 +12,7 @@ import { PAYMENTS_URL } from '@/constants/api';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { TextInput } from 'react-native';
 import BottomNav from '@/components/BottomNav';
+import Header from '@/components/Header';
 import DateTimePicker from '@react-native-community/datetimepicker';
 const STATUS_COLORS = {
     Pending: { bg: '#FEF3C7', text: '#B45309' }, // Amber/Yellow
@@ -231,14 +232,8 @@ export default function StudentPayments() {
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
-                {/* Top App Bar */}
-                <View style={styles.topAppBar}>
-                    <TouchableOpacity style={styles.appBarBtn} onPress={() => router.back()} activeOpacity={0.7}>
-                        <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
-                    </TouchableOpacity>
-
-                    <View style={styles.appBarBtn} />
-                </View>
+                {/* Top Navigation Anchor */}
+                <Header />
 
                 {error ? (
                     <View style={styles.center}>
@@ -365,27 +360,6 @@ const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: Colors.surface },
     center: { flex: 1, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center' },
     loadText: { fontFamily: Fonts.bodyMedium, fontSize: 16, color: Colors.onSurfaceVariant, marginTop: Spacing.three },
-
-    topAppBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: Spacing.four,
-        height: 60,
-        backgroundColor: Colors.surface,
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(0,0,0,0.03)',
-    },
-    appBarBtn: {
-        width: 40, height: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    topAppTitle: {
-        fontFamily: Fonts.headlineExtraBold,
-        fontSize: 18,
-        color: Colors.primary,
-    },
 
     list: { padding: Spacing.four, paddingBottom: 160, flexGrow: 1 },
 

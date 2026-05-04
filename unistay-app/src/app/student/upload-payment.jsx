@@ -12,6 +12,7 @@ import { PAYMENTS_URL, PAYMENT_TYPES_URL, API_URL } from '@/constants/api';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
+import Header from '@/components/Header';
 
 export default function UploadPayment() {
     const router = useRouter();
@@ -142,8 +143,8 @@ export default function UploadPayment() {
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
-                {/* Top App Bar */}
-                
+                {/* Top Navigation Anchor */}
+                <Header />
 
                 <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} bounces={false}>
                     {/* Header Section */}
@@ -351,25 +352,6 @@ const styles = StyleSheet.create({
     safeArea: { flex: 1, backgroundColor: Colors.surface },
     container: { flex: 1, backgroundColor: Colors.surface },
     
-    topAppBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: Spacing.four,
-        height: 60,
-        backgroundColor: Colors.surface,
-    },
-    appBarBtn: {
-        width: 40, height: 40,
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-    },
-    topAppTitle: {
-        fontFamily: Fonts.bodySemiBold,
-        fontSize: 16,
-        color: Colors.onSurface,
-    },
-
     content: { padding: Spacing.four, paddingBottom: 120, flexGrow: 1 },
     
     headerSection: {

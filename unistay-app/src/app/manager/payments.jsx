@@ -12,6 +12,7 @@ import { PAYMENTS_URL } from '@/constants/api';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { TextInput } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import Header from '@/components/Header';
 const FILTERS = ['All', 'Pending', 'Approved', 'Rejected'];
 
 const STATUS_UI = {
@@ -261,6 +262,9 @@ export default function ManagerPayments() {
 
     return (
         <SafeAreaView style={styles.safeArea}>
+            {/* Top Navigation Anchor */}
+            <Header />
+
             {error ? (
                 <View style={styles.centerContainer}>
                     <MaterialIcons name="error-outline" size={48} color={Colors.error} />
@@ -394,15 +398,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: Spacing.four,
         paddingBottom: Spacing.four,
     },
-    topAppBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: Spacing.four,
-        marginBottom: Spacing.two,
-    },
-    backBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.surfaceContainerLowest, borderRadius: Radius.full, shadowColor: Colors.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, elevation: 2 },
-    headerTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 24, color: Colors.primary },
-    headerSubtitle: { fontFamily: Fonts.bodyMedium, fontSize: 13, color: Colors.onSurfaceVariant },
     adminAvatar: { width: 44, height: 44, backgroundColor: Colors.primaryFixed, borderRadius: Radius.full, justifyContent: 'center', alignItems: 'center' },
 
     bentoGrid: { gap: Spacing.three, marginBottom: Spacing.four },
