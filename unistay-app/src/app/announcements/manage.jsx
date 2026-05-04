@@ -7,6 +7,7 @@ import { Fonts, Spacing, Radius } from '@/constants/theme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { API_URL } from '@/constants/api';
 import BottomNav from '@/components/BottomNav';
+import Header from '@/components/Header';
 
 export default function ManageAnnouncementsScreen() {
     const router = useRouter();
@@ -158,10 +159,9 @@ export default function ManageAnnouncementsScreen() {
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.canGoBack() ? router.back() : router.replace('/')} style={styles.backButton}>
-                    <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
-                </TouchableOpacity>
+            <Header />
+            
+            <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
                 <Text style={styles.headerTitle}>Announcements</Text>
             </View>
 

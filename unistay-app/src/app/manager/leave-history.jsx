@@ -103,10 +103,7 @@ export default function ManagerLeaveHistory() {
             <View style={styles.contentWrap}>
                 {/* Fixed Header Construct mimicking History Mocks */}
                 <View style={styles.topNavRow}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
-                        <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
-                    </TouchableOpacity>
-                    <Text style={styles.mainTitle}>Reviewed Requests</Text>
+                    <Text style={[styles.mainTitle, { color: 'black' }]}>Reviewed Requests</Text>
                     <View style={{ width: 40 }} /> 
                 </View>
 

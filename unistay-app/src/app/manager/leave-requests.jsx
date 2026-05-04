@@ -99,8 +99,7 @@ export default function ManagerLeaveRequests() {
     const renderEmptyState = () => (
         <View style={styles.emptyContainer}>
             <View style={styles.emptyCard}>
-                <View style={[styles.blurLight, { top: -40, right: -40, backgroundColor: 'rgba(0, 74, 198, 0.1)' }]} />
-                <View style={[styles.blurLight, { bottom: -40, left: -40, backgroundColor: 'rgba(73, 92, 149, 0.1)' }]} />
+                {/* Decorations removed */}
                 
                 <View style={styles.checkWrap}>
                     <MaterialIcons name="check-circle" size={64} color={Colors.primary} />
@@ -236,30 +235,24 @@ export default function ManagerLeaveRequests() {
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.contentWrap}>
-                {/* Top Nav Row */}
-                <View style={styles.topNavRow}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
-                        <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
-                    </TouchableOpacity>
-                </View>
+                {/* Top Nav Row Removed */}
 
                 <View style={styles.headerStack}>
                     <Text style={styles.mainTitle}>Leave Pass Requests</Text>
-                    
-                    <TouchableOpacity 
-                        style={styles.historyButton} 
-                        activeOpacity={0.8}
-                        onPress={() => router.push('/manager/leave-history')}
-                    >
-                        <MaterialIcons name="history" size={18} color={Colors.onSecondaryContainer} />
-                        <Text style={styles.historyButtonText}>View History</Text>
-                    </TouchableOpacity>
 
                     <View style={styles.pillStack}>
                         <View style={styles.statusPillAlert}>
                             <Text style={styles.statusPillAlertText}>{pendingRequests.length} Pending</Text>
                         </View>
-                        <Text style={styles.portalTag}>UniStay Management</Text>
+                        
+                        <TouchableOpacity 
+                            style={styles.historyButton} 
+                            activeOpacity={0.8}
+                            onPress={() => router.push('/manager/leave-history')}
+                        >
+                            <MaterialIcons name="history" size={18} color={Colors.onSecondaryContainer} />
+                            <Text style={styles.historyButtonText}>View History</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
 
@@ -356,16 +349,16 @@ export default function ManagerLeaveRequests() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: Colors.surface },
-    contentWrap: { flexGrow: 1, paddingTop: 50, paddingHorizontal: Spacing.four },
+    contentWrap: { flexGrow: 1, paddingTop: 16, paddingHorizontal: Spacing.four },
     
     topNavRow: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.two },
     backButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(25, 27, 35, 0.05)', alignItems: 'center', justifyContent: 'center', marginLeft: -8 },
-    historyButton: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.secondaryContainer, paddingHorizontal: 16, paddingVertical: 10, borderRadius: Radius.lg, marginBottom: Spacing.four },
+    historyButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.secondaryContainer, paddingHorizontal: 16, paddingVertical: 10, borderRadius: Radius.lg },
     historyButtonText: { fontFamily: Fonts.bodyBold, fontSize: 13, color: Colors.onSecondaryContainer, marginLeft: 6 },
 
     headerStack: { marginBottom: Spacing.eight },
     mainTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 36, color: Colors.onSurface, marginBottom: Spacing.two, lineHeight: 42 },
-    pillStack: { flexDirection: 'row', alignItems: 'center' },
+    pillStack: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     statusPillAlert: { backgroundColor: Colors.primaryContainer, paddingHorizontal: 12, paddingVertical: 4, borderRadius: Radius.full, marginRight: Spacing.three },
     statusPillAlertText: { fontFamily: Fonts.label, fontSize: 10, color: Colors.onPrimaryContainer, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 1 },
     portalTag: { fontFamily: Fonts.label, fontSize: 12, color: Colors.onSurfaceVariant, fontWeight: '500' },
@@ -375,7 +368,7 @@ const styles = StyleSheet.create({
     emptyContainer: { flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingBottom: 110, paddingTop: 32 },
     emptyCard: { width: '100%', backgroundColor: Colors.surfaceContainerLowest, borderRadius: 32, padding: Spacing.八, paddingVertical: 60, alignItems: 'center', shadowColor: '#002a78', shadowOffset: { width: 0, height: 20 }, shadowOpacity: 0.03, shadowRadius: 50, elevation: 6, overflow: 'hidden' },
     blurLight: { position: 'absolute', width: 128, height: 128, borderRadius: 64 },
-    checkWrap: { width: 96, height: 96, borderRadius: 32, backgroundColor: Colors.surfaceContainerLow, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.six },
+    checkWrap: { width: 96, height: 96, borderRadius: 32, backgroundColor: Colors.surfaceContainerLow, alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
     emptyTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 28, color: Colors.onSurface, marginBottom: Spacing.two },
     emptySubtitle: { fontFamily: Fonts.bodyMedium, fontSize: 14, color: Colors.onSurfaceVariant, textAlign: 'center', maxWidth: 240, marginBottom: Spacing.six },
     updatedBanner: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.surfaceContainerHigh, padding: 6, paddingRight: 16, borderRadius: Radius.xl },

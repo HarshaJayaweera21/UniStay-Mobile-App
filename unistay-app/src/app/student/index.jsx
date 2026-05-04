@@ -298,9 +298,7 @@ export default function StudentDashboard() {
             <View style={styles.header}>
                 {dashboardState !== DASHBOARD_STATES.LOADING && (
                     <>
-                        {dashboardState === DASHBOARD_STATES.HAS_ROOM && (
-                            <Text style={styles.overlineHeader}>STUDENT PORTAL</Text>
-                        )}
+                        <Text style={styles.overlineHeader}>STUDENT PORTAL</Text>
                         <Text style={styles.headerTitle}>Welcome back{user?.firstName ? `, ${user.firstName}` : ''}.</Text>
                         <Text style={styles.headerSubtitle}>
                             {dashboardState === DASHBOARD_STATES.HAS_ROOM 
@@ -352,7 +350,7 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         padding: Spacing.four,
-        paddingTop: Platform.OS === 'ios' ? Spacing.six : Spacing.four,
+        paddingTop: 16,
         paddingBottom: 100,
     },
     loadingContainer: {
@@ -361,7 +359,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     header: {
-        marginTop: Spacing.four,
         marginBottom: Spacing.five,
         paddingHorizontal: Spacing.two,
     },
