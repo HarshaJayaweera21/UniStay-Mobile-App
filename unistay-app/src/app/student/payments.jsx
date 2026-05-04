@@ -208,14 +208,14 @@ export default function StudentPayments() {
                         <MaterialIcons name={getIconForType(item.paymentType?.name)} size={26} color={Colors.primary} />
                     </View>
                     <View style={styles.transactionTexts}>
-                        <Text style={styles.transactionTitle}>{item.paymentType?.name || 'Unknown'}</Text>
-                        <Text style={styles.transactionDate}>{formatDate(item.createdAt)}{item.roomId ? ` • Room ${item.roomId.roomNumber}` : ''}</Text>
+                        <Text style={styles.transactionTitle} numberOfLines={1}>{item.paymentType?.name || 'Unknown'}</Text>
+                        <Text style={styles.transactionDate} numberOfLines={1}>{formatDate(item.createdAt)}{item.roomId ? ` • Room ${item.roomId.roomNumber}` : ''}</Text>
                     </View>
                 </View>
 
                 <View style={styles.transactionRight}>
                     <View style={styles.amountContainer}>
-                        <Text style={styles.transactionAmount}>LKR {parseFloat(item.amount).toLocaleString()}</Text>
+                        <Text style={styles.transactionAmount} numberOfLines={1}>LKR {parseFloat(item.amount).toLocaleString()}</Text>
                         <View style={[styles.statusPill, { backgroundColor: sc.bg }]}>
                             <Text style={[styles.statusText, { color: sc.text }]}>{item.status}</Text>
                         </View>
@@ -489,6 +489,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flex: 1,
         gap: Spacing.three,
+        minWidth: 0,
     },
     iconBox: {
         width: 48,
@@ -516,9 +517,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: Spacing.three,
+        flexShrink: 0,
+        marginLeft: Spacing.two,
     },
     amountContainer: {
         alignItems: 'flex-end',
+        maxWidth: 130,
     },
     transactionAmount: {
         fontFamily: Fonts.headlineExtraBold,
