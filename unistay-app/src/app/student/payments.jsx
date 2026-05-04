@@ -1,9 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import {
     View, Text, StyleSheet, FlatList, TouchableOpacity,
-    ActivityIndicator, RefreshControl, SafeAreaView, ScrollView, Modal,
+    ActivityIndicator, RefreshControl, ScrollView, Modal,
     Platform, StatusBar
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { getItem } from '@/utils/storage';
 import { Colors } from '@/constants/colors';
@@ -230,10 +231,15 @@ export default function StudentPayments() {
     );
 
     return (
-        <SafeAreaView style={styles.safeArea}>
-            <View style={styles.container}>
-                {/* Top Navigation Anchor */}
-                <Header />
+        <View style={styles.container}>
+            <LinearGradient
+                colors={['#dbe1ff', '#faf8ff']}
+                style={StyleSheet.absoluteFill}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+            />
+            {/* Top Navigation Anchor */}
+            <Header />
 
                 {error ? (
                     <View style={styles.center}>
@@ -270,7 +276,7 @@ export default function StudentPayments() {
                 <TouchableOpacity style={styles.fab} activeOpacity={0.85} onPress={() => router.push('/student/upload-payment')}>
                     <MaterialIcons name="add" size={28} color={Colors.onPrimary} />
                 </TouchableOpacity>
-            </View>
+
             <BottomNav activeTab="payments" />
 
             <Modal visible={typeModalVisible} transparent animationType="slide">
@@ -351,13 +357,12 @@ export default function StudentPayments() {
                     </TouchableOpacity>
                 </TouchableOpacity>
             </Modal>
-        </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.surface },
-    container: { flex: 1, backgroundColor: Colors.surface },
+    container: { flex: 1, backgroundColor: Colors.surfaceContainerLow },
     center: { flex: 1, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center' },
     loadText: { fontFamily: Fonts.bodyMedium, fontSize: 16, color: Colors.onSurfaceVariant, marginTop: Spacing.three },
 

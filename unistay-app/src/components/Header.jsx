@@ -185,8 +185,8 @@ export default function Header() {
     const navItems = getNavItems();
 
     const isRootScreen = [
-        '/student', '/student/room-index', '/student/payments',
-        '/manager', '/manager/requests', '/manager/payments',
+        '/student', '/student/room-index',
+        '/manager', '/manager/requests',
         '/admin', '/guard'
     ].includes(pathname);
 

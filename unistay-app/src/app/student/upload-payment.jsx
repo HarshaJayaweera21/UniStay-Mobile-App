@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, TouchableOpacity, TextInput,
-    ActivityIndicator, Image, ScrollView, Platform, SafeAreaView, Modal,
+    ActivityIndicator, Image, ScrollView, Platform, Modal,
     StatusBar
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { getItem } from '@/utils/storage';
 import { Colors } from '@/constants/colors';
@@ -141,10 +142,15 @@ export default function UploadPayment() {
     };
 
     return (
-        <SafeAreaView style={styles.safeArea}>
-            <View style={styles.container}>
-                {/* Top Navigation Anchor */}
-                <Header />
+        <View style={styles.container}>
+            <LinearGradient
+                colors={['#dbe1ff', '#faf8ff']}
+                style={StyleSheet.absoluteFill}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+            />
+            {/* Top Navigation Anchor */}
+            <Header />
 
                 <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} bounces={false}>
                     {/* Header Section */}
@@ -285,7 +291,6 @@ export default function UploadPayment() {
                         )}
                     </TouchableOpacity>
                 </View>
-            </View>
 
             {/* Custom Alert Modal */}
             <Modal transparent visible={alertConfig.visible} animationType="fade">
@@ -344,13 +349,12 @@ export default function UploadPayment() {
                     </View>
                 </View>
             </Modal>
-        </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.surface },
-    container: { flex: 1, backgroundColor: Colors.surface },
+    container: { flex: 1, backgroundColor: Colors.surfaceContainerLow },
     
     content: { padding: Spacing.four, paddingBottom: 120, flexGrow: 1 },
     

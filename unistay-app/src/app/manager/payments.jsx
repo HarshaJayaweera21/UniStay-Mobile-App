@@ -1,9 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import {
     View, Text, StyleSheet, FlatList, TouchableOpacity,
-    ActivityIndicator, RefreshControl, SafeAreaView, ScrollView, Modal,
+    ActivityIndicator, RefreshControl, ScrollView, Modal,
     Platform, StatusBar
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { getItem } from '@/utils/storage';
 import { Colors } from '@/constants/colors';
@@ -261,7 +262,13 @@ export default function ManagerPayments() {
     }
 
     return (
-        <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+            <LinearGradient
+                colors={['#dbe1ff', '#faf8ff']}
+                style={StyleSheet.absoluteFill}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+            />
             {/* Top Navigation Anchor */}
             <Header />
 
@@ -385,13 +392,13 @@ export default function ManagerPayments() {
                     </TouchableOpacity>
                 </TouchableOpacity>
             </Modal>
-        </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.surface },
-    centerContainer: { flex: 1, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center' },
+    container: { flex: 1, backgroundColor: Colors.surfaceContainerLow },
+    centerContainer: { flex: 1, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center' },
     listContent: { paddingBottom: 100 },
     
     headerSection: {

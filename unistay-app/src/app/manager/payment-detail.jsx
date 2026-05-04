@@ -10,11 +10,11 @@ import {
     TextInput,
     Alert,
     Linking,
-    SafeAreaView,
     Modal,
     Platform,
     StatusBar,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { getItem } from '@/utils/storage';
 import { Colors } from '@/constants/colors';
@@ -240,17 +240,29 @@ export default function PaymentDetail() {
 
     if (isLoading) {
         return (
-            <SafeAreaView style={styles.safeArea}>
+            <View style={styles.container}>
+                <LinearGradient
+                    colors={['#dbe1ff', '#faf8ff']}
+                    style={StyleSheet.absoluteFill}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                />
                 <View style={styles.centerContainer}>
                     <ActivityIndicator size="large" color={Colors.primary} />
                 </View>
-            </SafeAreaView>
+            </View>
         );
     }
 
     if (error || !payment) {
         return (
-            <SafeAreaView style={styles.safeArea}>
+            <View style={styles.container}>
+                <LinearGradient
+                    colors={['#dbe1ff', '#faf8ff']}
+                    style={StyleSheet.absoluteFill}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                />
                 <View style={styles.centerContainer}>
                     <MaterialIcons name="error-outline" size={48} color={Colors.error} />
                     <Text style={[styles.errorText, {marginTop: Spacing.two}]}>{error || 'Not Found'}</Text>
@@ -258,7 +270,7 @@ export default function PaymentDetail() {
                         <Text style={{ fontFamily: Fonts.bodySemiBold, color: Colors.primary }}>Tap to retry</Text>
                     </TouchableOpacity>
                 </View>
-            </SafeAreaView>
+            </View>
         );
     }
 
@@ -267,7 +279,13 @@ export default function PaymentDetail() {
     const studentUsername = payment.studentId?.username || 'N/A';
 
     return (
-        <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+            <LinearGradient
+                colors={['#dbe1ff', '#faf8ff']}
+                style={StyleSheet.absoluteFill}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+            />
             {/* Top Navigation Anchor */}
             <Header />
 
@@ -515,13 +533,13 @@ export default function PaymentDetail() {
                 </SafeAreaView>
             </Modal>
 
-        </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.surface },
-    centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    container: { flex: 1, backgroundColor: Colors.surfaceContainerLow },
+    centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' },
     errorText: { fontFamily: Fonts.bodyMedium, fontSize: 16, color: Colors.onSurfaceVariant },
     
     scrollContent: { paddingHorizontal: Spacing.four, paddingBottom: 140 },
