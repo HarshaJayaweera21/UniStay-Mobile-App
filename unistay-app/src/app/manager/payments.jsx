@@ -269,8 +269,6 @@ export default function ManagerPayments() {
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
             />
-            {/* Top Navigation Anchor */}
-            <Header />
 
             {error ? (
                 <View style={styles.centerContainer}>
@@ -403,6 +401,7 @@ const styles = StyleSheet.create({
     
     headerSection: {
         paddingHorizontal: Spacing.four,
+        paddingTop: Spacing.two,
         paddingBottom: Spacing.four,
     },
     adminAvatar: { width: 44, height: 44, backgroundColor: Colors.primaryFixed, borderRadius: Radius.full, justifyContent: 'center', alignItems: 'center' },

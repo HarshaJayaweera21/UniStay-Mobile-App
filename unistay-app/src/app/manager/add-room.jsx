@@ -66,9 +66,25 @@ export default function AddRoomScreen() {
 
     const validate = () => {
         const newErrors = {};
-        if (!formData.roomNumber.trim()) newErrors.roomNumber = 'Room number is required';
-        if (!formData.pricePerMonth || Number(formData.pricePerMonth) <= 0) newErrors.pricePerMonth = 'Enter a valid price';
-        if (!formData.capacity || Number(formData.capacity) <= 0) newErrors.capacity = 'Enter a valid capacity';
+        if (!formData.roomNumber.trim()) {
+            newErrors.roomNumber = 'Room number is required';
+        } else {
+            const roomNumberRegex = /^[AB][1-7](0[1-9]|1[0-9]|20)$/;
+            if (!roomNumberRegex.test(formData.roomNumber.trim().toUpperCase())) {
+                newErrors.roomNumber = 'Format: A/B + floor(1-7) + room(01-20). e.g. A101';
+            } else {
+                const building = formData.roomNumber.trim().toUpperCase().charAt(0);
+                if (building === 'A' && formData.gender !== 'male') {
+                    newErrors.roomNumber = 'Building A is for male rooms only';
+                }
+                if (building === 'B' && formData.gender !== 'female') {
+                    newErrors.roomNumber = 'Building B is for female rooms only';
+                }
+            }
+        }
+        if (!formData.pricePerMonth || Number(formData.pricePerMonth) < 10000 || Number(formData.pricePerMonth) > 100000) newErrors.pricePerMonth = 'Price must be between 10,000 and 100,000';
+        if (!formData.capacity || Number(formData.capacity) <= 0 || Number(formData.capacity) > 3) newErrors.capacity = 'Capacity must be 1, 2, or 3';
+        if (formData.description.length > 200) newErrors.description = 'Max 200 characters';
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -203,9 +219,12 @@ export default function AddRoomScreen() {
                                     placeholder="e.g. A101"
                                     placeholderTextColor={Colors.outline}
                                     value={formData.roomNumber}
-                                    onChangeText={(v) => handleChange('roomNumber', v)}
+                                    onChangeText={(v) => handleChange('roomNumber', v.toUpperCase())}
+                                    maxLength={4}
+                                    autoCapitalize="characters"
                                 />
                             </View>
+                            <Text style={styles.hintText}>A = Male Building, B = Female Building. Floor 1-7, Room 01-20</Text>
                             {!!errors.roomNumber && <Text style={styles.errorText}>{errors.roomNumber}</Text>}
                         </View>
 
@@ -285,16 +304,20 @@ export default function AddRoomScreen() {
                             <View style={{ width: 12 }} />
 
                             <View style={[styles.inputGroup, { flex: 1 }]}>
-                                <Text style={styles.label}>CAPACITY</Text>
+                                <Text style={styles.label}>CAPACITY (Max 3)</Text>
                                 <View style={[styles.inputContainer, !!errors.capacity && styles.inputError]}>
                                     <MaterialIcons name="people" size={20} color={Colors.outline} style={styles.inputIcon} />
                                     <TextInput
                                         style={styles.input}
-                                        placeholder="2"
+                                        placeholder="1-3"
                                         placeholderTextColor={Colors.outline}
                                         keyboardType="numeric"
                                         value={formData.capacity}
-                                        onChangeText={(v) => handleChange('capacity', v)}
+                                        onChangeText={(v) => {
+                                            const num = v.replace(/[^1-3]/g, '');
+                                            handleChange('capacity', num.slice(0, 1));
+                                        }}
+                                        maxLength={1}
                                     />
                                 </View>
                                 {!!errors.capacity && <Text style={styles.errorText}>{errors.capacity}</Text>}
@@ -304,7 +327,7 @@ export default function AddRoomScreen() {
                         {/* Description */}
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>DESCRIPTION</Text>
-                            <View style={styles.inputContainer}>
+                            <View style={[styles.inputContainer, formData.description.length > 200 && styles.inputError]}>
                                 <TextInput
                                     style={[styles.input, styles.textArea]}
                                     placeholder="Room description, amenities, etc."
@@ -314,8 +337,13 @@ export default function AddRoomScreen() {
                                     textAlignVertical="top"
                                     value={formData.description}
                                     onChangeText={(v) => handleChange('description', v)}
+                                    maxLength={200}
                                 />
                             </View>
+                            <Text style={[styles.charCounter, formData.description.length >= 180 && { color: Colors.error }]}>
+                                {formData.description.length}/200
+                            </Text>
+                            {!!errors.description && <Text style={styles.errorText}>{errors.description}</Text>}
                         </View>
                     </View>
 
@@ -532,5 +560,18 @@ const styles = StyleSheet.create({
         fontFamily: Fonts.headline,
         fontSize: 17,
         color: '#fff',
+    },
+    hintText: {
+        fontFamily: Fonts.bodyMedium,
+        fontSize: 11,
+        color: Colors.outline,
+        marginTop: 4,
+    },
+    charCounter: {
+        fontFamily: Fonts.bodyMedium,
+        fontSize: 11,
+        color: Colors.outline,
+        textAlign: 'right',
+        marginTop: 4,
     },
 });

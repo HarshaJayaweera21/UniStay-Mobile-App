@@ -13,59 +13,29 @@ import {
 import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { Image } from 'expo-image';
 import { useRouter, usePathname } from 'expo-router';
 import { deleteItem, getItem } from '@/utils/storage';
 import { API_URL } from '@/constants/api';
+import useAuth from '@/hooks/useAuth';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const DRAWER_WIDTH = 320;
 
-export default function Header() {
+export default function Header({ showBackButton: forceShowBackButton }) {
     const router = useRouter();
     const pathname = usePathname();
+    const { user, logout } = useAuth();
     const [isDrawerOpen, setDrawerOpen] = useState(false);
-    const [userData, setUserData] = useState(null);
     const slideAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
-    const [userRole, setUserRole] = useState(null);
     const [hasActiveRequest, setHasActiveRequest] = useState(false);
-
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const token = await getItem('userToken');
-                const role = await getItem('userRole');
-                if (role) setUserRole(role);
-
-                if (token) {
-                    const response = await fetch(`${API_URL}/api/auth/me`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-
-                    if (response.status === 401) {
-                        await handleLogout();
-                        return;
-                    }
-
-                    const data = await response.json();
-                    if (data.success) {
-                        setUserData(data.user);
-                        if (data.user.role) setUserRole(data.user.role);
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        };
-
-        fetchUserData();
-    }, []);
 
     // Check if student has an active room request
     useEffect(() => {
         const checkRoomRequest = async () => {
-            if (userRole !== 'student') return;
+            if (user?.role !== 'student') return;
             try {
                 const token = await getItem('userToken');
                 if (!token) return;
@@ -84,18 +54,18 @@ export default function Header() {
             }
         };
         checkRoomRequest();
-    }, [userRole]);
+    }, [user?.role]);
 
     const getInitials = () => {
-        if (!userData) return 'U';
-        const first = userData.firstName ? userData.firstName.charAt(0) : '';
-        const last = userData.lastName ? userData.lastName.charAt(0) : '';
+        if (!user) return 'U';
+        const first = user.firstName ? user.firstName.charAt(0) : '';
+        const last = user.lastName ? user.lastName.charAt(0) : '';
         return (first + last).toUpperCase() || 'U';
     };
 
     const getFullName = () => {
-        if (!userData) return 'User';
-        return `${userData.firstName} ${userData.lastName}`;
+        if (!user) return 'User';
+        return `${user.firstName} ${user.lastName}`;
     };
 
     const openDrawer = () => {
@@ -133,8 +103,12 @@ export default function Header() {
 
     const handleLogout = async () => {
         closeDrawer();
-        await deleteItem('userToken');
-        await deleteItem('userRole');
+        if (logout) {
+            await logout();
+        } else {
+            await deleteItem('userToken');
+            await deleteItem('userRole');
+        }
         router.replace('/login');
     };
 
@@ -148,15 +122,42 @@ export default function Header() {
         }, 150);
     };
 
+    const DrawerItem = ({ icon, label, path, badge }) => {
+        const isActive = pathname === path;
+        return (
+            <TouchableOpacity
+                style={[styles.navItem, isActive && styles.navItemActive]}
+                activeOpacity={0.7}
+                onPress={() => navigateTo(path)}
+            >
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <MaterialIcons
+                        name={icon}
+                        size={24}
+                        color={isActive ? Colors.onPrimary : Colors.onSecondaryContainer}
+                    />
+                    <Text style={[styles.navItemText, isActive && styles.navItemTextActive]}>
+                        {label}
+                    </Text>
+                </View>
+                {badge && (
+                    <View style={styles.badge}>
+                        <Text style={styles.badgeText}>{badge}</Text>
+                    </View>
+                )}
+            </TouchableOpacity>
+        );
+    };
     // Navigation Items
     const getNavItems = () => {
-        switch (userRole) {
+        switch (user?.role) {
             case 'manager':
                 return [
                     { label: 'Dashboard', icon: 'dashboard', path: '/manager' },
                     { label: 'Room Management', icon: 'meeting-room', path: '/manager/room-index' },
-                    { label: 'Room Requests', icon: 'list-alt', path: '/manager/requests' },
-                    { label: 'Payments', icon: 'receipt-long', path: '/manager/payments' },
+                    { label: 'Room Requests', icon: 'list-alt', path: '/manager/requests', badge: hasActiveRequest ? '1' : null },
+                    { label: 'Payments', icon: 'payment', path: '/manager/payments' }
+                    
                 ];
             case 'admin':
                 return [
@@ -185,16 +186,16 @@ export default function Header() {
     const navItems = getNavItems();
 
     const isRootScreen = [
-        '/student', '/student/room-index',
-        '/manager', '/manager/requests',
+        '/student', '/student/room-index', '/student/payments',
+        '/manager',
+        '/announcements/manage', '/announcements/view',
         '/admin', '/guard'
     ].includes(pathname);
 
-    const showBackButton = router.canGoBack() && !isRootScreen;
+    const showBackButton = forceShowBackButton !== undefined ? forceShowBackButton : (router.canGoBack() && !isRootScreen);
 
     return (
         <>
-            {/* MAIN HEADER */}
             <View style={styles.container}>
                 <View style={styles.leftSection}>
                     {showBackButton ? (
@@ -218,13 +219,24 @@ export default function Header() {
                 </View>
 
                 <View style={styles.rightSection}>
-                    <View style={styles.avatarContainer}>
-                        <Text style={styles.avatarText}>{getInitials()}</Text>
-                    </View>
+                    <TouchableOpacity 
+                        activeOpacity={0.8}
+                        style={styles.avatarContainer}
+                        onPress={openDrawer}
+                    >
+                        {user?.profilePicture && user.profilePicture !== 'removed' ? (
+                            <Image 
+                                source={{ uri: user.profilePicture }} 
+                                style={{ width: '100%', height: '100%', borderRadius: 20 }} 
+                                contentFit="cover"
+                            />
+                        ) : (
+                            <Text style={styles.avatarText}>{getInitials()}</Text>
+                        )}
+                    </TouchableOpacity>
                 </View>
             </View>
 
-            {/* SIDE DRAWER MODAL */}
             <Modal
                 visible={isDrawerOpen}
                 transparent={true}
@@ -232,35 +244,37 @@ export default function Header() {
                 onRequestClose={closeDrawer}
             >
                 <View style={styles.modalOverlayContainer}>
-                    {/* Dark Backdrop */}
                     <TouchableWithoutFeedback onPress={closeDrawer}>
-                        <Animated.View style={[
-                            styles.backdrop,
-                            { opacity: fadeAnim }
-                        ]} />
+                        <Animated.View style={[styles.backdrop, { opacity: fadeAnim }]} />
                     </TouchableWithoutFeedback>
 
-                    {/* Sliding Drawer */}
                     <Animated.View style={[
                         styles.drawerPanel,
                         { transform: [{ translateX: slideAnim }] }
                     ]}>
 
-                        {/* Profile Section */}
                         <View style={styles.drawerProfileSection}>
                             <View style={styles.drawerAvatar}>
-                                <Text style={styles.drawerAvatarText}>{getInitials()}</Text>
+                                {user?.profilePicture && user.profilePicture !== 'removed' ? (
+                                    <Image 
+                                        source={{ uri: user.profilePicture }} 
+                                        style={{ width: '100%', height: '100%', borderRadius: 16 }} 
+                                        contentFit="cover"
+                                    />
+                                ) : (
+                                    <Text style={styles.drawerAvatarText}>{getInitials()}</Text>
+                                )}
                             </View>
                             <View style={styles.drawerProfileRow}>
                                 <View style={styles.drawerProfileInfo}>
                                     <Text style={styles.drawerNameText}>{getFullName()}</Text>
-                                    <Text style={styles.drawerEmailText}>{userData ? userData.email : 'Loading...'}</Text>
-                                    <Text style={styles.drawerIdText}>USERNAME: {userData ? userData.username : '...'}</Text>
+                                    <Text style={styles.drawerEmailText}>{user ? user.email : 'Loading...'}</Text>
+                                    <Text style={styles.drawerIdText}>USERNAME: {user ? user.username : '...'}</Text>
                                 </View>
                                 <TouchableOpacity
                                     style={styles.profileDetailButton}
                                     activeOpacity={0.7}
-                                    onPress={() => navigateTo('/student/profile')}
+                                    onPress={() => navigateTo(user?.role === 'manager' ? '/manager/profile' : '/student/profile')}
                                 >
                                     <MaterialIcons name="chevron-right" size={24} color={Colors.primary} />
                                 </TouchableOpacity>
@@ -350,24 +364,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     avatarContainer: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: Colors.secondaryContainer,
+        width: 42,
+        height: 42,
+        borderRadius: 21,
+        backgroundColor: '#dbe1ff', // Matching the image's light blue
         justifyContent: 'center',
         alignItems: 'center',
-        borderWidth: 2,
-        borderColor: Colors.surfaceContainerLowest,
-        shadowColor: '#191b23',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 2,
+        borderWidth: 1,
+        borderColor: '#004ac620',
     },
     avatarText: {
-        fontFamily: Fonts.headlineExtraBold,
-        fontSize: 16,
-        color: Colors.primary,
+        fontFamily: Fonts.headlineBold,
+        fontSize: 15,
+        color: '#004ac6', // Matching the image's dark blue
     },
 
     // Modal & Backdrop Styles

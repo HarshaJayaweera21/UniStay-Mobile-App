@@ -131,10 +131,8 @@ export default function ManagerComplaintList() {
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                {/* Back button removed */}
+            <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
                 <Text style={styles.headerTitle}>All Complaints</Text>
-                <View style={styles.placeholder} />
             </View>
 
             <View style={styles.filterContainer}>
@@ -183,7 +181,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: Spacing.four,
-        paddingTop: 16,
+        paddingTop: Spacing.six,
         paddingBottom: Spacing.two,
     },
     backButton: {

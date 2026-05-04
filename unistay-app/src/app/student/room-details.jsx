@@ -67,9 +67,10 @@ export default function StudentRoomDetails() {
     };
 
     const handleRequestRoom = async () => {
-        if (!duration || isNaN(parseInt(duration)) || parseInt(duration) < 1) {
-            if (Platform.OS === 'web') window.alert('Please enter a valid duration in months.');
-            else Alert.alert('Invalid Input', 'Please enter a valid duration in months.');
+        const durationInt = parseInt(duration);
+        if (!duration || isNaN(durationInt) || durationInt < 1 || durationInt > 12) {
+            if (Platform.OS === 'web') window.alert('Please enter a valid duration between 1 and 12 months.');
+            else Alert.alert('Invalid Input', 'Please enter a valid duration between 1 and 12 months.');
             return;
         }
 
@@ -375,11 +376,21 @@ export default function StudentRoomDetails() {
                                     <MaterialIcons name="date-range" size={20} color={Colors.outline} style={styles.inputIcon} />
                                     <TextInput
                                         style={styles.input}
-                                        placeholder="e.g. 6"
+                                        placeholder="1-12"
                                         placeholderTextColor={Colors.outline}
                                         keyboardType="numeric"
                                         value={duration}
-                                        onChangeText={setDuration}
+                                        onChangeText={(v) => {
+                                            const num = v.replace(/[^0-9]/g, '');
+                                            if (num === '' || (parseInt(num) >= 1 && parseInt(num) <= 12)) {
+                                                setDuration(num);
+                                            } else if (parseInt(num) > 12) {
+                                                setDuration('12');
+                                            } else if (num === '0') {
+                                                setDuration('');
+                                            }
+                                        }}
+                                        maxLength={2}
                                     />
                                 </View>
                             </View>

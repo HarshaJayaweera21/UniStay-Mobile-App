@@ -7,7 +7,6 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { API_URL } from '@/constants/api';
 import BottomNav from '@/components/BottomNav';
-import Header from '@/components/Header';
 
 export default function ViewAnnouncementsScreen() {
     const router = useRouter();
@@ -68,7 +67,6 @@ export default function ViewAnnouncementsScreen() {
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
             />
-            <Header />
             <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
                 <Text style={styles.headerTitle}>ANNOUNCEMENTS</Text>
                 <Text style={[styles.description, { marginTop: 4 }]}>
