@@ -8,6 +8,7 @@ import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { API_URL } from '@/constants/api';
 import BottomNav from '@/components/BottomNav';
+import Header from '@/components/Header';
 
 export default function StudentQR() {
     const router = useRouter();
@@ -93,7 +94,7 @@ export default function StudentQR() {
         );
     }
 
-    const studentName = qrData?.student 
+    const studentName = qrData?.student
         ? `${qrData.student.firstName} ${qrData.student.lastName}`
         : "Unknown Student";
 
@@ -108,21 +109,14 @@ export default function StudentQR() {
             />
 
             {/* Top Navigation Anchor */}
-            <View style={styles.header}>
-                <TouchableOpacity 
-                    style={styles.backButton} 
-                    onPress={() => router.back()}
-                    activeOpacity={0.7}
-                >
-                    <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>My QR Code</Text>
-                <View style={{ width: 40 }} />
-            </View>
+            <Header />
+            {/* <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
+                <Text style={styles.headerTitle}>MY QR CODE</Text>
+            </View> */}
 
             {/* Main Content Canvas */}
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-                
+
                 {/* Profile Section */}
                 <View style={styles.profileSection}>
                     <Text style={styles.profileName}>{studentName}</Text>
@@ -130,9 +124,9 @@ export default function StudentQR() {
 
                     {/* Status Badge */}
                     <View style={[styles.statusBadge, { backgroundColor: qrData.isApproved ? 'rgba(0, 74, 198, 0.1)' : 'rgba(186, 26, 26, 0.1)' }]}>
-                        <Animated.View style={[styles.statusDot, { 
+                        <Animated.View style={[styles.statusDot, {
                             backgroundColor: qrData.isApproved ? Colors.primary : Colors.error,
-                            opacity: qrData.isApproved ? pulseAnim : 1 
+                            opacity: qrData.isApproved ? pulseAnim : 1
                         }]} />
                         <Text style={[styles.statusText, { color: qrData.isApproved ? Colors.primary : Colors.error }]}>
                             {qrData.isApproved ? 'ACTIVE' : 'INACTIVE'}
@@ -149,7 +143,7 @@ export default function StudentQR() {
                             colors={['transparent', 'rgba(219, 225, 255, 0.3)']}
                             style={StyleSheet.absoluteFill}
                         />
-                        
+
                         <View style={styles.qrInnerBox}>
                             {qrData?.qrCodeUrl ? (
                                 <Image
@@ -173,8 +167,8 @@ export default function StudentQR() {
                     Present this code at any authorized campus terminal to verify your student status and gain access to facilities.
                 </Text>
 
-                <TouchableOpacity 
-                    style={styles.historyButton} 
+                <TouchableOpacity
+                    style={styles.historyButton}
                     activeOpacity={0.8}
                     onPress={() => router.push('/student/attendance-history')}
                 >
@@ -183,7 +177,7 @@ export default function StudentQR() {
                 </TouchableOpacity>
 
             </ScrollView>
-            
+
             <BottomNav activeTab="scanner" />
 
         </View>
@@ -193,18 +187,8 @@ export default function StudentQR() {
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: Colors.surfaceContainerLow },
     centerAll: { justifyContent: 'center', alignItems: 'center', padding: Spacing.four },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: Spacing.four,
-        paddingTop: 60,
-        paddingBottom: Spacing.three,
-        backgroundColor: 'rgba(250, 248, 255, 0.8)',
-        zIndex: 50
-    },
-    backButton: { padding: 8, borderRadius: Radius.full, backgroundColor: '#f3f3fe' },
-    headerTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 18, color: Colors.onSurface, letterSpacing: -0.5 },
+    centerAll: { justifyContent: 'center', alignItems: 'center', padding: Spacing.four },
+    headerTitle: { fontFamily: Fonts.headlineExtraBold, fontSize: 20, color: Colors.onSurface, letterSpacing: -0.5 },
     content: { flexGrow: 1, alignItems: 'center', paddingTop: Spacing.five, paddingHorizontal: Spacing.five, paddingBottom: 110 },
     profileSection: { alignItems: 'center', marginBottom: Spacing.four, width: '100%' },
     avatarContainer: {
@@ -264,7 +248,7 @@ const styles = StyleSheet.create({
         height: '100%',
         backgroundColor: Colors.surfaceContainerLowest,
         borderRadius: Radius.xl,
-        padding: Spacing.five, 
+        padding: Spacing.five,
         paddingLeft: 32,
         paddingRight: 32,
         paddingTop: 32,

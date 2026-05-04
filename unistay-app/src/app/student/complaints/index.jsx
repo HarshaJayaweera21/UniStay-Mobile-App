@@ -18,6 +18,7 @@ import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { getMyComplaints } from '@/services/complaintService';
 import { LinearGradient } from 'expo-linear-gradient';
 import BottomNav from '@/components/BottomNav';
+import Header from '@/components/Header';
 
 const StatusBadge = ({ status }) => {
     const getBadgeStyle = () => {
@@ -28,7 +29,7 @@ const StatusBadge = ({ status }) => {
             default: return {};
         }
     };
-    
+
     const getTextStyle = () => {
         switch (status) {
             case 'pending': return styles.pendingText;
@@ -124,21 +125,17 @@ export default function ComplaintsList() {
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
             />
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
-                    <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>My Complaints</Text>
-                <View style={{ width: 40 }} />
+            <Header />
+            <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
+                <Text style={styles.headerTitle}>MY COMPLAINTS</Text>
+                <Text style={[styles.headerSubtitle, { paddingHorizontal: 0, marginTop: 4 }]}>Track and manage your hostel issues</Text>
             </View>
-
-            <Text style={styles.headerSubtitle}>Track and manage your hostel issues</Text>
 
             {error ? (
                 <View style={styles.errorContainer}>
                     <Text style={styles.errorText}>{error}</Text>
-                    <Pressable 
-                        style={({ pressed }) => [styles.retryButton, pressed && { opacity: 0.8 }]} 
+                    <Pressable
+                        style={({ pressed }) => [styles.retryButton, pressed && { opacity: 0.8 }]}
                         onPress={fetchComplaints}
                     >
                         <Text style={styles.retryText}>Retry</Text>
@@ -182,24 +179,9 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.surfaceContainerLow,
     },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: Spacing.four,
-        paddingTop: 60,
-        paddingBottom: Spacing.three,
-        backgroundColor: 'rgba(250, 248, 255, 0.8)',
-        zIndex: 50,
-    },
-    backButton: {
-        padding: 8,
-        borderRadius: Radius.full,
-        backgroundColor: '#f3f3fe',
-    },
     headerTitle: {
         fontFamily: Fonts.headlineExtraBold,
-        fontSize: 18,
+        fontSize: 25,
         color: Colors.onSurface,
         letterSpacing: -0.5,
     },

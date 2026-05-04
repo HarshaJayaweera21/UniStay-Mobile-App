@@ -25,7 +25,12 @@ const ProfileScreen = () => {
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.header}>
-                <Text style={styles.headerTitle}>My Profile</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                    <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
+                        <Ionicons name="arrow-back" size={24} color={Colors.primary} />
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>My Profile</Text>
+                </View>
                 <TouchableOpacity onPress={handleEditProfile} style={styles.editButton}>
                     <Ionicons name="pencil" size={20} color={Colors.primary} />
                 </TouchableOpacity>
@@ -73,7 +78,7 @@ const ProfileScreen = () => {
                             </View>
                             <View style={styles.infoTextContainer}>
                                 <Text style={styles.infoLabel}>Gender</Text>
-                                <Text style={styles.infoValue} style={[{textTransform: 'capitalize'}, styles.infoValue]}>{user.gender}</Text>
+                                <Text style={[styles.infoValue, {textTransform: 'capitalize'}]}>{user.gender}</Text>
                             </View>
                         </View>
                         <View style={styles.divider} />
@@ -112,6 +117,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: Spacing.four,
         paddingVertical: Spacing.three,
         backgroundColor: Colors.surfaceContainerLowest,
+    },
+    backButton: {
+        padding: 8,
+        borderRadius: Radius.full,
+        backgroundColor: '#f3f3fe',
     },
     headerTitle: {
         fontFamily: Fonts.headline,

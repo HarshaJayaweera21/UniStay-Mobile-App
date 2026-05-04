@@ -1,14 +1,25 @@
 import { Platform } from 'react-native';
 
-// Use your laptop's local network IP so physical devices (Expo Go) can reach the backend.
-// For web, localhost works since the browser runs on the same machine.
-// IMPORTANT: Update this IP if your WiFi network changes.
+/**
+ * Backend API configuration
+ * Variables are pulled from the .env file in the root directory.
+ * Note: EXPO_PUBLIC_ prefix is required for Expo to expose variables.
+ */
 const getBaseUrl = () => {
-    if (Platform.OS === 'web') {
-        return 'http://localhost:3000';
+    // Check if production mode is enabled in .env
+    const isProduction = process.env.EXPO_PUBLIC_IS_PRODUCTION === 'true';
+
+    if (isProduction) {
+        return process.env.EXPO_PUBLIC_API_URL_PROD;
     }
-    // Your laptop's LAN IP (from Expo's Metro output)
-    return 'http://192.168.1.9:3000';
+
+    // Local development fallback logic
+    if (Platform.OS === 'web') {
+        return process.env.EXPO_PUBLIC_API_URL_LOCAL_WEB || 'http://localhost:3000';
+    }
+
+    // Mobile local IP fallback
+    return process.env.EXPO_PUBLIC_API_URL_LOCAL_MOBILE || 'http://localhost:3000';
 };
 
 export const API_URL = getBaseUrl();

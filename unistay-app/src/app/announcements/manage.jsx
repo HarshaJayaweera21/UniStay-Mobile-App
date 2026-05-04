@@ -7,6 +7,7 @@ import { Fonts, Spacing, Radius } from '@/constants/theme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { API_URL } from '@/constants/api';
 import BottomNav from '@/components/BottomNav';
+import Header from '@/components/Header';
 
 export default function ManageAnnouncementsScreen() {
     const router = useRouter();
@@ -158,7 +159,11 @@ export default function ManageAnnouncementsScreen() {
 
     return (
         <View style={styles.container}>
-
+            <Header />
+            
+            <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
+                <Text style={styles.headerTitle}>Announcements</Text>
+            </View>
 
             <ScrollView contentContainerStyle={styles.content}>
 

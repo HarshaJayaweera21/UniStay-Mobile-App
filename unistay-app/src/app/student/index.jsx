@@ -163,10 +163,7 @@ export default function StudentDashboard() {
                 }}
             >
                 <View style={styles.cardHeader}>
-                    <View>
-                        <Text style={styles.overline}>STATUS OVERVIEW</Text>
-                        <Text style={styles.cardTitleOverline}>ROOM REQUEST</Text>
-                    </View>
+                    <Text style={styles.overline}>STATUS OVERVIEW</Text>
                     <View style={request?.status === 'AgreementSent' ? styles.badgeAgreement : styles.badgePending}>
                         {request?.status !== 'AgreementSent' && <View style={styles.pingDot} />}
                         <Text style={request?.status === 'AgreementSent' ? styles.badgeAgreementText : styles.badgePendingText}>
@@ -174,6 +171,7 @@ export default function StudentDashboard() {
                         </Text>
                     </View>
                 </View>
+                <Text style={[styles.cardTitleOverline, { marginBottom: Spacing.five }]}>ROOM REQUEST</Text>
 
                 <View style={styles.roomDetailsContainer}>
                     <View style={styles.roomIconContainer}>
@@ -298,9 +296,7 @@ export default function StudentDashboard() {
             <View style={styles.header}>
                 {dashboardState !== DASHBOARD_STATES.LOADING && (
                     <>
-                        {dashboardState === DASHBOARD_STATES.HAS_ROOM && (
-                            <Text style={styles.overlineHeader}>STUDENT PORTAL</Text>
-                        )}
+                        <Text style={styles.overlineHeader}>STUDENT PORTAL</Text>
                         <Text style={styles.headerTitle}>Welcome back{user?.firstName ? `, ${user.firstName}` : ''}.</Text>
                         <Text style={styles.headerSubtitle}>
                             {dashboardState === DASHBOARD_STATES.HAS_ROOM 
@@ -352,7 +348,7 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         padding: Spacing.four,
-        paddingTop: Platform.OS === 'ios' ? Spacing.six : Spacing.four,
+        paddingTop: 16,
         paddingBottom: 100,
     },
     loadingContainer: {
@@ -361,7 +357,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     header: {
-        marginTop: Spacing.four,
         marginBottom: Spacing.five,
         paddingHorizontal: Spacing.two,
     },
@@ -451,8 +446,8 @@ const styles = StyleSheet.create({
     cardHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: Spacing.five,
+        alignItems: 'center',
+        marginBottom: Spacing.two,
     },
     overline: {
         fontFamily: Fonts.bodyBold,

@@ -128,10 +128,10 @@ export default function ManagerRoomList() {
                         styles.statusBadge,
                         { backgroundColor: Colors.surfaceContainerHigh, marginLeft: 8 }
                     ]}>
-                        <MaterialIcons 
-                            name={item.gender === 'male' ? 'man' : 'woman'} 
-                            size={14} 
-                            color={Colors.onSurfaceVariant} 
+                        <MaterialIcons
+                            name={item.gender === 'male' ? 'man' : 'woman'}
+                            size={14}
+                            color={Colors.onSurfaceVariant}
                         />
                         <Text style={[styles.statusText, { color: Colors.onSurfaceVariant, textTransform: 'capitalize' }]}>
                             {item.gender}
@@ -182,9 +182,19 @@ export default function ManagerRoomList() {
 
     return (
         <View style={styles.container}>
+            <LinearGradient
+                colors={[Colors.primaryFixed, Colors.background]}
+                style={styles.headerGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0, y: 1 }}
+            />
 
-
-
+            {/* Header */}
+            <View style={styles.header}>
+                <View>
+                    <Text style={styles.title}>Room Management</Text>
+                </View>
+            </View>
 
             {/* Stats Bar */}
             <View style={styles.statsBar}>
@@ -269,7 +279,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: Spacing.four,
-        paddingTop: 56,
+        paddingTop: 16,
         paddingBottom: Spacing.three,
     },
     greeting: {

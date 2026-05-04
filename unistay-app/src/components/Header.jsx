@@ -436,6 +436,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.surfaceContainerHigh,
         justifyContent: 'center',
         alignItems: 'center',
+        marginRight: -25,
     },
     drawerNameText: {
         fontFamily: Fonts.headlineExtraBold,

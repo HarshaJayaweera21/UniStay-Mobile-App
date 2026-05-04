@@ -163,11 +163,10 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         padding: Spacing.four,
-        paddingTop: Platform.OS === 'ios' ? Spacing.six : Spacing.four,
+        paddingTop: 16,
         paddingBottom: 100,
     },
     header: {
-        marginTop: Spacing.four,
         marginBottom: Spacing.five,
         paddingHorizontal: Spacing.two,
     },
