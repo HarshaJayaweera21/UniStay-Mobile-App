@@ -226,7 +226,7 @@ export default function Header() {
                         style={styles.avatarContainer}
                         onPress={openDrawer}
                     >
-                        {user?.profilePicture ? (
+                        {user?.profilePicture && user.profilePicture !== 'removed' ? (
                             <Image 
                                 source={{ uri: user.profilePicture }} 
                                 style={{ width: '100%', height: '100%', borderRadius: 20 }} 
@@ -257,7 +257,7 @@ export default function Header() {
 
                         <View style={styles.drawerProfileSection}>
                             <View style={styles.drawerAvatar}>
-                                {user?.profilePicture ? (
+                                {user?.profilePicture && user.profilePicture !== 'removed' ? (
                                     <Image 
                                         source={{ uri: user.profilePicture }} 
                                         style={{ width: '100%', height: '100%', borderRadius: 16 }} 

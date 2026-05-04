@@ -70,7 +70,7 @@ const EditProfileScreen = () => {
                     type,
                 });
             } else if (removePic) {
-                formData.append('removeProfilePicture', 'true');
+                formData.append('profilePicture', 'removed');
             }
 
             const response = await fetch(`${API_URL}/api/users/profile`, {
@@ -117,7 +117,7 @@ const EditProfileScreen = () => {
                 <ScrollView contentContainerStyle={styles.container}>
                     <View style={styles.avatarContainer}>
                         <View style={styles.avatarWrapper}>
-                            {imageUri || (user.profilePicture && !removePic) ? (
+                            {imageUri || (user.profilePicture && user.profilePicture !== 'removed' && !removePic) ? (
                                 <Image source={{ uri: imageUri || user.profilePicture }} style={styles.largeAvatar} />
                             ) : (
                                 <View style={[styles.largeAvatar, styles.placeholderAvatar]}>
@@ -125,7 +125,7 @@ const EditProfileScreen = () => {
                                 </View>
                             )}
                             <View style={styles.avatarActionContainer}>
-                                {((user.profilePicture && !removePic) || imageUri) ? (
+                                {((user.profilePicture && user.profilePicture !== 'removed' && !removePic) || imageUri) ? (
                                     <TouchableOpacity style={styles.removeAvatarButton} onPress={handleRemovePic}>
                                         <Ionicons name="trash" size={20} color={Colors.onError} />
                                     </TouchableOpacity>
