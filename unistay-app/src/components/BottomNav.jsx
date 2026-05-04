@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 0,
         width: '100%',
-        height: Platform.OS === 'ios' ? 86 : 120,
+        height: Platform.OS === 'ios' ? 86 : 85,
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',

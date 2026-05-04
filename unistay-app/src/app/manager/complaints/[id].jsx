@@ -115,7 +115,12 @@ export default function ManagerComplaintDetail() {
 
     return (
         <View style={styles.container}>
-
+            <View style={styles.header}>
+                <Text style={styles.headerTitle}>Complaint Review</Text>
+                <Pressable onPress={handleDelete} style={styles.deleteButton}>
+                    <Ionicons name="trash-outline" size={22} color={Colors.error} />
+                </Pressable>
+            </View>
 
             {feedback && (
                 <View style={[
@@ -266,7 +271,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: Spacing.four,
+        paddingTop: 16,
+        paddingBottom: Spacing.two,
+    },
     backButton: {
         width: 40,
         height: 40,
