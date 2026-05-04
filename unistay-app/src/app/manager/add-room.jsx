@@ -82,7 +82,7 @@ export default function AddRoomScreen() {
                 }
             }
         }
-        if (!formData.pricePerMonth || Number(formData.pricePerMonth) <= 0 || Number(formData.pricePerMonth) > 30000) newErrors.pricePerMonth = 'Price must be between 1 and 30,000';
+        if (!formData.pricePerMonth || Number(formData.pricePerMonth) < 10000 || Number(formData.pricePerMonth) > 100000) newErrors.pricePerMonth = 'Price must be between 10,000 and 100,000';
         if (!formData.capacity || Number(formData.capacity) <= 0 || Number(formData.capacity) > 3) newErrors.capacity = 'Capacity must be 1, 2, or 3';
         if (formData.description.length > 200) newErrors.description = 'Max 200 characters';
         setErrors(newErrors);

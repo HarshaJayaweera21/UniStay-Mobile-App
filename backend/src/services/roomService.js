@@ -50,9 +50,9 @@ const createRoomService = async (data, file) => {
         throw new Error("Room type must be Single, Double, or Triple");
     }
 
-    // Validate price (max 30000)
-    if (pricePerMonth <= 0 || pricePerMonth > 30000) {
-        throw new Error("Price per month must be between 1 and 30,000");
+    // Validate price (min 10000, max 100000)
+    if (pricePerMonth < 10000 || pricePerMonth > 100000) {
+        throw new Error("Price per month must be between 10,000 and 100,000");
     }
 
     // Validate capacity (max 3)
@@ -160,9 +160,9 @@ const updateRoomService = async (id, data, file) => {
         throw new Error("Gender must be male or female");
     }
 
-    // Validate price if provided (max 30000)
-    if (data.pricePerMonth !== undefined && (data.pricePerMonth <= 0 || data.pricePerMonth > 30000)) {
-        throw new Error("Price per month must be between 1 and 30,000");
+    // Validate price if provided (min 10000, max 100000)
+    if (data.pricePerMonth !== undefined && (data.pricePerMonth < 10000 || data.pricePerMonth > 100000)) {
+        throw new Error("Price per month must be between 10,000 and 100,000");
     }
 
     // Validate capacity if provided (max 3)

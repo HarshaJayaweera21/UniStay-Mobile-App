@@ -15,8 +15,8 @@ const roomSchema = new mongoose.Schema({
     pricePerMonth: {
         type: Number,
         required: true,
-        min: [1, "Price must be greater than 0"],
-        max: [30000, "Price cannot exceed Rs. 30,000"]
+        min: [10000, "Price must be at least Rs. 10,000"],
+        max: [100000, "Price cannot exceed Rs. 100,000"]
     },
     capacity: {
         type: Number,
