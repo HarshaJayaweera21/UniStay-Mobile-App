@@ -14,6 +14,7 @@ import { Colors } from '@/constants/colors';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Image } from 'expo-image';
+import { useRouter, usePathname } from 'expo-router';
 import { deleteItem, getItem } from '@/utils/storage';
 import { API_URL } from '@/constants/api';
 import useAuth from '@/hooks/useAuth';
@@ -107,8 +108,8 @@ export default function Header() {
         } else {
             await deleteItem('userToken');
             await deleteItem('userRole');
-            router.replace('/auth/login');
         }
+        router.replace('/login');
     };
 
     const navigateTo = (path) => {
