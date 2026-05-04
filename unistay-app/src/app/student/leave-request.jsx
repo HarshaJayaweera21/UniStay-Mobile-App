@@ -143,10 +143,14 @@ export default function LeaveRequest() {
                             placeholderTextColor={Colors.outline}
                             multiline
                             numberOfLines={4}
+                            maxLength={500}
                             value={reason}
                             onChangeText={setReason}
                             textAlignVertical="top"
                         />
+                        <Text style={{ textAlign: 'right', fontSize: 12, color: Colors.outlineVariant, marginTop: 4 }}>
+                            {reason.length}/500
+                        </Text>
                     </View>
 
                     {/* From Date Array */}
@@ -162,6 +166,8 @@ export default function LeaveRequest() {
                                 value={requestedFrom}
                                 mode={Platform.OS === 'ios' || Platform.OS === 'web' ? 'datetime' : fromMode}
                                 display="default"
+                                minimumDate={new Date(new Date().setHours(0, 0, 0, 0))}
+                                maximumDate={new Date(new Date().setFullYear(new Date().getFullYear() + 1))}
                                 onChange={(event, selectedDate) => {
                                     if (Platform.OS === 'android') {
                                         if (event.type === 'set') {
@@ -199,6 +205,8 @@ export default function LeaveRequest() {
                                 value={requestedTo}
                                 mode={Platform.OS === 'ios' || Platform.OS === 'web' ? 'datetime' : toMode}
                                 display="default"
+                                minimumDate={new Date(new Date().setHours(0, 0, 0, 0))}
+                                maximumDate={new Date(new Date().setFullYear(new Date().getFullYear() + 1))}
                                 onChange={(event, selectedDate) => {
                                     if (Platform.OS === 'android') {
                                         if (event.type === 'set') {

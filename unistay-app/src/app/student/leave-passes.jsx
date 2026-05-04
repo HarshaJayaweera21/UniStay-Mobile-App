@@ -387,13 +387,19 @@ export default function LeavePasses() {
                         <ScrollView style={{ paddingHorizontal: Spacing.five, paddingBottom: Spacing.five }} showsVerticalScrollIndicator={false}>
                             {/* Reason Field */}
                             <View style={styles.fieldGroup}>
-                                <Text style={styles.fieldLabel}>REASON</Text>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                                    <Text style={[styles.fieldLabel, { marginBottom: 0 }]}>REASON</Text>
+                                    <Text style={{ fontFamily: Fonts.bodyMedium, fontSize: 12, color: editReason.length >= 500 ? Colors.error : Colors.outline }}>
+                                        {editReason.length}/500
+                                    </Text>
+                                </View>
                                 <TextInput
                                     style={styles.textArea}
                                     placeholder="State your reason..."
                                     placeholderTextColor={Colors.outline}
                                     multiline
                                     numberOfLines={4}
+                                    maxLength={500}
                                     value={editReason}
                                     onChangeText={setEditReason}
                                     textAlignVertical="top"
@@ -413,6 +419,8 @@ export default function LeavePasses() {
                                         value={editFromDate}
                                         mode={Platform.OS === 'ios' || Platform.OS === 'web' ? 'datetime' : editFromMode}
                                         display="default"
+                                        minimumDate={new Date(new Date().setHours(0, 0, 0, 0))}
+                                        maximumDate={new Date(new Date().setFullYear(new Date().getFullYear() + 1))}
                                         onChange={(event, selectedDate) => {
                                             if (Platform.OS === 'android') {
                                                 if (event.type === 'set') {
@@ -450,6 +458,8 @@ export default function LeavePasses() {
                                         value={editToDate}
                                         mode={Platform.OS === 'ios' || Platform.OS === 'web' ? 'datetime' : editToMode}
                                         display="default"
+                                        minimumDate={new Date(new Date().setHours(0, 0, 0, 0))}
+                                        maximumDate={new Date(new Date().setFullYear(new Date().getFullYear() + 1))}
                                         onChange={(event, selectedDate) => {
                                             if (Platform.OS === 'android') {
                                                 if (event.type === 'set') {
