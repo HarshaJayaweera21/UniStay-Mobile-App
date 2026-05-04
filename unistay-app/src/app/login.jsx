@@ -38,6 +38,11 @@ export default function LoginScreen() {
             return;
         }
 
+        if (!email.toLowerCase().endsWith('@my.sliit.lk')) {
+            setErrorMessage('Enter a valid email');
+            return;
+        }
+
         setIsLoading(true);
 
         try {
@@ -82,7 +87,7 @@ export default function LoginScreen() {
     return (
         <KeyboardAvoidingView
             style={{ flex: 1 }}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={styles.container}>
@@ -107,7 +112,7 @@ export default function LoginScreen() {
                                     <MaterialIcons name="mail-outline" size={20} color={Colors.outline} style={styles.inputIcon} />
                                     <TextInput
                                         style={styles.input}
-                                        placeholder="name@university.edu"
+                                        placeholder="itXXXXXX@my.sliit.lk"
                                         placeholderTextColor={Colors.outline}
                                         keyboardType="email-address"
                                         autoCapitalize="none"
