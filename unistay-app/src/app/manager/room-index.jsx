@@ -132,10 +132,10 @@ export default function ManagerRoomList() {
                         styles.statusBadge,
                         { backgroundColor: Colors.surfaceContainerHigh, marginLeft: 8 }
                     ]}>
-                        <MaterialIcons 
-                            name={item.gender === 'male' ? 'man' : 'woman'} 
-                            size={14} 
-                            color={Colors.onSurfaceVariant} 
+                        <MaterialIcons
+                            name={item.gender === 'male' ? 'man' : 'woman'}
+                            size={14}
+                            color={Colors.onSurfaceVariant}
                         />
                         <Text style={[styles.statusText, { color: Colors.onSurfaceVariant, textTransform: 'capitalize' }]}>
                             {item.gender}
@@ -196,19 +196,7 @@ export default function ManagerRoomList() {
             {/* Header */}
             <View style={styles.header}>
                 <View>
-                    <Text style={styles.greeting}>Manager Panel</Text>
                     <Text style={styles.title}>Room Management</Text>
-                </View>
-                <View style={styles.headerActions}>
-                    <TouchableOpacity onPress={() => router.push('/manager/requests')} style={styles.iconButton}>
-                        <MaterialIcons name="assignment" size={22} color={Colors.primary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => router.push('/manager/payments')} style={styles.iconButton}>
-                        <MaterialIcons name="receipt-long" size={22} color={Colors.primary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={handleLogout} style={styles.iconButton}>
-                        <MaterialIcons name="logout" size={22} color={Colors.onSurfaceVariant} />
-                    </TouchableOpacity>
                 </View>
             </View>
 
@@ -295,7 +283,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: Spacing.four,
-        paddingTop: 56,
+        paddingTop: 16,
         paddingBottom: Spacing.three,
     },
     greeting: {
