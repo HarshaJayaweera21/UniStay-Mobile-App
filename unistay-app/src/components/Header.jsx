@@ -186,7 +186,7 @@ export default function Header({ showBackButton: forceShowBackButton }) {
     const navItems = getNavItems();
 
     const isRootScreen = [
-        '/student', '/student/room-index', '/student/payments',
+        '/student',
         '/manager',
         '/announcements/manage', '/announcements/view',
         '/admin', '/guard'
