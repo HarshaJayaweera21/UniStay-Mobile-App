@@ -32,7 +32,6 @@ const updateProfileService = async (userId, data) => {
     if (dateOfBirth) updateData.dateOfBirth = dateOfBirth;
     if (gender) updateData.gender = gender;
     if (profilePicture) updateData.profilePicture = profilePicture;
-    if (data.removeProfilePicture === 'true') updateData.profilePicture = '';
 
     const user = await User.findByIdAndUpdate(userId, updateData, { new: true, runValidators: true }).populate("role");
     

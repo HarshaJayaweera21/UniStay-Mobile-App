@@ -1,7 +1,7 @@
 const Room = require("../models/Room");
 const cloudinary = require("../config/cloudinary");
 
-
+// Helper function to stream upload to Cloudinary
 const streamUpload = (fileBuffer, options) => {
     return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(options, (error, result) => {
@@ -29,7 +29,6 @@ const createRoomService = async (data, file) => {
         throw new Error("Gender must be male or female");
     }
 
-
     // Validate roomType
     const allowedTypes = ["Single", "Double", "Triple"];
     if (!allowedTypes.includes(roomType)) {
@@ -51,8 +50,6 @@ const createRoomService = async (data, file) => {
     if (existingRoom) {
         throw new Error("Room number already exists");
     }
-
-
 
     // Upload image to Cloudinary if provided
     let imageUrl = "";

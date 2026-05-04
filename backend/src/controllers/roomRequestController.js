@@ -15,7 +15,6 @@ const createRoomRequest = async (req, res) => {
             return res.status(400).json({ success: false, message: "Room ID and duration are required." });
         }
 
-
         // Check if student already has an active request
         const existingRequest = await RoomRequest.findOne({
             studentId,
