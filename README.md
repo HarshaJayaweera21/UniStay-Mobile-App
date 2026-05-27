@@ -97,11 +97,25 @@ UniStay App/
 
 ## 📸 Screenshots
 
-| Student Dashboard | Manager Dashboard | Guard Scanner |
+### Authentication & Navigation
+| Login | Sign Up | Side Menu |
 | :---: | :---: | :---: |
-| <img src="screenshots/student-dashboard.png" width="200" /> | <img src="screenshots/manager-dashboard.png" width="200" /> | <img src="screenshots/guard-scanner.png" width="200" /> |
-| Room Request | Leave Pass Approval | Live Attendance |
-| <img src="screenshots/room-request.png" width="200" /> | <img src="screenshots/leave-pass.png" width="200" /> | <img src="screenshots/live-attendance.png" width="200" /> |
+| <img src="screenshots/login.jpg" width="200" /> | <img src="screenshots/signup%201.jpg" width="200" /> | <img src="screenshots/side%20menu%20bar.jpg" width="200" /> |
+
+### Student Portal
+| Student Dashboard | Student QR | Leave Passes |
+| :---: | :---: | :---: |
+| <img src="screenshots/student%20home.jpg" width="200" /> | <img src="screenshots/student%20qr%20screen.jpg" width="200" /> | <img src="screenshots/student%20leave%20pass%20screen.jpg" width="200" /> |
+
+### Manager & Guard Portals
+| Manager Dashboard | Guard Dashboard | Guard Scanner |
+| :---: | :---: | :---: |
+| <img src="screenshots/manager%20home.jpg" width="200" /> | <img src="screenshots/guard%20home.jpg" width="200" /> | <img src="screenshots/guard%20qr%20scan%20screen.jpg" width="200" /> |
+
+### Features
+| Rooms | Complaints | Announcements |
+| :---: | :---: | :---: |
+| <img src="screenshots/rooms%20screen.png" width="200" /> | <img src="screenshots/student%20compliant%20screen.jpg" width="200" /> | <img src="screenshots/student%20announcement%20screen.jpg" width="200" /> |
 
 
 ## 🚀 Setup Instructions
